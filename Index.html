@@ -380,10 +380,21 @@
                                     <option value="regiones">Otras Regiones</option>
                                 </select>
                             </div>
+                            <div class="mt-4">
+                                <label for="coupon-code" class="text-lg text-[#00FFFF]">¿Tienes un cupón de descuento?</label>
+                                <div class="flex gap-2 mt-1">
+                                    <input type="text" id="coupon-code" placeholder="Ej: HUELLITAS-A1B2C3" class="form-input w-full p-2 bg-[#2b1634]">
+                                    <button id="apply-coupon-btn" class="bg-gray-700 hover:bg-gray-600 px-4 rounded-lg text-sm font-bold transition-colors">Aplicar</button>
+                                </div>
+                            </div>
                             <hr class="border-white/10 my-4">
                             <div class="flex justify-between text-lg">
                                 <span>Precio del Cuadro:</span>
                                 <span id="subtotal-price"></span>
+                            </div>
+                             <div id="discount-row" class="hidden flex justify-between text-lg text-green-400">
+                                <span>Descuento (15%):</span>
+                                <span id="discount-amount"></span>
                             </div>
                             <div class="flex justify-between text-lg">
                                 <span>Costo de Envío:</span>
@@ -473,6 +484,9 @@
             };
 
             let isAdmin = false;
+            let isCouponApplied = false;
+            let discountAmount = 0;
+
             const userSelection = {
                 category: null,
                 petName: null,
@@ -525,6 +539,7 @@
                 withVideo: document.getElementById('with-video-btn'),
                 noVideo: document.getElementById('no-video-btn'),
                 changeChoice: document.getElementById('change-choice-btn'),
+                applyCoupon: document.getElementById('apply-coupon-btn'),
                 addImage: document.getElementById('add-image-btn'),
                 saveBankDetails: document.getElementById('save-bank-details-btn'),
                 closeAdmin: document.getElementById('close-admin-btn'),
@@ -538,6 +553,7 @@
                 surpriseMe: document.getElementById('surprise-me'),
                 galleryUrl: document.getElementById('gallery-url-input'),
                 photos: document.getElementById('photos'),
+                couponCode: document.getElementById('coupon-code'),
                 shippingZone: document.getElementById('shipping-zone'),
                 shippingFullName: document.getElementById('full-name'),
                 shippingAddress: document.getElementById('address'),
@@ -570,6 +586,8 @@
                 summaryImagesContainer: document.getElementById('summary-images-container'),
                 subtotalPrice: document.getElementById('subtotal-price'),
                 shippingCost: document.getElementById('shipping-cost'),
+                discountRow: document.getElementById('discount-row'),
+                discountAmount: document.getElementById('discount-amount'),
                 totalPrice: document.getElementById('total-price'),
             };
             
@@ -667,13 +685,13 @@
                 }
                 
                 // --- INTEGRACIÓN CON GOOGLE SHEETS ---
-                // https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec
-                const googleSheetScriptUrl = ''; 
+                // PEGA AQUÍ LA URL DE TU SCRIPT DE GOOGLE SHEETS
+                const googleSheetScriptUrl = 'https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec'; 
                 // ------------------------------------
 
                 const selectedZone = inputs.shippingZone.value;
                 const shippingCost = SHIPPING_COSTS[selectedZone];
-                const total = PRODUCT_PRICE + shippingCost;
+                const total = PRODUCT_PRICE + shippingCost - discountAmount;
 
                 const orderData = {
                     categoria: userSelection.category,
@@ -700,12 +718,12 @@
                     .then(data => {
                         console.log('Success:', data);
                         openWhatsApp();
-                        purchaseButton.disabled = false;
-                        purchaseButton.innerHTML = 'Enviar Comprobante por WhatsApp 🐾';
                     })
                     .catch((error) => {
                         console.error('Error:', error);
                         alert('Hubo un error al registrar tu pedido. Por favor, intenta de nuevo.');
+                    })
+                    .finally(() => {
                         purchaseButton.disabled = false;
                         purchaseButton.innerHTML = 'Enviar Comprobante por WhatsApp 🐾';
                     });
@@ -718,7 +736,7 @@
             });
 
             function openWhatsApp() {
-                 const whatsappPhoneNumber = '56912345678'; // CAMBIA ESTE NÚMERO POR EL TUYO
+                 const whatsappPhoneNumber = '56946902340'; // CAMBIA ESTE NÚMERO POR EL TUYO
                  const message = encodeURIComponent('¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago. 🐾');
                  window.open(`https://api.whatsapp.com/send?phone=${whatsappPhoneNumber}&text=${message}`, '_blank');
             }
@@ -764,7 +782,11 @@
             function updatePaymentSummary() {
                 const selectedZone = inputs.shippingZone.value;
                 const shippingCost = SHIPPING_COSTS[selectedZone];
-                const total = PRODUCT_PRICE + shippingCost;
+                let total = PRODUCT_PRICE + shippingCost;
+
+                if (isCouponApplied) {
+                    total -= discountAmount;
+                }
                 
                 displays.subtotalPrice.textContent = formatPrice(PRODUCT_PRICE);
                 displays.shippingCost.textContent = formatPrice(shippingCost);
@@ -772,6 +794,28 @@
             }
             
             inputs.shippingZone.addEventListener('change', updatePaymentSummary);
+
+            buttons.applyCoupon.addEventListener('click', () => {
+                const code = inputs.couponCode.value.trim().toUpperCase();
+                if (isCouponApplied) {
+                    alert('Ya se ha aplicado un descuento en esta compra.');
+                    return;
+                }
+                // Simulación de validación. En un sistema real, se verificaría contra una base de datos.
+                if (code.includes('HUELLITAS')) {
+                    isCouponApplied = true;
+                    discountAmount = PRODUCT_PRICE * 0.15;
+                    displays.discountAmount.textContent = `- ${formatPrice(discountAmount)}`;
+                    displays.discountRow.classList.remove('hidden');
+                    updatePaymentSummary();
+                    alert('¡Cupón del 15% aplicado con éxito!');
+                    inputs.couponCode.disabled = true;
+                    buttons.applyCoupon.disabled = true;
+                    buttons.applyCoupon.textContent = 'Aplicado';
+                } else {
+                    alert('El código del cupón no es válido.');
+                }
+            });
 
             // --- COUNTER LOGIC ---
             function setupCounter(inputElement, counterElement, maxLength) {
