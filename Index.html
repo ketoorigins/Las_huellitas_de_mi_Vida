@@ -539,6 +539,10 @@
                 galleryUrl: document.getElementById('gallery-url-input'),
                 photos: document.getElementById('photos'),
                 shippingZone: document.getElementById('shipping-zone'),
+                shippingFullName: document.getElementById('full-name'),
+                shippingAddress: document.getElementById('address'),
+                shippingCity: document.getElementById('city'),
+                shippingPhone: document.getElementById('phone'),
                 adminBanco: document.getElementById('admin-banco'),
                 adminTipoCuenta: document.getElementById('admin-tipo-cuenta'),
                 adminNumero: document.getElementById('admin-numero'),
@@ -627,26 +631,18 @@
             buttons.backToPetData.addEventListener('click', () => goToFormSection(sections.petData));
             
             buttons.continueToSummary.addEventListener('click', () => {
-                // Populate text details
                 displays.summaryCategory.textContent = userSelection.category;
                 displays.summaryPetName.textContent = userSelection.petName;
                 displays.summaryPetAge.textContent = `${userSelection.petAge} años`;
 
-                // Populate images with the first two from the main gallery
-                displays.summaryImagesContainer.innerHTML = ''; // Clear previous
+                displays.summaryImagesContainer.innerHTML = '';
                 const imagesToShow = galleryImages.slice(0, 2);
                 if(imagesToShow.length > 0) {
                     imagesToShow.forEach(galleryImage => {
-                         displays.summaryImagesContainer.innerHTML += `
-                            <img src="${galleryImage.url}" alt="${galleryImage.alt}" class="rounded-lg w-full aspect-square object-cover">
-                        `;
+                         displays.summaryImagesContainer.innerHTML += `<img src="${galleryImage.url}" alt="${galleryImage.alt}" class="rounded-lg w-full aspect-square object-cover">`;
                     });
                 } else {
-                     // Fallback in case gallery is empty
-                     displays.summaryImagesContainer.innerHTML = `
-                        <div class="rounded-lg w-full aspect-square bg-white/10 flex items-center justify-center"><p class="text-gray-400">Ejemplo 1</p></div>
-                        <div class="rounded-lg w-full aspect-square bg-white/10 flex items-center justify-center"><p class="text-gray-400">Ejemplo 2</p></div>
-                    `;
+                     displays.summaryImagesContainer.innerHTML = `<div class="rounded-lg w-full aspect-square bg-white/10 flex items-center justify-center"><p class="text-gray-400">Ejemplo 1</p></div><div class="rounded-lg w-full aspect-square bg-white/10 flex items-center justify-center"><p class="text-gray-400">Ejemplo 2</p></div>`;
                 }
 
                 goToFormSection(sections.summary);
@@ -670,12 +666,63 @@
                     return;
                 }
                 
-                // CAMBIA ESTE NÚMERO POR EL TUYO (código de país + número, sin '+', ni espacios)
-                const whatsappPhoneNumber = '56912345678'; 
-                
-                const message = encodeURIComponent('¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago. 🐾');
-                window.open(`https://api.whatsapp.com/send?phone=${whatsappPhoneNumber}&text=${message}`, '_blank');
+                // --- INTEGRACIÓN CON GOOGLE SHEETS ---
+                // https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec
+                const googleSheetScriptUrl = ''; 
+                // ------------------------------------
+
+                const selectedZone = inputs.shippingZone.value;
+                const shippingCost = SHIPPING_COSTS[selectedZone];
+                const total = PRODUCT_PRICE + shippingCost;
+
+                const orderData = {
+                    categoria: userSelection.category,
+                    nombreMascota: userSelection.petName,
+                    edadMascota: userSelection.petAge,
+                    nombreCliente: inputs.shippingFullName.value,
+                    direccion: inputs.shippingAddress.value,
+                    comuna: inputs.shippingCity.value,
+                    telefono: inputs.shippingPhone.value,
+                    costoEnvio: shippingCost,
+                    totalPagado: total
+                };
+
+                const purchaseButton = buttons.finishPurchase;
+                purchaseButton.disabled = true;
+                purchaseButton.innerHTML = 'Procesando...';
+
+                if(googleSheetScriptUrl) {
+                     fetch(googleSheetScriptUrl, {
+                        method: 'POST',
+                        body: JSON.stringify(orderData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Success:', data);
+                        openWhatsApp();
+                        purchaseButton.disabled = false;
+                        purchaseButton.innerHTML = 'Enviar Comprobante por WhatsApp 🐾';
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        alert('Hubo un error al registrar tu pedido. Por favor, intenta de nuevo.');
+                        purchaseButton.disabled = false;
+                        purchaseButton.innerHTML = 'Enviar Comprobante por WhatsApp 🐾';
+                    });
+                } else {
+                    console.log('URL de Google Sheet no configurada. Abriendo WhatsApp directamente.');
+                    openWhatsApp();
+                    purchaseButton.disabled = false;
+                    purchaseButton.innerHTML = 'Enviar Comprobante por WhatsApp 🐾';
+                }
             });
+
+            function openWhatsApp() {
+                 const whatsappPhoneNumber = '56912345678'; // CAMBIA ESTE NÚMERO POR EL TUYO
+                 const message = encodeURIComponent('¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago. 🐾');
+                 window.open(`https://api.whatsapp.com/send?phone=${whatsappPhoneNumber}&text=${message}`, '_blank');
+            }
+
 
             // --- UPLOAD FORM LOGIC ---
             inputs.photos.addEventListener('change', (event) => {
