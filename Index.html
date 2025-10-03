@@ -143,7 +143,7 @@
         <!-- PASO 1.1: Página Principal -->
         <section id="hero-section" class="text-center section-fade-in">
              <div class="flex justify-center mb-12">
-                <img src="https://i.ibb.co/0jRX3VX2/PORTADA-HUELLITAS-3.png" alt="Logo Las Huellitas de mi Vida" class="rounded-2xl max-w-sm md:max-w-md w-full shadow-2xl shadow-purple-900/50">
+                <img id="main-logo" src="https://i.ibb.co/0jRX3VX2/PORTADA-HUELLITAS-3.png" alt="Logo Las Huellitas de mi Vida" class="rounded-2xl max-w-sm md:max-w-md w-full shadow-2xl shadow-purple-900/50">
             </div>
             <h2 class="text-4xl md:text-5xl lg:text-6xl mb-6">Cada huella cuenta una historia 🐾</h2>
             <p class="max-w-2xl mx-auto mb-8 text-gray-300">Transformamos tus recuerdos más preciados en una obra de arte única y emotiva.</p>
@@ -589,6 +589,7 @@
                 discountRow: document.getElementById('discount-row'),
                 discountAmount: document.getElementById('discount-amount'),
                 totalPrice: document.getElementById('total-price'),
+                mainLogo: document.getElementById('main-logo'),
             };
             
             const decorativeImages = document.querySelectorAll('.decorative-pet-image');
@@ -870,38 +871,54 @@
             
             // --- ADMIN PANEL LOGIC ---
             const adminPassword = 'huellitas_admin';
+            
+            function openAdminPanel() {
+                const enteredPassword = prompt('Acceso de administrador. Por favor, ingrese la contraseña:');
+                if (enteredPassword === adminPassword) {
+                    isAdmin = true;
+                    const currentBankDetails = JSON.parse(localStorage.getItem('lasHuellitasBankDetails')) || bankDetails;
+                    inputs.adminBanco.value = currentBankDetails.banco;
+                    inputs.adminTipoCuenta.value = currentBankDetails.tipoCuenta;
+                    inputs.adminNumero.value = currentBankDetails.numero;
+                    inputs.adminNombre.value = currentBankDetails.nombre;
+                    inputs.adminRut.value = currentBankDetails.rut;
+                    inputs.adminEmail.value = currentBankDetails.email;
+
+                    document.getElementById('admin-panel').classList.remove('hidden');
+                    renderGallery();
+                } else if (enteredPassword !== null) {
+                    alert('Contraseña incorrecta.');
+                }
+            }
+            
+            // Konami Code for Desktop
             const konamiCode = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
             let konamiPosition = 0;
-
-            function openAdminPanel() {
-                isAdmin = true;
-                // Populate bank details form
-                const currentBankDetails = JSON.parse(localStorage.getItem('lasHuellitasBankDetails')) || bankDetails;
-                inputs.adminBanco.value = currentBankDetails.banco;
-                inputs.adminTipoCuenta.value = currentBankDetails.tipoCuenta;
-                inputs.adminNumero.value = currentBankDetails.numero;
-                inputs.adminNombre.value = currentBankDetails.nombre;
-                inputs.adminRut.value = currentBankDetails.rut;
-                inputs.adminEmail.value = currentBankDetails.email;
-
-                document.getElementById('admin-panel').classList.remove('hidden');
-                renderGallery();
-            }
-
             document.addEventListener('keyup', (e) => {
-                if (!isAdmin && e.key.toLowerCase() === konamiCode[konamiPosition]) {
+                if (isAdmin) return;
+                if (e.key.toLowerCase() === konamiCode[konamiPosition]) {
                     konamiPosition++;
                     if (konamiPosition === konamiCode.length) {
                         konamiPosition = 0;
-                        const enteredPassword = prompt('Acceso de administrador. Por favor, ingrese la contraseña:');
-                        if (enteredPassword === adminPassword) {
-                            openAdminPanel();
-                        } else if (enteredPassword !== null) {
-                            alert('Contraseña incorrecta.');
-                        }
+                        openAdminPanel();
                     }
-                } else if (!e.target.matches('input, textarea')) { // Reset if not part of the code and not typing in an input
+                } else if (!e.target.matches('input, textarea')) {
                     konamiPosition = 0;
+                }
+            });
+
+            // Logo Tap for Mobile
+            let tapCount = 0;
+            let tapTimer;
+            displays.mainLogo.addEventListener('click', () => {
+                if (isAdmin) return;
+                tapCount++;
+                clearTimeout(tapTimer);
+                if (tapCount >= 7) {
+                    tapCount = 0;
+                    openAdminPanel();
+                } else {
+                    tapTimer = setTimeout(() => { tapCount = 0; }, 1500);
                 }
             });
 
@@ -919,7 +936,6 @@
                 bankDetails.rut = inputs.adminRut.value;
                 bankDetails.email = inputs.adminEmail.value;
 
-                // Guardar en localStorage
                 localStorage.setItem('lasHuellitasBankDetails', JSON.stringify(bankDetails));
                 
                 renderBankDetails();
