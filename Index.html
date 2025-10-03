@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Las Huellitas de mi Vida 🐾</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Fredoka -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Estilos personalizados y de componentes */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-image: linear-gradient(to bottom, #2b1634, #1f143a);
+            color: #F0F0F0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+        }
+
+        /* Efecto de borde con gradiente en hover para las tarjetas */
+        .gradient-border-card {
+            position: relative;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .gradient-border-card:hover {
+            border-image: linear-gradient(to right, #00FFFF, #FF00FF) 1;
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Estilo para botones de método de pago */
+        .payment-method-btn {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 2px solid #00FFFF;
+            transition: all 0.3s ease-in-out;
+        }
+        .payment-method-btn.selected {
+            background-color: #4A00E0;
+            border-color: #FF00FF;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        }
+
+        /* Botón principal con gradiente y efecto de brillo */
+        .main-btn {
+            background-image: linear-gradient(to right, #4A00E0, #8E2DE2);
+            box-shadow: 0 4px 15px rgba(142, 45, 226, 0.4);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .main-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(142, 45, 226, 0.6);
+        }
+
+        /* Estilo para los campos de texto del formulario */
+        .form-input {
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid #00FFFF;
+            color: #F0F0F0;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-bottom-color: #FF00FF;
+            box-shadow: none;
+            ring: 0;
+        }
+
+        /* Animación de entrada para las secciones */
+        .section-fade-in {
+            animation: fadeIn 0.8s ease-in-out forwards;
+        }
+        
+        .content-fade-in {
+             animation: contentFadeIn 0.5s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes contentFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilo para las huellas decorativas del fondo */
+        .background-paws {
+            position: fixed; /* Cambiado a fixed para efecto parallax */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .background-paws img {
+            position: absolute;
+            opacity: 0.15;
+            filter: brightness(0.8);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen w-full relative">
+
+    <!-- Huellas decorativas de fondo -->
+    <div class="background-paws">
+        <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" class="w-24 -top-5 left-10 rotate-12">
+        <img src="https://i.ibb.co/mFSBSN3X/huellas-2.png" class="w-32 top-1/4 -right-10 -rotate-45">
+        <img src="https://i.ibb.co/vx7Wb795/huellas.png" class="w-16 top-1/2 left-1/4 rotate-6">
+        <img src="https://i.ibb.co/ttbd6wP/huellas-4.png" class="w-20 bottom-10 right-1/3 -rotate-12">
+        <img src="https://i.ibb.co/MDZYf540/huellas-6.png" class="w-28 bottom-24 -left-8 rotate-45">
+        <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" class="w-12 top-20 right-10">
+        <img src="https://i.ibb.co/mFSBSN3X/huellas-2.png" class="w-40 bottom-0 left-1/2 -translate-x-1/2 rotate-180">
+    </div>
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 w-full bg-black/10 backdrop-blur-md z-50 py-4 text-center">
+        <h1 class="text-2xl font-bold tracking-wider">Las Huellitas de mi Vida</h1>
+    </header>
+
+    <main class="pt-24 pb-12 px-4">
+        <!-- PASO 1.1: Página Principal -->
+        <section id="hero-section" class="text-center section-fade-in">
+             <div class="flex justify-center mb-12">
+                <img src="https://i.ibb.co/0jRX3VX2/PORTADA-HUELLITAS-3.png" alt="Logo Las Huellitas de mi Vida" class="rounded-2xl max-w-sm md:max-w-md w-full shadow-2xl shadow-purple-900/50">
+            </div>
+            <h2 class="text-4xl md:text-5xl lg:text-6xl mb-6">Cada huella cuenta una historia 🐾</h2>
+            <p class="max-w-2xl mx-auto mb-8 text-gray-300">Transformamos tus recuerdos más preciados en una obra de arte única y emotiva.</p>
+            <div class="flex justify-center mb-12">
+                <img src="https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png" alt="Cuadro conmemorativo de mascota" class="rounded-2xl max-w-sm md:max-w-md w-full shadow-2xl shadow-purple-900/50">
+            </div>
+            <button id="start-project-btn" class="main-btn text-xl font-bold py-4 px-8 rounded-full">
+                Elige tu Proyecto 🐾
+            </button>
+        </section>
+        
+        <!-- PASO 1.2: Selección de Proyectos -->
+        <section id="projects-section" class="mt-20 pt-10 text-center section-fade-in">
+             <div class="relative max-w-max mx-auto mb-12">
+                <h2 class="text-4xl md:text-5xl">¿Qué historia vamos a contar hoy? 🐾</h2>
+                <img src="https://i.ibb.co/spPvfb9H/Dise-o-sin-t-tulo-6.png" alt="Cachorro decorativo" class="absolute -top-12 -right-32 md:-right-40 w-32 md:w-40 transform pointer-events-none opacity-90 hidden sm:block">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Tarjeta 1: Homenaje -->
+                <div class="category-card gradient-border-card p-8 rounded-2xl cursor-pointer" data-category="Homenaje a su Vida 🐾">
+                    <div class="text-5xl mb-4">🕊️</div>
+                    <h3 class="text-2xl mb-2">Homenaje a su Vida</h3>
+                    <p class="text-gray-400">Para conmemorar a un amigo fiel que cruzó el arcoíris.</p>
+                </div>
+                <!-- Tarjeta 2: Celebración -->
+                <div class="category-card gradient-border-card p-8 rounded-2xl cursor-pointer" data-category="Celebrando su Vida 🐾">
+                    <div class="text-5xl mb-4">🎉</div>
+                    <h3 class="text-2xl mb-2">Celebrando su Vida</h3>
+                    <p class="text-gray-400">Para cumpleaños, aniversarios de adopción y momentos especiales.</p>
+                </div>
+                <!-- Tarjeta 3: Camada -->
+                <div class="category-card gradient-border-card p-8 rounded-2xl cursor-pointer" data-category="Celebrando la Nueva Familia 🐾">
+                    <div class="text-5xl mb-4">👨‍👩‍👧‍👦</div>
+                    <h3 class="text-2xl mb-2">Nueva Familia</h3>
+                    <p class="text-gray-400">Para dar la bienvenida a una adorable camada recién llegada.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PASO 1.3: Galería de Trabajos -->
+        <section id="gallery-section" class="mt-20 section-fade-in">
+             <h2 class="text-3xl md:text-4xl text-center mb-8">Nuestros diseños 🐾</h2>
+             <div id="gallery-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Las imágenes de la galería se insertarán aquí por JS -->
+             </div>
+        </section>
+
+        <!-- PASO 2: Formulario de Datos de la Mascota -->
+        <section id="pet-data-section" class="hidden max-w-xl mx-auto text-center section-fade-in relative">
+            <div id="decorative-pets-container">
+                <img id="deco-homenaje" src="https://i.ibb.co/DfH4TPB8/Dise-o-sin-t-tulo-7.png" alt="Gato decorativo" class="decorative-pet-image absolute top-1/2 -translate-y-1/2 -left-24 md:-left-40 w-32 md:w-48 pointer-events-none opacity-90 hidden">
+                <img id="deco-celebrando" src="https://i.ibb.co/rGXccYS2/Dise-o-sin-t-tulo-5.png" alt="Pato decorativo" class="decorative-pet-image absolute top-1/2 -translate-y-1/2 -left-24 md:-left-40 w-32 md:w-48 pointer-events-none opacity-90 hidden">
+                <img id="deco-familia" src="https://i.ibb.co/7dRW4ZMY/Dise-o-sin-t-tulo-9.png" alt="Gato decorativo" class="decorative-pet-image absolute top-1/2 -translate-y-1/2 -left-24 md:-left-40 w-32 md:w-48 pointer-events-none opacity-90 hidden">
+            </div>
+            
+            <h2 id="pet-data-title" class="text-4xl mb-10">Datos de tu Mascota</h2>
+            <div class="space-y-8 text-left">
+                <div>
+                    <label for="pet-name" class="text-lg text-[#00FFFF]">Nombre de tu mascota</label>
+                    <input type="text" id="pet-name" class="form-input w-full text-2xl p-2 mt-1">
+                </div>
+                <div>
+                    <label for="pet-age" class="text-lg text-[#00FFFF]">Edad (en años humanos)</label>
+                    <input type="number" id="pet-age" min="0" class="form-input w-full text-2xl p-2 mt-1">
+                </div>
+            </div>
+            <div class="flex justify-between mt-12">
+                <button class="back-to-home-btn text-gray-400 hover:text-white transition-colors">← Volver al Inicio</button>
+                <button id="continue-to-upload-btn" class="main-btn py-3 px-8 rounded-full font-bold">Continuar</button>
+            </div>
+        </section>
+
+        <!-- PASO 3: Formulario de Carga de Archivos -->
+        <section id="upload-section" class="hidden max-w-2xl mx-auto text-center section-fade-in">
+            <h2 class="text-4xl mb-8">Ahora, sube tus recuerdos 🐾</h2>
+            
+            <div id="video-choice-container" class="space-y-4 mb-8">
+                <p class="mb-4 text-lg">¿Incluirás videos en tu homenaje?</p>
+                <div class="flex justify-center space-x-4">
+                    <button id="with-video-btn" class="main-btn py-3 px-6 rounded-lg">Sí, tengo videos 🐾</button>
+                    <button id="no-video-btn" class="bg-gray-700 hover:bg-gray-600 py-3 px-6 rounded-lg transition-colors">No, usaré solo fotos 🐾</button>
+                </div>
+            </div>
+
+            <!-- Contenedor principal del formulario de subida (oculto inicialmente) -->
+            <div id="main-upload-form" class="hidden">
+                <div class="text-right mb-4">
+                    <button id="change-choice-btn" class="text-sm text-gray-400 hover:text-white transition-colors">← Cambiar elección</button>
+                </div>
+
+                <!-- Contenedores de carga -->
+                <div id="upload-containers" class="space-y-6 text-left mb-8">
+                    <div id="photos-upload-container" class="bg-white/5 p-6 rounded-lg border-2 border-dashed border-gray-600">
+                        <label id="photos-label" for="photos" class="text-lg text-[#00FFFF]">Sube tus fotos</label>
+                        <p id="photos-description" class="text-sm text-gray-400 mb-2">Puedes seleccionar varios archivos.</p>
+                        <input type="file" name="photos[]" id="photos" multiple accept="image/*" class="w-full">
+                    </div>
+                    <div id="video-upload-container" class="hidden bg-white/5 p-6 rounded-lg border-2 border-dashed border-gray-600">
+                        <label for="video" class="text-lg text-[#00FFFF]">Sube tu video</label>
+                        <p class="text-sm text-gray-400 mb-2">Recomendamos videos cortos.</p>
+                        <input type="file" id="video" accept="video/*" class="w-full">
+                    </div>
+                </div>
+                
+                <!-- Campos de texto -->
+                <div class="space-y-6 text-left mb-8">
+                    <div>
+                        <label for="short-text" class="text-lg text-[#00FFFF]">Texto Corto (para el cuadro)</label>
+                        <div class="relative">
+                            <input id="short-text" maxlength="150" class="form-input w-full text-xl p-2 mt-1 pr-16">
+                            <span id="short-text-counter" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400">0/150</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="long-text" class="text-lg text-[#00FFFF]">Tu Historia (para inspirarnos)</label>
+                        <div class="relative">
+                            <textarea id="long-text" maxlength="400" rows="4" class="form-input w-full text-lg p-2 mt-1 pr-16"></textarea>
+                            <span id="long-text-counter" class="absolute right-2 bottom-2 text-gray-400 transition-colors">0/400</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkbox Sorpréndeme -->
+                <div class="flex flex-col items-center justify-center mb-10">
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="surprise-me" class="h-5 w-5 rounded accent-[#FF00FF]">
+                        <label for="surprise-me" class="text-lg">¡Sorpréndeme! 🐾</label>
+                    </div>
+                    <p id="surprise-me-homenaje-text" class="text-yellow-400 text-base mt-2 hidden max-w-sm">
+                        Al marcar esta opción, nuestro equipo elegirá con mucho cariño un texto conmovedor y apropiado para la obra.
+                    </p>
+                </div>
+
+                <div class="flex justify-between mt-12">
+                    <button class="back-to-pet-data-btn text-gray-400 hover:text-white transition-colors">← Volver</button>
+                    <button id="continue-to-summary-btn" class="main-btn py-3 px-8 rounded-full font-bold">Continuar al Resumen 🐾</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PASO 4: Resumen del Pedido -->
+        <section id="summary-section" class="hidden max-w-5xl mx-auto text-center section-fade-in">
+            <h2 class="text-4xl mb-6">Confirma tu Obra de Arte 🐾</h2>
+            <div class="mb-12 text-center italic">
+                <p class="text-2xl text-yellow-400">"La pintura es poesía que se ve en lugar de sentirse, y la poesía es pintura que se siente en lugar de verse."</p>
+                <p class="text-base text-gray-400 mt-2">- Leonardo da Vinci</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                <div class="text-left space-y-6 bg-white/5 p-8 rounded-2xl border border-white/10 h-full">
+                    <h3 class="text-3xl font-bold text-white">Tu Cuadro Conmemorativo</h3>
+                    <p class="text-gray-300">Con la información, fotos y videos que nos brindas, creamos de manera respetuosa una bella recopilación de los recuerdos que vivieron juntos. Esta obra servirá para recordar y homenajear siempre a tu mascota, sin importar qué animalito sea.</p>
+                    <div>
+                        <h4 class="text-xl font-bold text-[#00FFFF]">Especificaciones:</h4>
+                        <ul class="list-disc list-inside text-gray-300 mt-2 space-y-1">
+                            <li>Tamaño del cuadro: 60 x 50 cm.</li>
+                            <li>Terminaciones en vidrio opaco.</li>
+                            <li>Impresión en papel fotográfico Matte de alta calidad.</li>
+                            <li>Ilustración dibujada y pintada a mano en base a tus imágenes para captar la personalidad única de tu amiguito(a).</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold text-[#00FFFF]">Tiempos de Entrega:</h4>
+                        <ul class="list-disc list-inside text-gray-300 mt-2 space-y-1">
+                            <li><span class="font-bold">Rancagua:</span> 72 horas.</li>
+                            <li><span class="font-bold">Otras Regiones:</span> 5 días hábiles.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="space-y-8">
+                    <div class="bg-white/5 p-8 rounded-2xl text-left space-y-4 border border-white/10">
+                         <h3 class="text-2xl font-bold text-center mb-4">Detalles de tu Proyecto</h3>
+                        <div>
+                            <p class="text-lg text-[#00FFFF] opacity-80">Categoría:</p>
+                            <p id="summary-category" class="text-2xl font-bold"></p>
+                        </div>
+                        <hr class="border-white/10">
+                        <div>
+                            <p class="text-lg text-[#00FFFF] opacity-80">Nombre de la Mascota:</p>
+                            <p id="summary-pet-name" class="text-2xl font-bold"></p>
+                        </div>
+                        <hr class="border-white/10">
+                        <div>
+                            <p class="text-lg text-[#00FFFF] opacity-80">Edad:</p>
+                            <p id="summary-pet-age" class="text-2xl font-bold"></p>
+                        </div>
+                    </div>
+                    <div id="summary-images-container" class="grid grid-cols-2 gap-4">
+                        <!-- Las imágenes subidas por el usuario se mostrarán aquí -->
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between mt-16 max-w-2xl mx-auto">
+                <button class="back-to-upload-btn text-gray-400 hover:text-white transition-colors">← Volver y Editar</button>
+                <button id="continue-to-payment-btn" class="main-btn py-4 px-10 rounded-full font-bold text-lg">Continuar al Pago 🐾</button>
+            </div>
+        </section>
+
+        <!-- PASO 5: Envío y Pago -->
+        <section id="payment-section" class="hidden max-w-5xl mx-auto section-fade-in">
+            <h2 class="text-4xl mb-8 text-center">Detalles de Envío y Pago 🐾</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Columna Izquierda: Despacho y Resumen -->
+                <div class="bg-white/5 p-8 rounded-2xl border border-white/10 space-y-8">
+                    <div>
+                        <h3 class="text-2xl mb-6 font-bold">1. Dirección de Despacho</h3>
+                        <form id="shipping-form" class="space-y-6">
+                            <div>
+                                <label for="full-name" class="text-lg text-[#00FFFF]">Nombre Completo</label>
+                                <input type="text" id="full-name" class="form-input w-full p-2 mt-1" required>
+                            </div>
+                            <div>
+                                <label for="address" class="text-lg text-[#00FFFF]">Dirección</label>
+                                <input type="text" id="address" class="form-input w-full p-2 mt-1" required>
+                            </div>
+                            <div>
+                                <label for="city" class="text-lg text-[#00FFFF]">Comuna / Ciudad</label>
+                                <input type="text" id="city" class="form-input w-full p-2 mt-1" required>
+                            </div>
+                            <div>
+                                <label for="phone" class="text-lg text-[#00FFFF]">Teléfono de Contacto</label>
+                                <input type="tel" id="phone" class="form-input w-full p-2 mt-1" required>
+                            </div>
+                        </form>
+                    </div>
+                     <div>
+                        <h3 class="text-2xl mb-6 font-bold">2. Resumen de Compra</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="shipping-zone" class="text-lg text-[#00FFFF]">Selecciona tu zona de envío:</label>
+                                <select id="shipping-zone" class="form-input w-full p-2 mt-1 bg-[#2b1634]">
+                                    <option value="centro">Rancagua Centro (Envío Gratis)</option>
+                                    <option value="alrededores">Alrededores de Rancagua</option>
+                                    <option value="regiones">Otras Regiones</option>
+                                </select>
+                            </div>
+                            <hr class="border-white/10 my-4">
+                            <div class="flex justify-between text-lg">
+                                <span>Precio del Cuadro:</span>
+                                <span id="subtotal-price"></span>
+                            </div>
+                            <div class="flex justify-between text-lg">
+                                <span>Costo de Envío:</span>
+                                <span id="shipping-cost"></span>
+                            </div>
+                            <hr class="border-dashed border-white/20 my-4">
+                            <div class="flex justify-between text-3xl font-bold">
+                                <span>TOTAL:</span>
+                                <span id="total-price"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                 <!-- Columna Derecha: Método de Pago -->
+                <div class="bg-white/5 p-8 rounded-2xl border border-white/10">
+                    <h3 class="text-2xl mb-6 font-bold">3. Realiza tu Pago</h3>
+                    
+                    <!-- Datos de Transferencia -->
+                    <div id="transfer-payment-details" class="space-y-2 text-center content-fade-in bg-white/5 p-6 rounded-lg">
+                        <h4 class="text-lg font-bold">Datos para Transferir</h4>
+                        <p><strong>Banco:</strong> <span data-key="banco"></span></p>
+                        <p><strong>Tipo de Cuenta:</strong> <span data-key="tipoCuenta"></span></p>
+                        <p><strong>Número:</strong> <span data-key="numero"></span></p>
+                        <p><strong>Nombre:</strong> <span data-key="nombre"></span></p>
+                        <p><strong>RUT:</strong> <span data-key="rut"></span></p>
+                        <p><strong>Email:</strong> <span data-key="email"></span></p>
+                        <p class="text-sm text-yellow-400 mt-4">Una vez realizada la transferencia, envía el comprobante a nuestro WhatsApp para confirmar tu pedido.</p>
+                    </div>
+                    
+                    <div class="flex justify-between mt-12">
+                        <button class="back-to-summary-btn text-gray-400 hover:text-white transition-colors">← Volver</button>
+                        <button id="finish-purchase-btn" class="main-btn py-4 px-10 rounded-full font-bold text-lg">Enviar Comprobante por WhatsApp 🐾</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- Panel de Administrador -->
+    <div id="admin-panel" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] overflow-y-auto p-4">
+        <div class="bg-[#2b1634] p-8 rounded-lg shadow-2xl border-2 border-[#4A00E0] w-full max-w-md space-y-8">
+             <div class="relative text-center">
+                 <h3 class="text-2xl">Panel de Administrador 🐾</h3>
+                 <button id="close-admin-btn" class="absolute -top-4 -right-4 text-3xl text-white">&times;</button>
+            </div>
+
+            <!-- Sección de Galería -->
+            <div class="space-y-4">
+                <h4 class="text-xl font-bold text-center">Gestionar Galería</h4>
+                <input id="gallery-url-input" type="text" placeholder="URL de la nueva imagen" class="form-input w-full text-center">
+                <button id="add-image-btn" class="w-full main-btn py-2 px-6 rounded-lg">Agregar Imagen</button>
+            </div>
+            
+            <hr class="border-white/20">
+
+            <!-- Sección de Datos Bancarios -->
+            <div class="space-y-4">
+                <h4 class="text-xl font-bold text-center">Editar Datos Bancarios</h4>
+                <div class="space-y-2 text-left">
+                    <label class="text-sm text-[#00FFFF]">Banco</label>
+                    <input id="admin-banco" type="text" class="form-input w-full">
+                    <label class="text-sm text-[#00FFFF]">Tipo de Cuenta</label>
+                    <input id="admin-tipo-cuenta" type="text" class="form-input w-full">
+                    <label class="text-sm text-[#00FFFF]">Número</label>
+                    <input id="admin-numero" type="text" class="form-input w-full">
+                    <label class="text-sm text-[#00FFFF]">Nombre</label>
+                    <input id="admin-nombre" type="text" class="form-input w-full">
+                    <label class="text-sm text-[#00FFFF]">RUT</label>
+                    <input id="admin-rut" type="text" class="form-input w-full">
+                    <label class="text-sm text-[#00FFFF]">Email de Contacto</label>
+                    <input id="admin-email" type="text" class="form-input w-full">
+                </div>
+                <button id="save-bank-details-btn" class="w-full main-btn py-2 px-6 rounded-lg">Guardar Datos</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONSTANTS & DATA ---
+            const PRODUCT_PRICE = 79990;
+            const SHIPPING_COSTS = {
+                centro: 0,
+                alrededores: 4500,
+                regiones: 8990,
+            };
+
+            let isAdmin = false;
+            const userSelection = {
+                category: null,
+                petName: null,
+                petAge: null,
+            };
+
+            // Cargar datos bancarios desde localStorage o usar valores por defecto
+            const savedBankDetails = localStorage.getItem('lasHuellitasBankDetails');
+            let bankDetails = savedBankDetails ? JSON.parse(savedBankDetails) : {
+                banco: 'Banco Estado',
+                tipoCuenta: 'CuentaRUT',
+                numero: '12.345.678-9',
+                nombre: 'Las Huellitas de mi Vida SpA',
+                rut: '77.654.321-K',
+                email: 'pagos@lashuellitasdemivida.cl'
+            };
+            
+            // Cargar galería desde localStorage o usar valores por defecto
+            const savedGallery = localStorage.getItem('lasHuellitasGallery');
+            let galleryImages = savedGallery ? JSON.parse(savedGallery) : [
+                { id: 1, url: 'https://i.ibb.co/L9nZqjN/gallery-1.png', alt: 'Cuadro de mascota 1' },
+                { id: 2, url: 'https://i.ibb.co/hKzK2tW/gallery-2.png', alt: 'Cuadro de mascota 2' },
+                { id: 3, url: 'https://i.ibb.co/K50h4Xy/gallery-3.png', alt: 'Cuadro de mascota 3' },
+                { id: 4, url: 'https://i.ibb.co/K2tC7b4/gallery-4.png', alt: 'Cuadro de mascota 4' },
+            ];
+
+
+            // --- ELEMENT REFERENCES ---
+            const sections = {
+                hero: document.getElementById('hero-section'),
+                gallery: document.getElementById('gallery-section'),
+                projects: document.getElementById('projects-section'),
+                petData: document.getElementById('pet-data-section'),
+                upload: document.getElementById('upload-section'),
+                summary: document.getElementById('summary-section'),
+                payment: document.getElementById('payment-section'),
+            };
+
+            const buttons = {
+                startProject: document.getElementById('start-project-btn'),
+                categoryCards: document.querySelectorAll('.category-card'),
+                backToHome: document.querySelector('.back-to-home-btn'),
+                continueToUpload: document.getElementById('continue-to-upload-btn'),
+                backToPetData: document.querySelector('.back-to-pet-data-btn'),
+                continueToSummary: document.getElementById('continue-to-summary-btn'),
+                backToUpload: document.querySelector('.back-to-upload-btn'),
+                continueToPayment: document.getElementById('continue-to-payment-btn'),
+                backToSummary: document.querySelectorAll('.back-to-summary-btn'),
+                finishPurchase: document.getElementById('finish-purchase-btn'),
+                withVideo: document.getElementById('with-video-btn'),
+                noVideo: document.getElementById('no-video-btn'),
+                changeChoice: document.getElementById('change-choice-btn'),
+                addImage: document.getElementById('add-image-btn'),
+                saveBankDetails: document.getElementById('save-bank-details-btn'),
+                closeAdmin: document.getElementById('close-admin-btn'),
+            };
+
+            const inputs = {
+                petName: document.getElementById('pet-name'),
+                petAge: document.getElementById('pet-age'),
+                shortText: document.getElementById('short-text'),
+                longText: document.getElementById('long-text'),
+                surpriseMe: document.getElementById('surprise-me'),
+                galleryUrl: document.getElementById('gallery-url-input'),
+                photos: document.getElementById('photos'),
+                shippingZone: document.getElementById('shipping-zone'),
+                adminBanco: document.getElementById('admin-banco'),
+                adminTipoCuenta: document.getElementById('admin-tipo-cuenta'),
+                adminNumero: document.getElementById('admin-numero'),
+                adminNombre: document.getElementById('admin-nombre'),
+                adminRut: document.getElementById('admin-rut'),
+                adminEmail: document.getElementById('admin-email'),
+            };
+
+            const displays = {
+                petDataTitle: document.getElementById('pet-data-title'),
+                videoChoiceContainer: document.getElementById('video-choice-container'),
+                mainUploadForm: document.getElementById('main-upload-form'),
+                uploadContainers: document.getElementById('upload-containers'),
+                photosContainer: document.getElementById('photos-upload-container'),
+                videoContainer: document.getElementById('video-upload-container'),
+                photosLabel: document.getElementById('photos-label'),
+                photosDescription: document.getElementById('photos-description'),
+                shortTextCounter: document.getElementById('short-text-counter'),
+                longTextCounter: document.getElementById('long-text-counter'),
+                galleryContainer: document.getElementById('gallery-container'),
+                surpriseMeText: document.getElementById('surprise-me-homenaje-text'),
+                summaryCategory: document.getElementById('summary-category'),
+                summaryPetName: document.getElementById('summary-pet-name'),
+                summaryPetAge: document.getElementById('summary-pet-age'),
+                summaryImagesContainer: document.getElementById('summary-images-container'),
+                subtotalPrice: document.getElementById('subtotal-price'),
+                shippingCost: document.getElementById('shipping-cost'),
+                totalPrice: document.getElementById('total-price'),
+            };
+            
+            const decorativeImages = document.querySelectorAll('.decorative-pet-image');
+            
+            const formatPrice = (price) => `$${price.toLocaleString('es-CL')}`;
+
+            // --- RENDER FUNCTIONS ---
+            function renderBankDetails() {
+                document.querySelectorAll('#transfer-payment-details [data-key]').forEach(span => {
+                    span.textContent = bankDetails[span.dataset.key];
+                });
+            }
+
+            // --- NAVIGATION LOGIC ---
+            function goToFormSection(targetSection) {
+                 Object.values(sections).forEach(s => s.classList.add('hidden'));
+                 targetSection.classList.remove('hidden');
+                 window.scrollTo(0, 0);
+            }
+
+            function showHomePage() {
+                Object.values(sections).forEach(s => s.classList.add('hidden'));
+                sections.hero.classList.remove('hidden');
+                sections.projects.classList.remove('hidden');
+                sections.gallery.classList.remove('hidden');
+                window.scrollTo(0, 0);
+            }
+
+            buttons.startProject.addEventListener('click', () => {
+                document.getElementById('projects-section').scrollIntoView();
+            });
+
+            buttons.categoryCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    userSelection.category = card.dataset.category;
+                    displays.petDataTitle.textContent = `Proyecto: ${userSelection.category}`;
+                    decorativeImages.forEach(img => img.classList.add('hidden'));
+                    if (userSelection.category.includes('Homenaje')) document.getElementById('deco-homenaje').classList.remove('hidden');
+                    else if (userSelection.category.includes('Celebrando su Vida')) document.getElementById('deco-celebrando').classList.remove('hidden');
+                    else if (userSelection.category.includes('Nueva Familia')) document.getElementById('deco-familia').classList.remove('hidden');
+                    goToFormSection(sections.petData);
+                });
+            });
+
+            buttons.backToHome.addEventListener('click', () => showHomePage());
+            
+            buttons.continueToUpload.addEventListener('click', () => {
+                if (inputs.petName.value.trim() === '' || inputs.petAge.value === '') {
+                    alert('Por favor, completa todos los campos para continuar.');
+                    return;
+                }
+                userSelection.petName = inputs.petName.value;
+                userSelection.petAge = inputs.petAge.value;
+                displays.surpriseMeText.classList.toggle('hidden', !userSelection.category.includes('Homenaje'));
+                goToFormSection(sections.upload);
+            });
+            
+            buttons.backToPetData.addEventListener('click', () => goToFormSection(sections.petData));
+            
+            buttons.continueToSummary.addEventListener('click', () => {
+                // Populate text details
+                displays.summaryCategory.textContent = userSelection.category;
+                displays.summaryPetName.textContent = userSelection.petName;
+                displays.summaryPetAge.textContent = `${userSelection.petAge} años`;
+
+                // Populate images with the first two from the main gallery
+                displays.summaryImagesContainer.innerHTML = ''; // Clear previous
+                const imagesToShow = galleryImages.slice(0, 2);
+                if(imagesToShow.length > 0) {
+                    imagesToShow.forEach(galleryImage => {
+                         displays.summaryImagesContainer.innerHTML += `
+                            <img src="${galleryImage.url}" alt="${galleryImage.alt}" class="rounded-lg w-full aspect-square object-cover">
+                        `;
+                    });
+                } else {
+                     // Fallback in case gallery is empty
+                     displays.summaryImagesContainer.innerHTML = `
+                        <div class="rounded-lg w-full aspect-square bg-white/10 flex items-center justify-center"><p class="text-gray-400">Ejemplo 1</p></div>
+                        <div class="rounded-lg w-full aspect-square bg-white/10 flex items-center justify-center"><p class="text-gray-400">Ejemplo 2</p></div>
+                    `;
+                }
+
+                goToFormSection(sections.summary);
+            });
+
+            buttons.backToUpload.addEventListener('click', () => goToFormSection(sections.upload));
+            
+            buttons.continueToPayment.addEventListener('click', () => {
+                updatePaymentSummary();
+                goToFormSection(sections.payment);
+            });
+            
+            document.querySelectorAll('.back-to-summary-btn').forEach(btn => {
+                btn.addEventListener('click', () => goToFormSection(sections.summary));
+            });
+
+            buttons.finishPurchase.addEventListener('click', () => {
+                const shippingForm = document.getElementById('shipping-form');
+                if (!shippingForm.checkValidity()) {
+                    alert('Por favor, completa todos los campos de la dirección de despacho.');
+                    return;
+                }
+                
+                // CAMBIA ESTE NÚMERO POR EL TUYO (código de país + número, sin '+', ni espacios)
+                const whatsappPhoneNumber = '56912345678'; 
+                
+                const message = encodeURIComponent('¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago. 🐾');
+                window.open(`https://api.whatsapp.com/send?phone=${whatsappPhoneNumber}&text=${message}`, '_blank');
+            });
+
+            // --- UPLOAD FORM LOGIC ---
+            inputs.photos.addEventListener('change', (event) => {
+                const photoContainer = document.getElementById('photos-upload-container');
+                let fileCountDisplay = photoContainer.querySelector('.file-count-display');
+                if (!fileCountDisplay) {
+                    fileCountDisplay = document.createElement('p');
+                    fileCountDisplay.className = 'file-count-display text-sm text-green-400 mt-2';
+                    photoContainer.appendChild(fileCountDisplay);
+                }
+                if (event.target.files.length > 0) {
+                    fileCountDisplay.textContent = `${event.target.files.length} archivo(s) seleccionado(s) con éxito.`;
+                } else {
+                    fileCountDisplay.textContent = '';
+                }
+            });
+
+            function showUploadForm(withVideo) {
+                displays.videoChoiceContainer.classList.add('hidden');
+                displays.mainUploadForm.classList.remove('hidden');
+                if (withVideo) {
+                    displays.videoContainer.classList.remove('hidden');
+                    displays.photosDescription.textContent = "Puedes subir hasta 10 fotos.";
+                } else {
+                    displays.videoContainer.classList.add('hidden');
+                    displays.photosDescription.textContent = "Puedes subir hasta 20 fotos. Crearemos un video emotivo a partir de ellas.";
+                }
+            }
+
+            buttons.withVideo.addEventListener('click', () => showUploadForm(true));
+            buttons.noVideo.addEventListener('click', () => showUploadForm(false));
+
+            buttons.changeChoice.addEventListener('click', () => {
+                displays.mainUploadForm.classList.add('hidden');
+                displays.videoChoiceContainer.classList.remove('hidden');
+            });
+            
+            // --- PAYMENT & SHIPPING LOGIC ---
+            function updatePaymentSummary() {
+                const selectedZone = inputs.shippingZone.value;
+                const shippingCost = SHIPPING_COSTS[selectedZone];
+                const total = PRODUCT_PRICE + shippingCost;
+                
+                displays.subtotalPrice.textContent = formatPrice(PRODUCT_PRICE);
+                displays.shippingCost.textContent = formatPrice(shippingCost);
+                displays.totalPrice.textContent = formatPrice(total);
+            }
+            
+            inputs.shippingZone.addEventListener('change', updatePaymentSummary);
+
+            // --- COUNTER LOGIC ---
+            function setupCounter(inputElement, counterElement, maxLength) {
+                inputElement.addEventListener('input', () => {
+                    const currentLength = inputElement.value.length;
+                    counterElement.textContent = `${currentLength}/${maxLength}`;
+                    counterElement.classList.toggle('text-red-500', currentLength > maxLength);
+                });
+            }
+            setupCounter(inputs.shortText, displays.shortTextCounter, 150);
+            setupCounter(inputs.longText, displays.longTextCounter, 400);
+
+            inputs.surpriseMe.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                inputs.shortText.disabled = isChecked;
+                inputs.longText.disabled = isChecked;
+                if (isChecked) {
+                    inputs.shortText.value = '';
+                    inputs.longText.value = '';
+                    inputs.shortText.dispatchEvent(new Event('input'));
+                    inputs.longText.dispatchEvent(new Event('input'));
+                }
+            });
+
+            // --- GALLERY LOGIC ---
+            function renderGallery() {
+                displays.galleryContainer.innerHTML = '';
+                galleryImages.forEach(img => {
+                    const deleteButtonHTML = isAdmin ? `<div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><button data-id="${img.id}" class="delete-image-btn text-white bg-red-600/80 rounded-full w-10 h-10 font-bold">X</button></div>` : '';
+                    displays.galleryContainer.innerHTML += `<div class="relative group overflow-hidden rounded-lg"><img src="${img.url}" alt="${img.alt}" class="w-full h-full object-cover aspect-square transition-transform duration-300 group-hover:scale-110">${deleteButtonHTML}</div>`;
+                });
+                // Guardar cambios en localStorage
+                localStorage.setItem('lasHuellitasGallery', JSON.stringify(galleryImages));
+            }
+
+            buttons.addImage.addEventListener('click', () => {
+                const url = inputs.galleryUrl.value.trim();
+                if (url) {
+                    galleryImages.unshift({ id: Date.now(), url: url, alt: 'Nueva imagen de mascota' });
+                    renderGallery();
+                    inputs.galleryUrl.value = '';
+                }
+            });
+
+            displays.galleryContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-image-btn')) {
+                    const idToDelete = parseInt(e.target.dataset.id);
+                    galleryImages = galleryImages.filter(img => img.id !== idToDelete);
+                    renderGallery();
+                }
+            });
+            
+            // --- ADMIN PANEL LOGIC ---
+            const adminPassword = 'huellitas_admin';
+            const konamiCode = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
+            let konamiPosition = 0;
+
+            function openAdminPanel() {
+                isAdmin = true;
+                // Populate bank details form
+                const currentBankDetails = JSON.parse(localStorage.getItem('lasHuellitasBankDetails')) || bankDetails;
+                inputs.adminBanco.value = currentBankDetails.banco;
+                inputs.adminTipoCuenta.value = currentBankDetails.tipoCuenta;
+                inputs.adminNumero.value = currentBankDetails.numero;
+                inputs.adminNombre.value = currentBankDetails.nombre;
+                inputs.adminRut.value = currentBankDetails.rut;
+                inputs.adminEmail.value = currentBankDetails.email;
+
+                document.getElementById('admin-panel').classList.remove('hidden');
+                renderGallery();
+            }
+
+            document.addEventListener('keyup', (e) => {
+                if (!isAdmin && e.key.toLowerCase() === konamiCode[konamiPosition]) {
+                    konamiPosition++;
+                    if (konamiPosition === konamiCode.length) {
+                        konamiPosition = 0;
+                        const enteredPassword = prompt('Acceso de administrador. Por favor, ingrese la contraseña:');
+                        if (enteredPassword === adminPassword) {
+                            openAdminPanel();
+                        } else if (enteredPassword !== null) {
+                            alert('Contraseña incorrecta.');
+                        }
+                    }
+                } else if (!e.target.matches('input, textarea')) { // Reset if not part of the code and not typing in an input
+                    konamiPosition = 0;
+                }
+            });
+
+            buttons.closeAdmin.addEventListener('click', () => {
+                document.getElementById('admin-panel').classList.add('hidden');
+                isAdmin = false;
+                renderGallery();
+            });
+
+            buttons.saveBankDetails.addEventListener('click', () => {
+                bankDetails.banco = inputs.adminBanco.value;
+                bankDetails.tipoCuenta = inputs.adminTipoCuenta.value;
+                bankDetails.numero = inputs.adminNumero.value;
+                bankDetails.nombre = inputs.adminNombre.value;
+                bankDetails.rut = inputs.adminRut.value;
+                bankDetails.email = inputs.adminEmail.value;
+
+                // Guardar en localStorage
+                localStorage.setItem('lasHuellitasBankDetails', JSON.stringify(bankDetails));
+                
+                renderBankDetails();
+                alert('¡Datos bancarios guardados con éxito!');
+            });
+
+            // --- INITIALIZATION ---
+            renderGallery();
+            renderBankDetails();
+        });
+    </script>
+</body>
+</html>
+
