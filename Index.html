@@ -473,6 +473,28 @@
         </div>
     </div>
 
+    <!-- Modals -->
+    <div id="message-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[101]">
+        <div class="bg-[#2b1634] p-8 rounded-lg shadow-2xl text-center border-2 border-[#4A00E0] w-full max-w-sm">
+            <h3 id="message-title" class="text-2xl mb-4">Mensaje</h3>
+            <p id="message-text" class="text-gray-300 mb-6">Contenido del mensaje.</p>
+            <button id="message-close-btn" class="main-btn py-2 px-8 rounded-lg">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="password-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[101]">
+        <div class="bg-[#2b1634] p-8 rounded-lg shadow-2xl text-center border-2 border-[#4A00E0] w-full max-w-sm">
+            <h3 class="text-2xl mb-4">Acceso de Administrador</h3>
+            <p class="text-gray-300 mb-4">Por favor, ingrese la contraseña:</p>
+            <input id="password-input" type="password" class="form-input w-full text-center mb-2">
+            <p id="password-error" class="text-red-500 text-sm h-4 mb-2"></p>
+            <div class="flex gap-4">
+                <button id="password-cancel-btn" class="bg-gray-700 hover:bg-gray-600 flex-1 py-2 px-6 rounded-lg transition-colors">Cancelar</button>
+                <button id="password-submit-btn" class="main-btn flex-1 py-2 px-6 rounded-lg">Ingresar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- CONSTANTS & DATA ---
@@ -493,7 +515,6 @@
                 petAge: null,
             };
 
-            // Cargar datos bancarios desde localStorage o usar valores por defecto
             const savedBankDetails = localStorage.getItem('lasHuellitasBankDetails');
             let bankDetails = savedBankDetails ? JSON.parse(savedBankDetails) : {
                 banco: 'Banco Estado',
@@ -504,7 +525,6 @@
                 email: 'pagos@lashuellitasdemivida.cl'
             };
             
-            // Cargar galería desde localStorage o usar valores por defecto
             const savedGallery = localStorage.getItem('lasHuellitasGallery');
             let galleryImages = savedGallery ? JSON.parse(savedGallery) : [
                 { id: 1, url: 'https://i.ibb.co/L9nZqjN/gallery-1.png', alt: 'Cuadro de mascota 1' },
@@ -512,7 +532,6 @@
                 { id: 3, url: 'https://i.ibb.co/K50h4Xy/gallery-3.png', alt: 'Cuadro de mascota 3' },
                 { id: 4, url: 'https://i.ibb.co/K2tC7b4/gallery-4.png', alt: 'Cuadro de mascota 4' },
             ];
-
 
             // --- ELEMENT REFERENCES ---
             const sections = {
@@ -543,6 +562,9 @@
                 addImage: document.getElementById('add-image-btn'),
                 saveBankDetails: document.getElementById('save-bank-details-btn'),
                 closeAdmin: document.getElementById('close-admin-btn'),
+                messageClose: document.getElementById('message-close-btn'),
+                passwordSubmit: document.getElementById('password-submit-btn'),
+                passwordCancel: document.getElementById('password-cancel-btn'),
             };
 
             const inputs = {
@@ -559,6 +581,7 @@
                 shippingAddress: document.getElementById('address'),
                 shippingCity: document.getElementById('city'),
                 shippingPhone: document.getElementById('phone'),
+                password: document.getElementById('password-input'),
                 adminBanco: document.getElementById('admin-banco'),
                 adminTipoCuenta: document.getElementById('admin-tipo-cuenta'),
                 adminNumero: document.getElementById('admin-numero'),
@@ -590,11 +613,27 @@
                 discountAmount: document.getElementById('discount-amount'),
                 totalPrice: document.getElementById('total-price'),
                 mainLogo: document.getElementById('main-logo'),
+                messageModal: document.getElementById('message-modal'),
+                messageTitle: document.getElementById('message-title'),
+                messageText: document.getElementById('message-text'),
+                passwordModal: document.getElementById('password-modal'),
+                passwordError: document.getElementById('password-error'),
             };
             
             const decorativeImages = document.querySelectorAll('.decorative-pet-image');
             
             const formatPrice = (price) => `$${price.toLocaleString('es-CL')}`;
+
+            // --- MODAL FUNCTIONS ---
+            function showMessage(title, message) {
+                displays.messageTitle.textContent = title;
+                displays.messageText.textContent = message;
+                displays.messageModal.classList.remove('hidden');
+            }
+
+            buttons.messageClose.addEventListener('click', () => {
+                displays.messageModal.classList.add('hidden');
+            });
 
             // --- RENDER FUNCTIONS ---
             function renderBankDetails() {
@@ -638,7 +677,7 @@
             
             buttons.continueToUpload.addEventListener('click', () => {
                 if (inputs.petName.value.trim() === '' || inputs.petAge.value === '') {
-                    alert('Por favor, completa todos los campos para continuar.');
+                    showMessage('Campos Incompletos', 'Por favor, completa todos los campos para continuar.');
                     return;
                 }
                 userSelection.petName = inputs.petName.value;
@@ -681,14 +720,21 @@
             buttons.finishPurchase.addEventListener('click', () => {
                 const shippingForm = document.getElementById('shipping-form');
                 if (!shippingForm.checkValidity()) {
-                    alert('Por favor, completa todos los campos de la dirección de despacho.');
+                    showMessage('Datos Faltantes', 'Por favor, completa todos los campos de la dirección de despacho.');
                     return;
                 }
                 
-                // --- INTEGRACIÓN CON GOOGLE SHEETS ---
-                // PEGA AQUÍ LA URL DE TU SCRIPT DE GOOGLE SHEETS
-                const googleSheetScriptUrl = 'https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec'; 
-                // ------------------------------------
+                // ######################################################################
+                // ######################################################################
+                // #################### INTEGRACIÓN CON GOOGLE SHEETS ###################
+                //
+                // PEGA AQUÍ, DENTRO DE LAS COMILLAS, LA URL DE TU SCRIPT DE GOOGLE SHEETS
+                const googleSheetScriptUrl = 'PEGA_AQUÍ_TU_URL_DE_GOOGLE_SHEETS'; 
+                //
+                // ######################################################################
+                // ######################################################################
+                // ######################################################################
+
 
                 const selectedZone = inputs.shippingZone.value;
                 const shippingCost = SHIPPING_COSTS[selectedZone];
@@ -710,7 +756,7 @@
                 purchaseButton.disabled = true;
                 purchaseButton.innerHTML = 'Procesando...';
 
-                if(googleSheetScriptUrl) {
+                if(googleSheetScriptUrl && googleSheetScriptUrl !== 'https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec') {
                      fetch(googleSheetScriptUrl, {
                         method: 'POST',
                         body: JSON.stringify(orderData)
@@ -722,7 +768,7 @@
                     })
                     .catch((error) => {
                         console.error('Error:', error);
-                        alert('Hubo un error al registrar tu pedido. Por favor, intenta de nuevo.');
+                        showMessage('Error', 'Hubo un error al registrar tu pedido. Por favor, intenta de nuevo.');
                     })
                     .finally(() => {
                         purchaseButton.disabled = false;
@@ -737,11 +783,10 @@
             });
 
             function openWhatsApp() {
-                 const whatsappPhoneNumber = '56946902340'; // CAMBIA ESTE NÚMERO POR EL TUYO
+                 const whatsappPhoneNumber = '56946902340';
                  const message = encodeURIComponent('¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago. 🐾');
                  window.open(`https://api.whatsapp.com/send?phone=${whatsappPhoneNumber}&text=${message}`, '_blank');
             }
-
 
             // --- UPLOAD FORM LOGIC ---
             inputs.photos.addEventListener('change', (event) => {
@@ -799,22 +844,21 @@
             buttons.applyCoupon.addEventListener('click', () => {
                 const code = inputs.couponCode.value.trim().toUpperCase();
                 if (isCouponApplied) {
-                    alert('Ya se ha aplicado un descuento en esta compra.');
+                    showMessage('Aviso', 'Ya se ha aplicado un descuento en esta compra.');
                     return;
                 }
-                // Simulación de validación. En un sistema real, se verificaría contra una base de datos.
                 if (code.includes('HUELLITAS')) {
                     isCouponApplied = true;
                     discountAmount = PRODUCT_PRICE * 0.15;
                     displays.discountAmount.textContent = `- ${formatPrice(discountAmount)}`;
                     displays.discountRow.classList.remove('hidden');
                     updatePaymentSummary();
-                    alert('¡Cupón del 15% aplicado con éxito!');
+                    showMessage('¡Éxito!', 'Cupón del 15% aplicado con éxito.');
                     inputs.couponCode.disabled = true;
                     buttons.applyCoupon.disabled = true;
                     buttons.applyCoupon.textContent = 'Aplicado';
                 } else {
-                    alert('El código del cupón no es válido.');
+                    showMessage('Error', 'El código del cupón no es válido.');
                 }
             });
 
@@ -848,7 +892,6 @@
                     const deleteButtonHTML = isAdmin ? `<div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><button data-id="${img.id}" class="delete-image-btn text-white bg-red-600/80 rounded-full w-10 h-10 font-bold">X</button></div>` : '';
                     displays.galleryContainer.innerHTML += `<div class="relative group overflow-hidden rounded-lg"><img src="${img.url}" alt="${img.alt}" class="w-full h-full object-cover aspect-square transition-transform duration-300 group-hover:scale-110">${deleteButtonHTML}</div>`;
                 });
-                // Guardar cambios en localStorage
                 localStorage.setItem('lasHuellitasGallery', JSON.stringify(galleryImages));
             }
 
@@ -872,9 +915,19 @@
             // --- ADMIN PANEL LOGIC ---
             const adminPassword = 'huellitas_admin';
             
-            function openAdminPanel() {
-                const enteredPassword = prompt('Acceso de administrador. Por favor, ingrese la contraseña:');
-                if (enteredPassword === adminPassword) {
+            function showAdminLogin() {
+                inputs.password.value = '';
+                displays.passwordError.textContent = '';
+                displays.passwordModal.classList.remove('hidden');
+            }
+
+            buttons.passwordCancel.addEventListener('click', () => {
+                displays.passwordModal.classList.add('hidden');
+            });
+
+            buttons.passwordSubmit.addEventListener('click', () => {
+                if (inputs.password.value === adminPassword) {
+                    displays.passwordModal.classList.add('hidden');
                     isAdmin = true;
                     const currentBankDetails = JSON.parse(localStorage.getItem('lasHuellitasBankDetails')) || bankDetails;
                     inputs.adminBanco.value = currentBankDetails.banco;
@@ -886,12 +939,11 @@
 
                     document.getElementById('admin-panel').classList.remove('hidden');
                     renderGallery();
-                } else if (enteredPassword !== null) {
-                    alert('Contraseña incorrecta.');
+                } else {
+                    displays.passwordError.textContent = 'Contraseña incorrecta.';
                 }
-            }
+            });
             
-            // Konami Code for Desktop
             const konamiCode = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
             let konamiPosition = 0;
             document.addEventListener('keyup', (e) => {
@@ -900,14 +952,13 @@
                     konamiPosition++;
                     if (konamiPosition === konamiCode.length) {
                         konamiPosition = 0;
-                        openAdminPanel();
+                        showAdminLogin();
                     }
                 } else if (!e.target.matches('input, textarea')) {
                     konamiPosition = 0;
                 }
             });
 
-            // Logo Tap for Mobile
             let tapCount = 0;
             let tapTimer;
             displays.mainLogo.addEventListener('click', () => {
@@ -916,7 +967,7 @@
                 clearTimeout(tapTimer);
                 if (tapCount >= 7) {
                     tapCount = 0;
-                    openAdminPanel();
+                    showAdminLogin();
                 } else {
                     tapTimer = setTimeout(() => { tapCount = 0; }, 1500);
                 }
@@ -939,7 +990,7 @@
                 localStorage.setItem('lasHuellitasBankDetails', JSON.stringify(bankDetails));
                 
                 renderBankDetails();
-                alert('¡Datos bancarios guardados con éxito!');
+                showMessage('¡Guardado!', '¡Datos bancarios guardados con éxito!');
             });
 
             // --- INITIALIZATION ---
