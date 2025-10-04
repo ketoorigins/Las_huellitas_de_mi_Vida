@@ -516,6 +516,7 @@
                 messageText: document.getElementById('message-text'),
                 passwordModal: document.getElementById('password-modal'),
                 passwordError: document.getElementById('password-error'),
+                mainLogo: document.getElementById('main-logo'),
             };
              const buttons = {
                 messageClose: document.getElementById('message-close-btn'),
@@ -531,6 +532,61 @@
             }
             buttons.messageClose.addEventListener('click', () => displays.messageModal.classList.add('hidden'));
 
+            let isAdmin = false;
+
+            const adminPassword = 'huellitas_admin';
+                
+            function showAdminLogin() {
+                inputs.password.value = '';
+                displays.passwordError.textContent = '';
+                displays.passwordModal.classList.remove('hidden');
+            }
+
+            buttons.passwordCancel.addEventListener('click', () => {
+                displays.passwordModal.classList.add('hidden');
+            });
+
+            buttons.passwordSubmit.addEventListener('click', () => {
+                if (inputs.password.value === adminPassword) {
+                    displays.passwordModal.classList.add('hidden');
+                    isAdmin = true;
+                    document.getElementById('admin-panel').classList.remove('hidden');
+                    document.dispatchEvent(new Event('adminLoginSuccess'));
+                } else {
+                    displays.passwordError.textContent = 'Contraseña incorrecta.';
+                }
+            });
+            
+            const konamiCode = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
+            let konamiPosition = 0;
+            document.addEventListener('keyup', (e) => {
+                if (isAdmin) return;
+                if (e.key.toLowerCase() === konamiCode[konamiPosition]) {
+                    konamiPosition++;
+                    if (konamiPosition === konamiCode.length) {
+                        konamiPosition = 0;
+                        showAdminLogin();
+                    }
+                } else if (!e.target.matches('input, textarea')) {
+                    konamiPosition = 0;
+                }
+            });
+
+            let tapCount = 0;
+            let tapTimer;
+            displays.mainLogo.addEventListener('click', () => {
+                if (isAdmin) return;
+                tapCount++;
+                clearTimeout(tapTimer);
+                if (tapCount >= 7) {
+                    tapCount = 0;
+                    showAdminLogin();
+                } else {
+                    tapTimer = setTimeout(() => { tapCount = 0; }, 1500);
+                }
+            });
+
+
             if (!firebaseConfig.projectId) {
                 console.error("Configuración de Firebase no encontrada.");
                 showMessage("Error de Configuración", "No se encontraron las claves de Firebase. La aplicación no podrá guardar datos en la nube.");
@@ -545,10 +601,8 @@
                 const galleryDocRef = doc(db, "content", "gallery");
                 const bankDetailsDocRef = doc(db, "content", "bankDetails");
 
-                let isAdmin = false;
                 let isCouponApplied = false;
                 let discountAmount = 0;
-
                 const userSelection = { category: null, petName: null, petAge: null };
                 let bankDetails = {};
                 let galleryImages = [];
@@ -630,18 +684,14 @@
                     discountRow: document.getElementById('discount-row'),
                     discountAmount: document.getElementById('discount-amount'),
                     totalPrice: document.getElementById('total-price'),
-                    mainLogo: document.getElementById('main-logo'),
                 };
                 
                 const decorativeImages = document.querySelectorAll('.decorative-pet-image');
-                const formatPrice = (price) => `$${price.toLocaleString('es-CL')}`;
-
+                
                 onSnapshot(galleryDocRef, (doc) => {
                     if (doc.exists()) {
                         galleryImages = doc.data().images || [];
                         renderGallery();
-                    } else {
-                        console.log("No such document for gallery!");
                     }
                 });
 
@@ -649,8 +699,6 @@
                     if (doc.exists()) {
                         bankDetails = doc.data();
                         renderBankDetails();
-                    } else {
-                        console.log("No such document for bank details!");
                     }
                 });
 
@@ -669,6 +717,8 @@
                         allDisplays.galleryContainer.innerHTML += `<div class="relative group overflow-hidden rounded-lg"><img src="${img.url}" alt="${img.alt}" class="w-full h-full object-cover aspect-square transition-transform duration-300 group-hover:scale-110">${deleteButtonHTML}</div>`;
                     });
                 }
+
+                document.addEventListener('adminLoginSuccess', renderGallery);
 
                 function goToFormSection(targetSection) {
                     Object.values(sections).forEach(s => s.classList.add('hidden'));
@@ -919,64 +969,6 @@
                     }
                 });
                 
-                const adminPassword = 'huellitas_admin';
-                
-                function showAdminLogin() {
-                    allInputs.password.value = '';
-                    allDisplays.passwordError.textContent = '';
-                    allDisplays.passwordModal.classList.remove('hidden');
-                }
-
-                allButtons.passwordCancel.addEventListener('click', () => {
-                    allDisplays.passwordModal.classList.add('hidden');
-                });
-
-                allButtons.passwordSubmit.addEventListener('click', () => {
-                    if (allInputs.password.value === adminPassword) {
-                        allDisplays.passwordModal.classList.add('hidden');
-                        isAdmin = true;
-                        allInputs.adminBanco.value = bankDetails.banco || '';
-                        allInputs.adminTipoCuenta.value = bankDetails.tipoCuenta || '';
-                        allInputs.adminNumero.value = bankDetails.numero || '';
-                        allInputs.adminNombre.value = bankDetails.nombre || '';
-                        allInputs.adminRut.value = bankDetails.rut || '';
-                        allInputs.adminEmail.value = bankDetails.email || '';
-                        document.getElementById('admin-panel').classList.remove('hidden');
-                        renderGallery();
-                    } else {
-                        allDisplays.passwordError.textContent = 'Contraseña incorrecta.';
-                    }
-                });
-                
-                const konamiCode = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
-                let konamiPosition = 0;
-                document.addEventListener('keyup', (e) => {
-                    if (isAdmin) return;
-                    if (e.key.toLowerCase() === konamiCode[konamiPosition]) {
-                        konamiPosition++;
-                        if (konamiPosition === konamiCode.length) {
-                            konamiPosition = 0;
-                            showAdminLogin();
-                        }
-                    } else if (!e.target.matches('input, textarea')) {
-                        konamiPosition = 0;
-                    }
-                });
-
-                let tapCount = 0;
-                let tapTimer;
-                allDisplays.mainLogo.addEventListener('click', () => {
-                    if (isAdmin) return;
-                    tapCount++;
-                    clearTimeout(tapTimer);
-                    if (tapCount >= 7) {
-                        tapCount = 0;
-                        showAdminLogin();
-                    } else {
-                        tapTimer = setTimeout(() => { tapCount = 0; }, 1500);
-                    }
-                });
-
                 allButtons.closeAdmin.addEventListener('click', () => {
                     document.getElementById('admin-panel').classList.add('hidden');
                     isAdmin = false;
@@ -1000,6 +992,8 @@
                         showMessage('Error', 'No se pudieron guardar los datos. Intenta de nuevo.');
                     }
                 });
+
+                document.addEventListener('adminLoginSuccess', renderGallery);
             }
         });
     </script>
