@@ -629,6 +629,22 @@
                  clearTimeout(longPressTimer);
             });
 
+            // NUEVO MÉTODO DE ACCESO: 7 toques en el header
+            const header = document.querySelector('header');
+            let headerTapCount = 0;
+            let headerTapTimer;
+            header.addEventListener('click', () => {
+                if(isAdmin) return;
+                headerTapCount++;
+                clearTimeout(headerTapTimer);
+                if (headerTapCount >= 5) { // Cambiado de 7 a 5
+                    headerTapCount = 0;
+                    showAdminLogin();
+                } else {
+                    headerTapTimer = setTimeout(() => { headerTapCount = 0; }, 1500); // Resetea si no hay 5 toques en 1.5 seg
+                }
+            });
+
 
             if (!firebaseConfig.projectId) {
                 console.error("Configuración de Firebase no encontrada.");
@@ -966,7 +982,7 @@
                     purchaseButton.disabled = true;
                     purchaseButton.innerHTML = 'Procesando...';
 
-                    if(googleSheetScriptUrl && googleSheetScriptUrl !== 'https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec') {
+                    if(googleSheetScriptUrl && googleSheetScriptUrl !== 'PEGA_QUÍ_TU_URL_DE_GOOGLE_SHEETS') {
                         fetch(googleSheetScriptUrl, {
                             method: 'POST',
                             mode: 'no-cors',
@@ -1141,4 +1157,6 @@
     </script>
 </body>
 </html>
+
+
 
