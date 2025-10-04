@@ -501,6 +501,11 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             
+             // ######################################################################
+            // ###################           CONFIGURACIÓN          ###################
+            // ######################################################################
+
+            // 1. Claves de Firebase (reemplaza con las tuyas)
             const firebaseConfig = {
               apiKey: "AIzaSyCA-WP1HvNPu-Oh6wOCjGPseyvxa7PMlPA",
               authDomain: "huellitas-web-9108f.firebaseapp.com",
@@ -509,6 +514,15 @@
               messagingSenderId: "1098590067913",
               appId: "1:1098590067913:web:db7862baddcfb45f8f8118"
             };
+
+            // 2. URL de Google Sheets (reemplaza con la tuya)
+            const googleSheetScriptUrl = 'PEGA_AQUÍ_TU_URL_DE_GOOGLE_SHEETS';
+
+            // 3. Número de WhatsApp (reemplaza con el tuyo)
+            const whatsappPhoneNumber = '56912345678'; // Incluye código de país, sin '+' ni espacios
+            
+            // ######################################################################
+            // ######################################################################
             
              const displays = {
                 messageModal: document.getElementById('message-modal'),
@@ -799,7 +813,6 @@
                         return;
                     }
                     
-                    const googleSheetScriptUrl = 'https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec';
                     const selectedZone = allInputs.shippingZone.value;
                     const shippingCost = SHIPPING_COSTS[selectedZone];
                     const total = PRODUCT_PRICE + shippingCost - discountAmount;
@@ -847,9 +860,8 @@
                 });
 
                 function openWhatsApp() {
-                    const whatsappPhoneNumber = '56946902340';
                     const message = encodeURIComponent('¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago. 🐾');
-                    window.open(`https://api.whatsapp.com/send?phone=${whatsappPhoneNumber}&text=${message}`, '_blank');
+                    window.open(`https://api.whatsapp.com/send?phone=${946902340}&text=${message}`, '_blank');
                 }
 
                 allInputs.photos.addEventListener('change', (event) => {
@@ -992,12 +1004,9 @@
                         showMessage('Error', 'No se pudieron guardar los datos. Intenta de nuevo.');
                     }
                 });
-
-                document.addEventListener('adminLoginSuccess', renderGallery);
             }
         });
     </script>
 </body>
 </html>
-
 
