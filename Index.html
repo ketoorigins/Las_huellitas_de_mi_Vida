@@ -199,6 +199,18 @@
                     <!-- Las imágenes de la galería se insertarán aquí por JS -->
                 </div>
             </section>
+
+            <!-- PASO FINAL: Login de Administrador Visible -->
+            <section id="admin-login-section" class="mt-20 pt-10 text-center section-fade-in max-w-sm mx-auto">
+                <div class="bg-white/5 p-8 rounded-2xl border border-white/10">
+                    <h3 class="text-xl mb-4 text-gray-400">Acceso Administrador</h3>
+                    <div class="flex gap-2">
+                        <input type="password" id="admin-password-input" placeholder="Contraseña" class="form-input w-full p-2 text-center bg-[#2b1634]">
+                        <button id="admin-login-btn" class="main-btn px-6 rounded-lg text-sm font-bold">Ingresar</button>
+                    </div>
+                </div>
+            </section>
+
         </div>
         <!-- FIN DE LA PÁGINA PRINCIPAL VISIBLE -->
 
@@ -507,16 +519,11 @@
         </div>
     </div>
 
+    <!-- NO SE USA EL MODAL DE PASSWORD, PERO SE DEJA POR SI SE NECESITA PARA OTRA COSA -->
     <div id="password-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[101]">
         <div class="bg-[#2b1634] p-8 rounded-lg shadow-2xl text-center border-2 border-[#4A00E0] w-full max-w-sm">
-            <h3 class="text-2xl mb-4">Acceso de Administrador</h3>
-            <p class="text-gray-300 mb-4">Por favor, ingrese la contraseña:</p>
-            <input id="password-input" type="password" class="form-input w-full text-center mb-2">
+            <h3 class="text-2xl mb-4">Ventana Segura</h3>
             <p id="password-error" class="text-red-500 text-sm h-4 mb-2"></p>
-            <div class="flex gap-4">
-                <button id="password-cancel-btn" class="bg-gray-700 hover:bg-gray-600 flex-1 py-2 px-6 rounded-lg transition-colors">Cancelar</button>
-                <button id="password-submit-btn" class="main-btn flex-1 py-2 px-6 rounded-lg">Ingresar</button>
-            </div>
         </div>
     </div>
 
@@ -554,16 +561,10 @@
                   messageModal: document.getElementById('message-modal'),
                   messageTitle: document.getElementById('message-title'),
                   messageText: document.getElementById('message-text'),
-                  passwordModal: document.getElementById('password-modal'),
-                  passwordError: document.getElementById('password-error'),
-                  mainLogo: document.getElementById('main-logo'),
               };
               const buttons = {
                   messageClose: document.getElementById('message-close-btn'),
-                  passwordSubmit: document.getElementById('password-submit-btn'),
-                  passwordCancel: document.getElementById('password-cancel-btn'),
                };
-              const inputs = { password: document.getElementById('password-input') };
 
             function showMessage(title, message) {
                 displays.messageTitle.textContent = title;
@@ -575,29 +576,8 @@
             let isAdmin = false;
 
             const adminPassword = 'huellitas_admin';
-                  
-            function showAdminLogin() {
-                inputs.password.value = '';
-                displays.passwordError.textContent = '';
-                displays.passwordModal.classList.remove('hidden');
-            }
-
-            buttons.passwordCancel.addEventListener('click', () => {
-                displays.passwordModal.classList.add('hidden');
-            });
-
-            buttons.passwordSubmit.addEventListener('click', () => {
-                if (inputs.password.value === adminPassword) {
-                    displays.passwordModal.classList.add('hidden');
-                    isAdmin = true;
-                    document.getElementById('admin-panel').classList.remove('hidden');
-                    document.dispatchEvent(new Event('adminLoginSuccess'));
-                } else {
-                    displays.passwordError.textContent = 'Contraseña incorrecta.';
-                }
-            });
             
-            // SE HAN ELIMINADO TODOS LOS MÉTODOS DE ACCESO ANTERIORES.
+            // SE HAN ELIMINADO TODOS LOS MÉTODOS DE ACCESO OCULTOS.
 
             if (!firebaseConfig.projectId) {
                 console.error("Configuración de Firebase no encontrada.");
@@ -606,29 +586,28 @@
                 initializeAppLogic();
             }
 
-            // MÉTODO DE ACCESO DEFINITIVO: 5 CLICS EN EL TÍTULO DEL HEADER
-            const mainTitle = document.querySelector('header h1');
-            let titleTapCount = 0;
-            let titleTapTimer;
-            mainTitle.addEventListener('click', () => {
-                if(isAdmin) return;
-                titleTapCount++;
-                clearTimeout(titleTapTimer);
-                if (titleTapCount >= 5) {
-                    titleTapCount = 0;
-                    showAdminLogin();
-                } else {
-                    titleTapTimer = setTimeout(() => { titleTapCount = 0; }, 1000); // Reset en 1 segundo
-                }
-            });
-
-
             async function initializeAppLogic() {
                 const app = initializeApp(firebaseConfig);
                 const db = getFirestore(app);
 
                 const galleryDocRef = doc(db, "content", "gallery");
                 const bankDetailsDocRef = doc(db, "content", "bankDetails");
+
+                // --- LOGIN DE ADMINISTRADOR DIRECTO Y VISIBLE ---
+                const adminPasswordInput = document.getElementById('admin-password-input');
+                const adminLoginBtn = document.getElementById('admin-login-btn');
+
+                adminLoginBtn.addEventListener('click', () => {
+                    if (adminPasswordInput.value === adminPassword) {
+                        isAdmin = true;
+                        document.getElementById('admin-panel').classList.remove('hidden');
+                        document.dispatchEvent(new Event('adminLoginSuccess'));
+                        adminPasswordInput.value = ''; // Limpiar el campo
+                    } else {
+                        showMessage('Acceso Denegado', 'La contraseña es incorrecta.');
+                        adminPasswordInput.value = ''; // Limpiar el campo
+                    }
+                });
                 
                 // Base de datos de productos (fácil de expandir en el futuro)
                 const PRODUCTS = [
@@ -689,7 +668,6 @@
                 };
 
                 const allInputs = {
-                    ...inputs,
                     petName: document.getElementById('pet-name'),
                     petAge: document.getElementById('pet-age'),
                     shortText: document.getElementById('short-text'),
@@ -1127,5 +1105,4 @@
     </script>
 </body>
 </html>
-
 
