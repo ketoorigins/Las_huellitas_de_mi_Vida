@@ -495,507 +495,512 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
         document.addEventListener('DOMContentLoaded', () => {
-            // --- CONSTANTS & DATA ---
-            const PRODUCT_PRICE = 79990;
-            const SHIPPING_COSTS = {
-                centro: 0,
-                alrededores: 4500,
-                regiones: 8990,
-            };
-
-            let isAdmin = false;
-            let isCouponApplied = false;
-            let discountAmount = 0;
-
-            const userSelection = {
-                category: null,
-                petName: null,
-                petAge: null,
-            };
-
-            const savedBankDetails = localStorage.getItem('lasHuellitasBankDetails');
-            let bankDetails = savedBankDetails ? JSON.parse(savedBankDetails) : {
-                banco: 'Banco Estado',
-                tipoCuenta: 'CuentaRUT',
-                numero: '12.345.678-9',
-                nombre: 'Las Huellitas de mi Vida SpA',
-                rut: '77.654.321-K',
-                email: 'pagos@lashuellitasdemivida.cl'
+            
+            const firebaseConfig = {
+              apiKey: "AIzaSyCA-WP1HvNPu-Oh6wOCjGPseyvxa7PMlPA",
+              authDomain: "huellitas-web-9108f.firebaseapp.com",
+              projectId: "huellitas-web-9108f",
+              storageBucket: "huellitas-web-9108f.appspot.com",
+              messagingSenderId: "1098590067913",
+              appId: "1:1098590067913:web:db7862baddcfb45f8f8118"
             };
             
-            const savedGallery = localStorage.getItem('lasHuellitasGallery');
-            let galleryImages = savedGallery ? JSON.parse(savedGallery) : [
-                { id: 1, url: 'https://i.ibb.co/L9nZqjN/gallery-1.png', alt: 'Cuadro de mascota 1' },
-                { id: 2, url: 'https://i.ibb.co/hKzK2tW/gallery-2.png', alt: 'Cuadro de mascota 2' },
-                { id: 3, url: 'https://i.ibb.co/K50h4Xy/gallery-3.png', alt: 'Cuadro de mascota 3' },
-                { id: 4, url: 'https://i.ibb.co/K2tC7b4/gallery-4.png', alt: 'Cuadro de mascota 4' },
-            ];
-
-            // --- ELEMENT REFERENCES ---
-            const sections = {
-                hero: document.getElementById('hero-section'),
-                gallery: document.getElementById('gallery-section'),
-                projects: document.getElementById('projects-section'),
-                petData: document.getElementById('pet-data-section'),
-                upload: document.getElementById('upload-section'),
-                summary: document.getElementById('summary-section'),
-                payment: document.getElementById('payment-section'),
-            };
-
-            const buttons = {
-                startProject: document.getElementById('start-project-btn'),
-                categoryCards: document.querySelectorAll('.category-card'),
-                backToHome: document.querySelector('.back-to-home-btn'),
-                continueToUpload: document.getElementById('continue-to-upload-btn'),
-                backToPetData: document.querySelector('.back-to-pet-data-btn'),
-                continueToSummary: document.getElementById('continue-to-summary-btn'),
-                backToUpload: document.querySelector('.back-to-upload-btn'),
-                continueToPayment: document.getElementById('continue-to-payment-btn'),
-                backToSummary: document.querySelectorAll('.back-to-summary-btn'),
-                finishPurchase: document.getElementById('finish-purchase-btn'),
-                withVideo: document.getElementById('with-video-btn'),
-                noVideo: document.getElementById('no-video-btn'),
-                changeChoice: document.getElementById('change-choice-btn'),
-                applyCoupon: document.getElementById('apply-coupon-btn'),
-                addImage: document.getElementById('add-image-btn'),
-                saveBankDetails: document.getElementById('save-bank-details-btn'),
-                closeAdmin: document.getElementById('close-admin-btn'),
-                messageClose: document.getElementById('message-close-btn'),
-                passwordSubmit: document.getElementById('password-submit-btn'),
-                passwordCancel: document.getElementById('password-cancel-btn'),
-            };
-
-            const inputs = {
-                petName: document.getElementById('pet-name'),
-                petAge: document.getElementById('pet-age'),
-                shortText: document.getElementById('short-text'),
-                longText: document.getElementById('long-text'),
-                surpriseMe: document.getElementById('surprise-me'),
-                galleryUrl: document.getElementById('gallery-url-input'),
-                photos: document.getElementById('photos'),
-                couponCode: document.getElementById('coupon-code'),
-                shippingZone: document.getElementById('shipping-zone'),
-                shippingFullName: document.getElementById('full-name'),
-                shippingAddress: document.getElementById('address'),
-                shippingCity: document.getElementById('city'),
-                shippingPhone: document.getElementById('phone'),
-                password: document.getElementById('password-input'),
-                adminBanco: document.getElementById('admin-banco'),
-                adminTipoCuenta: document.getElementById('admin-tipo-cuenta'),
-                adminNumero: document.getElementById('admin-numero'),
-                adminNombre: document.getElementById('admin-nombre'),
-                adminRut: document.getElementById('admin-rut'),
-                adminEmail: document.getElementById('admin-email'),
-            };
-
-            const displays = {
-                petDataTitle: document.getElementById('pet-data-title'),
-                videoChoiceContainer: document.getElementById('video-choice-container'),
-                mainUploadForm: document.getElementById('main-upload-form'),
-                uploadContainers: document.getElementById('upload-containers'),
-                photosContainer: document.getElementById('photos-upload-container'),
-                videoContainer: document.getElementById('video-upload-container'),
-                photosLabel: document.getElementById('photos-label'),
-                photosDescription: document.getElementById('photos-description'),
-                shortTextCounter: document.getElementById('short-text-counter'),
-                longTextCounter: document.getElementById('long-text-counter'),
-                galleryContainer: document.getElementById('gallery-container'),
-                surpriseMeText: document.getElementById('surprise-me-homenaje-text'),
-                summaryCategory: document.getElementById('summary-category'),
-                summaryPetName: document.getElementById('summary-pet-name'),
-                summaryPetAge: document.getElementById('summary-pet-age'),
-                summaryImagesContainer: document.getElementById('summary-images-container'),
-                subtotalPrice: document.getElementById('subtotal-price'),
-                shippingCost: document.getElementById('shipping-cost'),
-                discountRow: document.getElementById('discount-row'),
-                discountAmount: document.getElementById('discount-amount'),
-                totalPrice: document.getElementById('total-price'),
-                mainLogo: document.getElementById('main-logo'),
+             const displays = {
                 messageModal: document.getElementById('message-modal'),
                 messageTitle: document.getElementById('message-title'),
                 messageText: document.getElementById('message-text'),
                 passwordModal: document.getElementById('password-modal'),
                 passwordError: document.getElementById('password-error'),
             };
-            
-            const decorativeImages = document.querySelectorAll('.decorative-pet-image');
-            
-            const formatPrice = (price) => `$${price.toLocaleString('es-CL')}`;
+             const buttons = {
+                messageClose: document.getElementById('message-close-btn'),
+                passwordSubmit: document.getElementById('password-submit-btn'),
+                passwordCancel: document.getElementById('password-cancel-btn'),
+             };
+             const inputs = { password: document.getElementById('password-input') };
 
-            // --- MODAL FUNCTIONS ---
             function showMessage(title, message) {
                 displays.messageTitle.textContent = title;
                 displays.messageText.textContent = message;
                 displays.messageModal.classList.remove('hidden');
             }
+            buttons.messageClose.addEventListener('click', () => displays.messageModal.classList.add('hidden'));
 
-            buttons.messageClose.addEventListener('click', () => {
-                displays.messageModal.classList.add('hidden');
-            });
-
-            // --- RENDER FUNCTIONS ---
-            function renderBankDetails() {
-                document.querySelectorAll('#transfer-payment-details [data-key]').forEach(span => {
-                    span.textContent = bankDetails[span.dataset.key];
-                });
+            if (!firebaseConfig.projectId) {
+                console.error("Configuración de Firebase no encontrada.");
+                showMessage("Error de Configuración", "No se encontraron las claves de Firebase. La aplicación no podrá guardar datos en la nube.");
+            } else {
+                initializeAppLogic();
             }
 
-            // --- NAVIGATION LOGIC ---
-            function goToFormSection(targetSection) {
-                 Object.values(sections).forEach(s => s.classList.add('hidden'));
-                 targetSection.classList.remove('hidden');
-                 window.scrollTo(0, 0);
-            }
+            function initializeAppLogic() {
+                const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
 
-            function showHomePage() {
-                Object.values(sections).forEach(s => s.classList.add('hidden'));
-                sections.hero.classList.remove('hidden');
-                sections.projects.classList.remove('hidden');
-                sections.gallery.classList.remove('hidden');
-                window.scrollTo(0, 0);
-            }
+                const galleryDocRef = doc(db, "content", "gallery");
+                const bankDetailsDocRef = doc(db, "content", "bankDetails");
 
-            buttons.startProject.addEventListener('click', () => {
-                document.getElementById('projects-section').scrollIntoView();
-            });
+                let isAdmin = false;
+                let isCouponApplied = false;
+                let discountAmount = 0;
 
-            buttons.categoryCards.forEach(card => {
-                card.addEventListener('click', () => {
-                    userSelection.category = card.dataset.category;
-                    displays.petDataTitle.textContent = `Proyecto: ${userSelection.category}`;
-                    decorativeImages.forEach(img => img.classList.add('hidden'));
-                    if (userSelection.category.includes('Homenaje')) document.getElementById('deco-homenaje').classList.remove('hidden');
-                    else if (userSelection.category.includes('Celebrando su Vida')) document.getElementById('deco-celebrando').classList.remove('hidden');
-                    else if (userSelection.category.includes('Nueva Familia')) document.getElementById('deco-familia').classList.remove('hidden');
-                    goToFormSection(sections.petData);
-                });
-            });
+                const userSelection = { category: null, petName: null, petAge: null };
+                let bankDetails = {};
+                let galleryImages = [];
 
-            buttons.backToHome.addEventListener('click', () => showHomePage());
-            
-            buttons.continueToUpload.addEventListener('click', () => {
-                if (inputs.petName.value.trim() === '' || inputs.petAge.value === '') {
-                    showMessage('Campos Incompletos', 'Por favor, completa todos los campos para continuar.');
-                    return;
-                }
-                userSelection.petName = inputs.petName.value;
-                userSelection.petAge = inputs.petAge.value;
-                displays.surpriseMeText.classList.toggle('hidden', !userSelection.category.includes('Homenaje'));
-                goToFormSection(sections.upload);
-            });
-            
-            buttons.backToPetData.addEventListener('click', () => goToFormSection(sections.petData));
-            
-            buttons.continueToSummary.addEventListener('click', () => {
-                displays.summaryCategory.textContent = userSelection.category;
-                displays.summaryPetName.textContent = userSelection.petName;
-                displays.summaryPetAge.textContent = `${userSelection.petAge} años`;
-
-                displays.summaryImagesContainer.innerHTML = '';
-                const imagesToShow = galleryImages.slice(0, 2);
-                if(imagesToShow.length > 0) {
-                    imagesToShow.forEach(galleryImage => {
-                         displays.summaryImagesContainer.innerHTML += `<img src="${galleryImage.url}" alt="${galleryImage.alt}" class="rounded-lg w-full aspect-square object-cover">`;
-                    });
-                } else {
-                     displays.summaryImagesContainer.innerHTML = `<div class="rounded-lg w-full aspect-square bg-white/10 flex items-center justify-center"><p class="text-gray-400">Ejemplo 1</p></div><div class="rounded-lg w-full aspect-square bg-white/10 flex items-center justify-center"><p class="text-gray-400">Ejemplo 2</p></div>`;
-                }
-
-                goToFormSection(sections.summary);
-            });
-
-            buttons.backToUpload.addEventListener('click', () => goToFormSection(sections.upload));
-            
-            buttons.continueToPayment.addEventListener('click', () => {
-                updatePaymentSummary();
-                goToFormSection(sections.payment);
-            });
-            
-            document.querySelectorAll('.back-to-summary-btn').forEach(btn => {
-                btn.addEventListener('click', () => goToFormSection(sections.summary));
-            });
-
-            buttons.finishPurchase.addEventListener('click', () => {
-                const shippingForm = document.getElementById('shipping-form');
-                if (!shippingForm.checkValidity()) {
-                    showMessage('Datos Faltantes', 'Por favor, completa todos los campos de la dirección de despacho.');
-                    return;
-                }
-                
-                // ######################################################################
-                // ######################################################################
-                // #################### INTEGRACIÓN CON GOOGLE SHEETS ###################
-                //
-                // PEGA AQUÍ, DENTRO DE LAS COMILLAS, LA URL DE TU SCRIPT DE GOOGLE SHEETS
-                const googleSheetScriptUrl = 'PEGA_AQUÍ_TU_URL_DE_GOOGLE_SHEETS'; 
-                //
-                // ######################################################################
-                // ######################################################################
-                // ######################################################################
-
-
-                const selectedZone = inputs.shippingZone.value;
-                const shippingCost = SHIPPING_COSTS[selectedZone];
-                const total = PRODUCT_PRICE + shippingCost - discountAmount;
-
-                const orderData = {
-                    categoria: userSelection.category,
-                    nombreMascota: userSelection.petName,
-                    edadMascota: userSelection.petAge,
-                    nombreCliente: inputs.shippingFullName.value,
-                    direccion: inputs.shippingAddress.value,
-                    comuna: inputs.shippingCity.value,
-                    telefono: inputs.shippingPhone.value,
-                    costoEnvio: shippingCost,
-                    totalPagado: total
+                const sections = {
+                    hero: document.getElementById('hero-section'),
+                    gallery: document.getElementById('gallery-section'),
+                    projects: document.getElementById('projects-section'),
+                    petData: document.getElementById('pet-data-section'),
+                    upload: document.getElementById('upload-section'),
+                    summary: document.getElementById('summary-section'),
+                    payment: document.getElementById('payment-section'),
                 };
 
-                const purchaseButton = buttons.finishPurchase;
-                purchaseButton.disabled = true;
-                purchaseButton.innerHTML = 'Procesando...';
+                const allButtons = {
+                    ...buttons,
+                    startProject: document.getElementById('start-project-btn'),
+                    categoryCards: document.querySelectorAll('.category-card'),
+                    backToHome: document.querySelector('.back-to-home-btn'),
+                    continueToUpload: document.getElementById('continue-to-upload-btn'),
+                    backToPetData: document.querySelector('.back-to-pet-data-btn'),
+                    continueToSummary: document.getElementById('continue-to-summary-btn'),
+                    backToUpload: document.querySelector('.back-to-upload-btn'),
+                    continueToPayment: document.getElementById('continue-to-payment-btn'),
+                    backToSummary: document.querySelectorAll('.back-to-summary-btn'),
+                    finishPurchase: document.getElementById('finish-purchase-btn'),
+                    withVideo: document.getElementById('with-video-btn'),
+                    noVideo: document.getElementById('no-video-btn'),
+                    changeChoice: document.getElementById('change-choice-btn'),
+                    applyCoupon: document.getElementById('apply-coupon-btn'),
+                    addImage: document.getElementById('add-image-btn'),
+                    saveBankDetails: document.getElementById('save-bank-details-btn'),
+                    closeAdmin: document.getElementById('close-admin-btn'),
+                };
 
-                if(googleSheetScriptUrl && googleSheetScriptUrl !== 'https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec') {
-                     fetch(googleSheetScriptUrl, {
-                        method: 'POST',
-                        body: JSON.stringify(orderData)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Success:', data);
+                const allInputs = {
+                    ...inputs,
+                    petName: document.getElementById('pet-name'),
+                    petAge: document.getElementById('pet-age'),
+                    shortText: document.getElementById('short-text'),
+                    longText: document.getElementById('long-text'),
+                    surpriseMe: document.getElementById('surprise-me'),
+                    galleryUrl: document.getElementById('gallery-url-input'),
+                    photos: document.getElementById('photos'),
+                    couponCode: document.getElementById('coupon-code'),
+                    shippingZone: document.getElementById('shipping-zone'),
+                    shippingFullName: document.getElementById('full-name'),
+                    shippingAddress: document.getElementById('address'),
+                    shippingCity: document.getElementById('city'),
+                    shippingPhone: document.getElementById('phone'),
+                    adminBanco: document.getElementById('admin-banco'),
+                    adminTipoCuenta: document.getElementById('admin-tipo-cuenta'),
+                    adminNumero: document.getElementById('admin-numero'),
+                    adminNombre: document.getElementById('admin-nombre'),
+                    adminRut: document.getElementById('admin-rut'),
+                    adminEmail: document.getElementById('admin-email'),
+                };
+
+                const allDisplays = {
+                    ...displays,
+                    petDataTitle: document.getElementById('pet-data-title'),
+                    videoChoiceContainer: document.getElementById('video-choice-container'),
+                    mainUploadForm: document.getElementById('main-upload-form'),
+                    uploadContainers: document.getElementById('upload-containers'),
+                    photosContainer: document.getElementById('photos-upload-container'),
+                    videoContainer: document.getElementById('video-upload-container'),
+                    photosLabel: document.getElementById('photos-label'),
+                    photosDescription: document.getElementById('photos-description'),
+                    shortTextCounter: document.getElementById('short-text-counter'),
+                    longTextCounter: document.getElementById('long-text-counter'),
+                    galleryContainer: document.getElementById('gallery-container'),
+                    surpriseMeText: document.getElementById('surprise-me-homenaje-text'),
+                    summaryCategory: document.getElementById('summary-category'),
+                    summaryPetName: document.getElementById('summary-pet-name'),
+                    summaryPetAge: document.getElementById('summary-pet-age'),
+                    summaryImagesContainer: document.getElementById('summary-images-container'),
+                    subtotalPrice: document.getElementById('subtotal-price'),
+                    shippingCost: document.getElementById('shipping-cost'),
+                    discountRow: document.getElementById('discount-row'),
+                    discountAmount: document.getElementById('discount-amount'),
+                    totalPrice: document.getElementById('total-price'),
+                    mainLogo: document.getElementById('main-logo'),
+                };
+                
+                const decorativeImages = document.querySelectorAll('.decorative-pet-image');
+                const formatPrice = (price) => `$${price.toLocaleString('es-CL')}`;
+
+                onSnapshot(galleryDocRef, (doc) => {
+                    if (doc.exists()) {
+                        galleryImages = doc.data().images || [];
+                        renderGallery();
+                    } else {
+                        console.log("No such document for gallery!");
+                    }
+                });
+
+                onSnapshot(bankDetailsDocRef, (doc) => {
+                    if (doc.exists()) {
+                        bankDetails = doc.data();
+                        renderBankDetails();
+                    } else {
+                        console.log("No such document for bank details!");
+                    }
+                });
+
+                function renderBankDetails() {
+                    if (bankDetails) {
+                        document.querySelectorAll('#transfer-payment-details [data-key]').forEach(span => {
+                            span.textContent = bankDetails[span.dataset.key] || '';
+                        });
+                    }
+                }
+                
+                function renderGallery() {
+                    allDisplays.galleryContainer.innerHTML = '';
+                    galleryImages.forEach(img => {
+                        const deleteButtonHTML = isAdmin ? `<div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><button data-id="${img.id}" class="delete-image-btn text-white bg-red-600/80 rounded-full w-10 h-10 font-bold">X</button></div>` : '';
+                        allDisplays.galleryContainer.innerHTML += `<div class="relative group overflow-hidden rounded-lg"><img src="${img.url}" alt="${img.alt}" class="w-full h-full object-cover aspect-square transition-transform duration-300 group-hover:scale-110">${deleteButtonHTML}</div>`;
+                    });
+                }
+
+                function goToFormSection(targetSection) {
+                    Object.values(sections).forEach(s => s.classList.add('hidden'));
+                    targetSection.classList.remove('hidden');
+                    window.scrollTo(0, 0);
+                }
+
+                function showHomePage() {
+                    Object.values(sections).forEach(s => s.classList.add('hidden'));
+                    sections.hero.classList.remove('hidden');
+                    sections.projects.classList.remove('hidden');
+                    sections.gallery.classList.remove('hidden');
+                    window.scrollTo(0, 0);
+                }
+
+                allButtons.startProject.addEventListener('click', () => {
+                    document.getElementById('projects-section').scrollIntoView();
+                });
+
+                allButtons.categoryCards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        userSelection.category = card.dataset.category;
+                        allDisplays.petDataTitle.textContent = `Proyecto: ${userSelection.category}`;
+                        decorativeImages.forEach(img => img.classList.add('hidden'));
+                        if (userSelection.category.includes('Homenaje')) document.getElementById('deco-homenaje').classList.remove('hidden');
+                        else if (userSelection.category.includes('Celebrando su Vida')) document.getElementById('deco-celebrando').classList.remove('hidden');
+                        else if (userSelection.category.includes('Nueva Familia')) document.getElementById('deco-familia').classList.remove('hidden');
+                        goToFormSection(sections.petData);
+                    });
+                });
+
+                allButtons.backToHome.addEventListener('click', () => showHomePage());
+                
+                allButtons.continueToUpload.addEventListener('click', () => {
+                    if (allInputs.petName.value.trim() === '' || allInputs.petAge.value === '') {
+                        showMessage('Campos Incompletos', 'Por favor, completa todos los campos para continuar.');
+                        return;
+                    }
+                    userSelection.petName = allInputs.petName.value;
+                    userSelection.petAge = allInputs.petAge.value;
+                    allDisplays.surpriseMeText.classList.toggle('hidden', !userSelection.category.includes('Homenaje'));
+                    goToFormSection(sections.upload);
+                });
+                
+                allButtons.backToPetData.addEventListener('click', () => goToFormSection(sections.petData));
+                
+                allButtons.continueToSummary.addEventListener('click', () => {
+                    allDisplays.summaryCategory.textContent = userSelection.category;
+                    allDisplays.summaryPetName.textContent = userSelection.petName;
+                    allDisplays.summaryPetAge.textContent = `${userSelection.petAge} años`;
+                    allDisplays.summaryImagesContainer.innerHTML = '';
+                    const imagesToShow = galleryImages.slice(0, 2);
+                    if(imagesToShow.length > 0) {
+                        imagesToShow.forEach(galleryImage => {
+                            allDisplays.summaryImagesContainer.innerHTML += `<img src="${galleryImage.url}" alt="${galleryImage.alt}" class="rounded-lg w-full aspect-square object-cover">`;
+                        });
+                    } else {
+                        allDisplays.summaryImagesContainer.innerHTML = `<div class="rounded-lg w-full aspect-square bg-white/10 flex items-center justify-center"><p class="text-gray-400">Ejemplo 1</p></div><div class="rounded-lg w-full aspect-square bg-white/10 flex items-center justify-center"><p class="text-gray-400">Ejemplo 2</p></div>`;
+                    }
+                    goToFormSection(sections.summary);
+                });
+
+                allButtons.backToUpload.addEventListener('click', () => goToFormSection(sections.upload));
+                
+                allButtons.continueToPayment.addEventListener('click', () => {
+                    updatePaymentSummary();
+                    goToFormSection(sections.payment);
+                });
+                
+                document.querySelectorAll('.back-to-summary-btn').forEach(btn => {
+                    btn.addEventListener('click', () => goToFormSection(sections.summary));
+                });
+
+                allButtons.finishPurchase.addEventListener('click', () => {
+                    const shippingForm = document.getElementById('shipping-form');
+                    if (!shippingForm.checkValidity()) {
+                        showMessage('Datos Faltantes', 'Por favor, completa todos los campos de la dirección de despacho.');
+                        return;
+                    }
+                    
+                    const googleSheetScriptUrl = 'PEGA_AQUÍ_TU_URL_DE_GOOGLE_SHEETS';
+                    const selectedZone = allInputs.shippingZone.value;
+                    const shippingCost = SHIPPING_COSTS[selectedZone];
+                    const total = PRODUCT_PRICE + shippingCost - discountAmount;
+
+                    const orderData = {
+                        categoria: userSelection.category,
+                        nombreMascota: userSelection.petName,
+                        edadMascota: userSelection.petAge,
+                        nombreCliente: allInputs.shippingFullName.value,
+                        direccion: allInputs.shippingAddress.value,
+                        comuna: allInputs.shippingCity.value,
+                        telefono: allInputs.shippingPhone.value,
+                        costoEnvio: shippingCost,
+                        totalPagado: total
+                    };
+
+                    const purchaseButton = allButtons.finishPurchase;
+                    purchaseButton.disabled = true;
+                    purchaseButton.innerHTML = 'Procesando...';
+
+                    if(googleSheetScriptUrl && googleSheetScriptUrl !== 'https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec') {
+                        fetch(googleSheetScriptUrl, {
+                            method: 'POST',
+                            body: JSON.stringify(orderData)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Success:', data);
+                            openWhatsApp();
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                            showMessage('Error', 'Hubo un error al registrar tu pedido. Por favor, intenta de nuevo.');
+                        })
+                        .finally(() => {
+                            purchaseButton.disabled = false;
+                            purchaseButton.innerHTML = 'Enviar Comprobante por WhatsApp 🐾';
+                        });
+                    } else {
+                        console.log('URL de Google Sheet no configurada. Abriendo WhatsApp directamente.');
                         openWhatsApp();
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
-                        showMessage('Error', 'Hubo un error al registrar tu pedido. Por favor, intenta de nuevo.');
-                    })
-                    .finally(() => {
                         purchaseButton.disabled = false;
                         purchaseButton.innerHTML = 'Enviar Comprobante por WhatsApp 🐾';
-                    });
-                } else {
-                    console.log('URL de Google Sheet no configurada. Abriendo WhatsApp directamente.');
-                    openWhatsApp();
-                    purchaseButton.disabled = false;
-                    purchaseButton.innerHTML = 'Enviar Comprobante por WhatsApp 🐾';
-                }
-            });
-
-            function openWhatsApp() {
-                 const whatsappPhoneNumber = '56946902340';
-                 const message = encodeURIComponent('¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago. 🐾');
-                 window.open(`https://api.whatsapp.com/send?phone=${whatsappPhoneNumber}&text=${message}`, '_blank');
-            }
-
-            // --- UPLOAD FORM LOGIC ---
-            inputs.photos.addEventListener('change', (event) => {
-                const photoContainer = document.getElementById('photos-upload-container');
-                let fileCountDisplay = photoContainer.querySelector('.file-count-display');
-                if (!fileCountDisplay) {
-                    fileCountDisplay = document.createElement('p');
-                    fileCountDisplay.className = 'file-count-display text-sm text-green-400 mt-2';
-                    photoContainer.appendChild(fileCountDisplay);
-                }
-                if (event.target.files.length > 0) {
-                    fileCountDisplay.textContent = `${event.target.files.length} archivo(s) seleccionado(s) con éxito.`;
-                } else {
-                    fileCountDisplay.textContent = '';
-                }
-            });
-
-            function showUploadForm(withVideo) {
-                displays.videoChoiceContainer.classList.add('hidden');
-                displays.mainUploadForm.classList.remove('hidden');
-                if (withVideo) {
-                    displays.videoContainer.classList.remove('hidden');
-                    displays.photosDescription.textContent = "Puedes subir hasta 10 fotos.";
-                } else {
-                    displays.videoContainer.classList.add('hidden');
-                    displays.photosDescription.textContent = "Puedes subir hasta 20 fotos. Crearemos un video emotivo a partir de ellas.";
-                }
-            }
-
-            buttons.withVideo.addEventListener('click', () => showUploadForm(true));
-            buttons.noVideo.addEventListener('click', () => showUploadForm(false));
-
-            buttons.changeChoice.addEventListener('click', () => {
-                displays.mainUploadForm.classList.add('hidden');
-                displays.videoChoiceContainer.classList.remove('hidden');
-            });
-            
-            // --- PAYMENT & SHIPPING LOGIC ---
-            function updatePaymentSummary() {
-                const selectedZone = inputs.shippingZone.value;
-                const shippingCost = SHIPPING_COSTS[selectedZone];
-                let total = PRODUCT_PRICE + shippingCost;
-
-                if (isCouponApplied) {
-                    total -= discountAmount;
-                }
-                
-                displays.subtotalPrice.textContent = formatPrice(PRODUCT_PRICE);
-                displays.shippingCost.textContent = formatPrice(shippingCost);
-                displays.totalPrice.textContent = formatPrice(total);
-            }
-            
-            inputs.shippingZone.addEventListener('change', updatePaymentSummary);
-
-            buttons.applyCoupon.addEventListener('click', () => {
-                const code = inputs.couponCode.value.trim().toUpperCase();
-                if (isCouponApplied) {
-                    showMessage('Aviso', 'Ya se ha aplicado un descuento en esta compra.');
-                    return;
-                }
-                if (code.includes('HUELLITAS')) {
-                    isCouponApplied = true;
-                    discountAmount = PRODUCT_PRICE * 0.15;
-                    displays.discountAmount.textContent = `- ${formatPrice(discountAmount)}`;
-                    displays.discountRow.classList.remove('hidden');
-                    updatePaymentSummary();
-                    showMessage('¡Éxito!', 'Cupón del 15% aplicado con éxito.');
-                    inputs.couponCode.disabled = true;
-                    buttons.applyCoupon.disabled = true;
-                    buttons.applyCoupon.textContent = 'Aplicado';
-                } else {
-                    showMessage('Error', 'El código del cupón no es válido.');
-                }
-            });
-
-            // --- COUNTER LOGIC ---
-            function setupCounter(inputElement, counterElement, maxLength) {
-                inputElement.addEventListener('input', () => {
-                    const currentLength = inputElement.value.length;
-                    counterElement.textContent = `${currentLength}/${maxLength}`;
-                    counterElement.classList.toggle('text-red-500', currentLength > maxLength);
-                });
-            }
-            setupCounter(inputs.shortText, displays.shortTextCounter, 150);
-            setupCounter(inputs.longText, displays.longTextCounter, 400);
-
-            inputs.surpriseMe.addEventListener('change', (e) => {
-                const isChecked = e.target.checked;
-                inputs.shortText.disabled = isChecked;
-                inputs.longText.disabled = isChecked;
-                if (isChecked) {
-                    inputs.shortText.value = '';
-                    inputs.longText.value = '';
-                    inputs.shortText.dispatchEvent(new Event('input'));
-                    inputs.longText.dispatchEvent(new Event('input'));
-                }
-            });
-
-            // --- GALLERY LOGIC ---
-            function renderGallery() {
-                displays.galleryContainer.innerHTML = '';
-                galleryImages.forEach(img => {
-                    const deleteButtonHTML = isAdmin ? `<div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><button data-id="${img.id}" class="delete-image-btn text-white bg-red-600/80 rounded-full w-10 h-10 font-bold">X</button></div>` : '';
-                    displays.galleryContainer.innerHTML += `<div class="relative group overflow-hidden rounded-lg"><img src="${img.url}" alt="${img.alt}" class="w-full h-full object-cover aspect-square transition-transform duration-300 group-hover:scale-110">${deleteButtonHTML}</div>`;
-                });
-                localStorage.setItem('lasHuellitasGallery', JSON.stringify(galleryImages));
-            }
-
-            buttons.addImage.addEventListener('click', () => {
-                const url = inputs.galleryUrl.value.trim();
-                if (url) {
-                    galleryImages.unshift({ id: Date.now(), url: url, alt: 'Nueva imagen de mascota' });
-                    renderGallery();
-                    inputs.galleryUrl.value = '';
-                }
-            });
-
-            displays.galleryContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('delete-image-btn')) {
-                    const idToDelete = parseInt(e.target.dataset.id);
-                    galleryImages = galleryImages.filter(img => img.id !== idToDelete);
-                    renderGallery();
-                }
-            });
-            
-            // --- ADMIN PANEL LOGIC ---
-            const adminPassword = 'huellitas_admin';
-            
-            function showAdminLogin() {
-                inputs.password.value = '';
-                displays.passwordError.textContent = '';
-                displays.passwordModal.classList.remove('hidden');
-            }
-
-            buttons.passwordCancel.addEventListener('click', () => {
-                displays.passwordModal.classList.add('hidden');
-            });
-
-            buttons.passwordSubmit.addEventListener('click', () => {
-                if (inputs.password.value === adminPassword) {
-                    displays.passwordModal.classList.add('hidden');
-                    isAdmin = true;
-                    const currentBankDetails = JSON.parse(localStorage.getItem('lasHuellitasBankDetails')) || bankDetails;
-                    inputs.adminBanco.value = currentBankDetails.banco;
-                    inputs.adminTipoCuenta.value = currentBankDetails.tipoCuenta;
-                    inputs.adminNumero.value = currentBankDetails.numero;
-                    inputs.adminNombre.value = currentBankDetails.nombre;
-                    inputs.adminRut.value = currentBankDetails.rut;
-                    inputs.adminEmail.value = currentBankDetails.email;
-
-                    document.getElementById('admin-panel').classList.remove('hidden');
-                    renderGallery();
-                } else {
-                    displays.passwordError.textContent = 'Contraseña incorrecta.';
-                }
-            });
-            
-            const konamiCode = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
-            let konamiPosition = 0;
-            document.addEventListener('keyup', (e) => {
-                if (isAdmin) return;
-                if (e.key.toLowerCase() === konamiCode[konamiPosition]) {
-                    konamiPosition++;
-                    if (konamiPosition === konamiCode.length) {
-                        konamiPosition = 0;
-                        showAdminLogin();
                     }
-                } else if (!e.target.matches('input, textarea')) {
-                    konamiPosition = 0;
+                });
+
+                function openWhatsApp() {
+                    const whatsappPhoneNumber = '56946902340';
+                    const message = encodeURIComponent('¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago. 🐾');
+                    window.open(`https://api.whatsapp.com/send?phone=${whatsappPhoneNumber}&text=${message}`, '_blank');
                 }
-            });
 
-            let tapCount = 0;
-            let tapTimer;
-            displays.mainLogo.addEventListener('click', () => {
-                if (isAdmin) return;
-                tapCount++;
-                clearTimeout(tapTimer);
-                if (tapCount >= 7) {
-                    tapCount = 0;
-                    showAdminLogin();
-                } else {
-                    tapTimer = setTimeout(() => { tapCount = 0; }, 1500);
+                allInputs.photos.addEventListener('change', (event) => {
+                    const photoContainer = document.getElementById('photos-upload-container');
+                    let fileCountDisplay = photoContainer.querySelector('.file-count-display');
+                    if (!fileCountDisplay) {
+                        fileCountDisplay = document.createElement('p');
+                        fileCountDisplay.className = 'file-count-display text-sm text-green-400 mt-2';
+                        photoContainer.appendChild(fileCountDisplay);
+                    }
+                    if (event.target.files.length > 0) {
+                        fileCountDisplay.textContent = `${event.target.files.length} archivo(s) seleccionado(s) con éxito.`;
+                    } else {
+                        fileCountDisplay.textContent = '';
+                    }
+                });
+
+                function showUploadForm(withVideo) {
+                    allDisplays.videoChoiceContainer.classList.add('hidden');
+                    allDisplays.mainUploadForm.classList.remove('hidden');
+                    if (withVideo) {
+                        allDisplays.videoContainer.classList.remove('hidden');
+                        allDisplays.photosDescription.textContent = "Puedes subir hasta 10 fotos.";
+                    } else {
+                        allDisplays.videoContainer.classList.add('hidden');
+                        allDisplays.photosDescription.textContent = "Puedes subir hasta 20 fotos. Crearemos un video emotivo a partir de ellas.";
+                    }
                 }
-            });
 
-            buttons.closeAdmin.addEventListener('click', () => {
-                document.getElementById('admin-panel').classList.add('hidden');
-                isAdmin = false;
-                renderGallery();
-            });
-
-            buttons.saveBankDetails.addEventListener('click', () => {
-                bankDetails.banco = inputs.adminBanco.value;
-                bankDetails.tipoCuenta = inputs.adminTipoCuenta.value;
-                bankDetails.numero = inputs.adminNumero.value;
-                bankDetails.nombre = inputs.adminNombre.value;
-                bankDetails.rut = inputs.adminRut.value;
-                bankDetails.email = inputs.adminEmail.value;
-
-                localStorage.setItem('lasHuellitasBankDetails', JSON.stringify(bankDetails));
+                allButtons.withVideo.addEventListener('click', () => showUploadForm(true));
+                allButtons.noVideo.addEventListener('click', () => showUploadForm(false));
+                allButtons.changeChoice.addEventListener('click', () => {
+                    allDisplays.mainUploadForm.classList.add('hidden');
+                    allDisplays.videoChoiceContainer.classList.remove('hidden');
+                });
                 
-                renderBankDetails();
-                showMessage('¡Guardado!', '¡Datos bancarios guardados con éxito!');
-            });
+                function updatePaymentSummary() {
+                    const selectedZone = allInputs.shippingZone.value;
+                    const shippingCost = SHIPPING_COSTS[selectedZone];
+                    let total = PRODUCT_PRICE + shippingCost;
+                    if (isCouponApplied) {
+                        total -= discountAmount;
+                    }
+                    allDisplays.subtotalPrice.textContent = formatPrice(PRODUCT_PRICE);
+                    allDisplays.shippingCost.textContent = formatPrice(shippingCost);
+                    allDisplays.totalPrice.textContent = formatPrice(total);
+                }
+                
+                allInputs.shippingZone.addEventListener('change', updatePaymentSummary);
 
-            // --- INITIALIZATION ---
-            renderGallery();
-            renderBankDetails();
+                allButtons.applyCoupon.addEventListener('click', () => {
+                    const code = allInputs.couponCode.value.trim().toUpperCase();
+                    if (isCouponApplied) {
+                        showMessage('Aviso', 'Ya se ha aplicado un descuento en esta compra.');
+                        return;
+                    }
+                    if (code.includes('HUELLITAS')) {
+                        isCouponApplied = true;
+                        discountAmount = PRODUCT_PRICE * 0.15;
+                        allDisplays.discountAmount.textContent = `- ${formatPrice(discountAmount)}`;
+                        allDisplays.discountRow.classList.remove('hidden');
+                        updatePaymentSummary();
+                        showMessage('¡Éxito!', 'Cupón del 15% aplicado con éxito.');
+                        allInputs.couponCode.disabled = true;
+                        allButtons.applyCoupon.disabled = true;
+                        allButtons.applyCoupon.textContent = 'Aplicado';
+                    } else {
+                        showMessage('Error', 'El código del cupón no es válido.');
+                    }
+                });
+
+                function setupCounter(inputElement, counterElement, maxLength) {
+                    inputElement.addEventListener('input', () => {
+                        const currentLength = inputElement.value.length;
+                        counterElement.textContent = `${currentLength}/${maxLength}`;
+                        counterElement.classList.toggle('text-red-500', currentLength > maxLength);
+                    });
+                }
+                setupCounter(allInputs.shortText, allDisplays.shortTextCounter, 150);
+                setupCounter(allInputs.longText, allDisplays.longTextCounter, 400);
+
+                allInputs.surpriseMe.addEventListener('change', (e) => {
+                    const isChecked = e.target.checked;
+                    allInputs.shortText.disabled = isChecked;
+                    allInputs.longText.disabled = isChecked;
+                    if (isChecked) {
+                        allInputs.shortText.value = '';
+                        allInputs.longText.value = '';
+                        allInputs.shortText.dispatchEvent(new Event('input'));
+                        allInputs.longText.dispatchEvent(new Event('input'));
+                    }
+                });
+
+                async function updateGalleryInFirebase() {
+                    try {
+                        await setDoc(galleryDocRef, { images: galleryImages });
+                        console.log("Gallery updated in Firebase");
+                    } catch (e) {
+                        console.error("Error updating gallery: ", e);
+                    }
+                }
+
+                allButtons.addImage.addEventListener('click', () => {
+                    const url = allInputs.galleryUrl.value.trim();
+                    if (url) {
+                        galleryImages.unshift({ id: Date.now(), url: url, alt: 'Nueva imagen de mascota' });
+                        updateGalleryInFirebase();
+                        allInputs.galleryUrl.value = '';
+                    }
+                });
+
+                allDisplays.galleryContainer.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('delete-image-btn')) {
+                        const idToDelete = parseInt(e.target.dataset.id);
+                        galleryImages = galleryImages.filter(img => img.id !== idToDelete);
+                        updateGalleryInFirebase();
+                    }
+                });
+                
+                const adminPassword = 'huellitas_admin';
+                
+                function showAdminLogin() {
+                    allInputs.password.value = '';
+                    allDisplays.passwordError.textContent = '';
+                    allDisplays.passwordModal.classList.remove('hidden');
+                }
+
+                allButtons.passwordCancel.addEventListener('click', () => {
+                    allDisplays.passwordModal.classList.add('hidden');
+                });
+
+                allButtons.passwordSubmit.addEventListener('click', () => {
+                    if (allInputs.password.value === adminPassword) {
+                        allDisplays.passwordModal.classList.add('hidden');
+                        isAdmin = true;
+                        allInputs.adminBanco.value = bankDetails.banco || '';
+                        allInputs.adminTipoCuenta.value = bankDetails.tipoCuenta || '';
+                        allInputs.adminNumero.value = bankDetails.numero || '';
+                        allInputs.adminNombre.value = bankDetails.nombre || '';
+                        allInputs.adminRut.value = bankDetails.rut || '';
+                        allInputs.adminEmail.value = bankDetails.email || '';
+                        document.getElementById('admin-panel').classList.remove('hidden');
+                        renderGallery();
+                    } else {
+                        allDisplays.passwordError.textContent = 'Contraseña incorrecta.';
+                    }
+                });
+                
+                const konamiCode = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
+                let konamiPosition = 0;
+                document.addEventListener('keyup', (e) => {
+                    if (isAdmin) return;
+                    if (e.key.toLowerCase() === konamiCode[konamiPosition]) {
+                        konamiPosition++;
+                        if (konamiPosition === konamiCode.length) {
+                            konamiPosition = 0;
+                            showAdminLogin();
+                        }
+                    } else if (!e.target.matches('input, textarea')) {
+                        konamiPosition = 0;
+                    }
+                });
+
+                let tapCount = 0;
+                let tapTimer;
+                allDisplays.mainLogo.addEventListener('click', () => {
+                    if (isAdmin) return;
+                    tapCount++;
+                    clearTimeout(tapTimer);
+                    if (tapCount >= 7) {
+                        tapCount = 0;
+                        showAdminLogin();
+                    } else {
+                        tapTimer = setTimeout(() => { tapCount = 0; }, 1500);
+                    }
+                });
+
+                allButtons.closeAdmin.addEventListener('click', () => {
+                    document.getElementById('admin-panel').classList.add('hidden');
+                    isAdmin = false;
+                    renderGallery();
+                });
+
+                allButtons.saveBankDetails.addEventListener('click', async () => {
+                    const newBankDetails = {
+                        banco: allInputs.adminBanco.value,
+                        tipoCuenta: allInputs.adminTipoCuenta.value,
+                        numero: allInputs.adminNumero.value,
+                        nombre: allInputs.adminNombre.value,
+                        rut: allInputs.adminRut.value,
+                        email: allInputs.adminEmail.value,
+                    };
+                    try {
+                        await setDoc(bankDetailsDocRef, newBankDetails);
+                        showMessage('¡Guardado!', '¡Datos bancarios guardados con éxito!');
+                    } catch(e) {
+                        console.error("Error saving bank details: ", e);
+                        showMessage('Error', 'No se pudieron guardar los datos. Intenta de nuevo.');
+                    }
+                });
+            }
         });
     </script>
 </body>
