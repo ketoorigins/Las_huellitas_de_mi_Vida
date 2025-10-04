@@ -597,7 +597,7 @@
                 }
             });
             
-            // SE HAN ELIMINADO TODOS LOS GESTOS ANTERIORES (KONAMI, LONG-PRESS, MULTI-TAP)
+            // SE HAN ELIMINADO TODOS LOS MÉTODOS DE ACCESO ANTERIORES.
 
             if (!firebaseConfig.projectId) {
                 console.error("Configuración de Firebase no encontrada.");
@@ -606,11 +606,22 @@
                 initializeAppLogic();
             }
 
-            // MÉTODO DE ACCESO DEFINITIVO POR URL
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('admin') === 'true') {
-                showAdminLogin();
-            }
+            // MÉTODO DE ACCESO DEFINITIVO: 5 CLICS EN EL TÍTULO DEL HEADER
+            const mainTitle = document.querySelector('header h1');
+            let titleTapCount = 0;
+            let titleTapTimer;
+            mainTitle.addEventListener('click', () => {
+                if(isAdmin) return;
+                titleTapCount++;
+                clearTimeout(titleTapTimer);
+                if (titleTapCount >= 5) {
+                    titleTapCount = 0;
+                    showAdminLogin();
+                } else {
+                    titleTapTimer = setTimeout(() => { titleTapCount = 0; }, 1000); // Reset en 1 segundo
+                }
+            });
+
 
             async function initializeAppLogic() {
                 const app = initializeApp(firebaseConfig);
@@ -1116,4 +1127,5 @@
     </script>
 </body>
 </html>
+
 
