@@ -148,11 +148,19 @@
             <h2 class="text-4xl md:text-5xl font-bold mt-8 mb-4" style="font-weight: 700;">Cada huella cuenta una historia&nbsp;🐾</h2>
             <p class="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">Transformemos tus recuerdos más preciados en una obra de arte inolvidable.</p>
             <div class="my-8 flex justify-center">
-                <img id="hero-image" src="https://i.ibb.co/0jRX3VX2/PORTADA-HUELLITAS-3.png" alt="Collage de mascotas" class="max-w-md w-full rounded-2xl shadow-2xl">
+                <img id="hero-image" src="https://i.ibb.co/0jRX3VX2/PORTADA-HUELLitas-3.png" alt="Collage de mascotas" class="max-w-md w-full rounded-2xl shadow-2xl">
             </div>
             <button id="start-project-btn" class="main-button text-white font-bold py-3 px-8 rounded-full text-lg">
                 Elige tu Proyecto&nbsp;🐾
             </button>
+
+            <!-- NUEVA SECCIÓN DE GALERÍA -->
+            <div id="gallery-section" class="mt-24">
+                 <h2 class="text-4xl font-bold mt-8 mb-8" style="font-weight: 700;">Nuestras Obras Recientes&nbsp;🐾</h2>
+                 <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+                    <!-- Las imágenes de la galería se cargarán aquí -->
+                 </div>
+            </div>
         </section>
 
         <!-- PASO 2: Selección de Categoría -->
@@ -597,12 +605,12 @@
                 querySnapshot.forEach((doc) => {
                     const category = doc.data();
                     const cardHTML = `
-                        <div class="category-card p-8 rounded-xl cursor-pointer flex flex-col" data-category="${category.name}" data-price="${category.price}">
-                            <div class="text-5xl mb-4">${category.icon}</div>
+                        <div class="category-card p-8 rounded-xl cursor-pointer flex flex-col text-center" data-category="${category.name}" data-price="${category.price}">
+                            <img src="${category.imageUrl || 'https://placehold.co/400x300/333/FFF?text=Huellita'}" alt="${category.name}" class="w-full h-40 object-cover rounded-md mb-4">
                             <h3 class="text-2xl font-bold mb-2" style="font-weight: 700;">${category.name}</h3>
-                            <p class="text-gray-400 text-sm mb-4">${category.size}</p>
-                            <p class="text-gray-300 flex-grow">${category.description}</p>
-                            <p class="text-2xl font-bold mt-4 text-green-400">$${category.price.toLocaleString('es-CL')}</p>
+                            <p class="text-gray-400 text-sm mb-2">${category.size}</p>
+                            <p class="text-gray-300 flex-grow mb-4">${category.description}</p>
+                            <p class="text-2xl font-bold mt-auto text-green-400">$${category.price.toLocaleString('es-CL')}</p>
                         </div>`;
                     grid.innerHTML += cardHTML;
                 });
@@ -626,11 +634,9 @@
             }
         }
         
-        // --- NUEVA FUNCIÓN PARA ENVIAR DATOS A GOOGLE SHEETS ---
         async function sendDataToGoogleSheet() {
             const formData = new FormData();
             
-            // Mapeo EXACTO a los nombres de columna de tu Google Sheet
             formData.append('Categoria', orderState.category);
             formData.append('Nombre Mascota', orderState.petName);
             formData.append('Edad Mascota', orderState.petAge);
@@ -641,18 +647,41 @@
             formData.append('Costo Envio', orderState.shipping.cost);
             formData.append('Total Pagado', orderState.basePrice + orderState.shipping.cost);
             
-            // El campo 'Fecha' lo genera tu script automáticamente.
-            // No es necesario enviar 'Cupon Generado' ni 'Estado Cupon'.
-
             await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 body: formData,
             });
         }
+
+        // --- NUEVA FUNCIÓN PARA CARGAR LA GALERÍA ---
+        async function loadGalleryImages() {
+            const grid = document.getElementById('gallery-grid');
+            grid.innerHTML = '<p class="text-center col-span-full">Cargando galería...</p>';
+            try {
+                const querySnapshot = await getDocs(collection(db, "gallery"));
+                grid.innerHTML = '';
+                if (querySnapshot.empty) {
+                    grid.innerHTML = '<p class="text-yellow-400 text-center col-span-full">Aún no hay imágenes en la galería.</p>';
+                    return;
+                }
+                querySnapshot.forEach((doc) => {
+                    const imageData = doc.data();
+                    const imgHTML = `
+                        <div class="rounded-lg overflow-hidden shadow-lg aspect-square">
+                            <img src="${imageData.imageUrl}" alt="Obra de arte para mascota" class="w-full h-full object-cover cursor-pointer hover:scale-110 transition-transform duration-300">
+                        </div>`;
+                    grid.innerHTML += imgHTML;
+                });
+            } catch (error) {
+                console.error("Error cargando galería: ", error);
+                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar la galería.</p>`;
+            }
+        }
         
         // Inicializar la App
         populateRegions();
         loadCategoriesFromFirestore();
+        loadGalleryImages(); // <-- Llamamos a la nueva función
         showSection('home-section');
 
     </script>
