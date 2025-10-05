@@ -382,207 +382,6 @@
                 window.scrollTo(0, 0);
             }
         }
-
-        // --- NAVEGACIÓN Y EVENTOS ---
-
-        document.getElementById('start-project-btn').addEventListener('click', () => showSection('category-section'));
-        
-        function addCategoryCardEventListeners() {
-            document.querySelectorAll('.category-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    orderState.category = card.dataset.category;
-                    orderState.basePrice = parseInt(card.dataset.price);
-                    document.getElementById('pet-info-title').textContent = `Proyecto: ${orderState.category}`;
-                    showSection('pet-info-section');
-                });
-            });
-        }
-
-        document.getElementById('back-to-category').addEventListener('click', () => showSection('category-section'));
-
-        document.getElementById('to-upload-section').addEventListener('click', () => {
-            const petName = document.getElementById('pet-name').value.trim();
-            const petAge = document.getElementById('pet-age').value.trim();
-            if (!petName || !petAge) {
-                alert('Por favor, completa el nombre y la edad de tu mascota.');
-                return;
-            }
-            orderState.petName = petName;
-            orderState.petAge = petAge;
-            showSection('upload-section');
-        });
-        
-        document.getElementById('back-to-pet-info').addEventListener('click', () => showSection('pet-info-section'));
-
-        document.getElementById('has-video-btn').addEventListener('click', () => {
-            orderState.hasVideo = true;
-            document.getElementById('video-choice-container').classList.add('hidden');
-            document.getElementById('file-inputs-container').classList.remove('hidden');
-            document.getElementById('photos-and-video-upload').classList.remove('hidden');
-            document.getElementById('photos-only-upload').classList.add('hidden');
-        });
-
-        document.getElementById('no-video-btn').addEventListener('click', () => {
-            orderState.hasVideo = false;
-            document.getElementById('video-choice-container').classList.add('hidden');
-            document.getElementById('file-inputs-container').classList.remove('hidden');
-            document.getElementById('photos-only-upload').classList.remove('hidden');
-            document.getElementById('photos-and-video-upload').classList.add('hidden');
-        });
-
-        const surpriseCheckbox = document.getElementById('surprise-me-checkbox');
-        const shortTextArea = document.getElementById('short-text');
-        const longTextArea = document.getElementById('long-text');
-        
-        surpriseCheckbox.addEventListener('change', (e) => {
-            orderState.surpriseMe = e.target.checked;
-            document.getElementById('surprise-me-text').classList.toggle('hidden', !e.target.checked);
-            shortTextArea.disabled = e.target.checked;
-            longTextArea.disabled = e.target.checked;
-            if (e.target.checked) {
-                shortTextArea.value = '';
-                longTextArea.value = '';
-            }
-            updateCharCounter('short-text-counter', shortTextArea);
-            updateCharCounter('long-text-counter', longTextArea);
-        });
-
-        function updateCharCounter(counterId, textarea) {
-            const counter = document.getElementById(counterId);
-            const limit = counter.textContent.split('/')[1].trim();
-            const length = textarea.value.length;
-            counter.textContent = `${length} / ${limit}`;
-            counter.classList.toggle('text-red-500', length > limit);
-            counter.classList.toggle('text-gray-400', length <= limit);
-        }
-        shortTextArea.addEventListener('input', () => updateCharCounter('short-text-counter', shortTextArea));
-        longTextArea.addEventListener('input', () => updateCharCounter('long-text-counter', longTextArea));
-
-        document.getElementById('to-summary-section').addEventListener('click', () => {
-            if (orderState.hasVideo === null) {
-                alert('Por favor, elige si subirás videos o solo fotos.');
-                return;
-            }
-            orderState.shortText = shortTextArea.value;
-            orderState.longText = longTextArea.value;
-            renderSummary();
-            showSection('summary-section');
-        });
-
-        document.getElementById('back-to-upload').addEventListener('click', () => showSection('upload-section'));
-
-        document.getElementById('to-payment-section').addEventListener('click', async () => {
-            const clientName = document.getElementById('client-name-input').value.trim();
-            const clientPhone = document.getElementById('client-phone-input').value.trim();
-            const region = document.getElementById('region-select').value;
-            const comuna = document.getElementById('comuna-select').value;
-            const address = document.getElementById('address-input').value.trim();
-
-            if (!clientName || !clientPhone || !region || !comuna || !address) {
-                alert('Por favor, completa todos los campos de despacho.');
-                return;
-            }
-            orderState.clientName = clientName;
-            orderState.clientPhone = clientPhone;
-            orderState.shipping.region = region;
-            orderState.shipping.comuna = comuna;
-            orderState.shipping.address = address;
-
-            await showPaymentDetails();
-            showSection('payment-section');
-        });
-        
-        document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
-        
-        document.getElementById('whatsapp-btn').addEventListener('click', async (e) => {
-            const button = e.currentTarget;
-            const buttonText = document.getElementById('whatsapp-btn-text');
-            const spinner = document.getElementById('whatsapp-btn-spinner');
-
-            button.disabled = true;
-            buttonText.textContent = 'Registrando pedido...';
-            spinner.classList.remove('hidden');
-
-            try {
-                await sendDataToGoogleSheet();
-                const whatsappNumber = '56946902340';
-                const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. 🐾`);
-                window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
-            } catch (error) {
-                console.error('Error al enviar a Google Sheet:', error);
-                alert('Hubo un error al registrar tu pedido. Por favor, intenta de nuevo o contáctanos directamente.');
-            } finally {
-                button.disabled = false;
-                buttonText.textContent = 'Enviar Comprobante por WhatsApp ✔️';
-                spinner.classList.add('hidden');
-            }
-        });
-
-        // --- LÓGICA DE CONTENIDO DINÁMICO ---
-        
-        function renderSummary() {
-            const content = `
-                <p><strong>Categoría:</strong> ${orderState.category}</p>
-                <p><strong>Mascota:</strong> ${orderState.petName}, ${orderState.petAge} años</p>
-                <p><strong>Archivos:</strong> ${orderState.hasVideo ? 'Fotos y videos' : 'Solo fotos'}</p>
-                <p><strong>Textos:</strong> ${orderState.surpriseMe ? '¡Sorpréndeme! Equipo elegirá los textos.' : 'Personalizados por el cliente.'}</p>
-            `;
-            document.getElementById('summary-content').innerHTML = content;
-        }
-
-        async function showPaymentDetails() {
-            const comuna = orderState.shipping.comuna;
-            const comunasAfueras = ['Machalí', 'Graneros', 'Olivar', 'Doñihue', 'Requínoa', 'Codegua', 'Mostazal', 'Coinco', 'Coltauco', 'Rengo'];
-            const COSTO_AFUERAS = 5000;
-            const COSTO_REGIONES = 8000;
-            
-            let qrImageName = 'qr_regiones.png';
-            orderState.shipping.cost = COSTO_REGIONES;
-
-            if (comuna === 'Rancagua') {
-                qrImageName = 'qr_rancagua.png';
-                orderState.shipping.cost = 0;
-            } else if (comunasAfueras.includes(comuna)) {
-                qrImageName = 'qr_afueras.png';
-                orderState.shipping.cost = COSTO_AFUERAS;
-            }
-            
-            const total = orderState.basePrice + orderState.shipping.cost;
-            document.getElementById('total-amount').textContent = `$${total.toLocaleString('es-CL')}`;
-
-            const qrImgElement = document.getElementById('qr-code-img');
-            const qrContainer = document.getElementById('qr-code-container');
-            qrContainer.innerHTML = '<p class="text-xs text-gray-400">Cargando QR...</p>';
-            try {
-                const url = await getFirebaseImageUrl(qrImageName);
-                qrImgElement.src = url;
-                qrContainer.innerHTML = '';
-                qrContainer.appendChild(qrImgElement);
-            } catch (error) {
-                console.error("Error al cargar QR:", error);
-                qrContainer.innerHTML = '<p class="text-xs text-red-500">No se pudo cargar el QR.</p>';
-            }
-        }
-
-        const locations = {
-            "O'Higgins": ["Rancagua", "Machalí", "Graneros", "Olivar", "Doñihue", "Requínoa", "Codegua", "Mostazal", "Coinco", "Coltauco", "Rengo", "San Fernando", "Pichilemu"],
-            "Metropolitana de Santiago": ["Santiago", "Providencia", "Las Condes", "Maipú", "Puente Alto"],
-            "Valparaíso": ["Valparaíso", "Viña del Mar", "Quilpué", "Concón"],
-            "Maule": ["Talca", "Curicó", "Linares"],
-        };
-        const regionSelect = document.getElementById('region-select');
-        const comunaSelect = document.getElementById('comuna-select');
-        function populateRegions() {
-            regionSelect.innerHTML = '<option value="">Selecciona una Región</option>';
-            Object.keys(locations).forEach(region => regionSelect.add(new Option(region, region)));
-        }
-        regionSelect.addEventListener('change', () => {
-            comunaSelect.innerHTML = '<option value="">Selecciona una Comuna</option>';
-            const comunas = locations[regionSelect.value] || [];
-            comunas.forEach(comuna => comunaSelect.add(new Option(comuna, comuna)));
-        });
-
-        // --- FUNCIONES DE FIREBASE Y GOOGLE SHEETS ---
         
         async function loadCategoriesFromFirestore() {
             const grid = document.getElementById('category-grid');
@@ -609,7 +408,16 @@
                     grid.innerHTML += cardHTML;
                 });
                 
-                addCategoryCardEventListeners();
+                // Attach listeners AFTER cards are created
+                document.querySelectorAll('.category-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        orderState.category = card.dataset.category;
+                        orderState.basePrice = parseInt(card.dataset.price);
+                        document.getElementById('pet-info-title').textContent = `Proyecto: ${orderState.category}`;
+                        showSection('pet-info-section');
+                    });
+                });
+
             } catch (error) {
                 console.error("Error cargando categorías: ", error);
                 const errorBox = document.createElement('div');
@@ -624,6 +432,29 @@
             }
         }
 
+        async function loadGalleryImages() {
+            const grid = document.getElementById('gallery-grid');
+            try {
+                const querySnapshot = await getDocs(collection(db, "gallery"));
+                if (querySnapshot.empty) {
+                    grid.innerHTML = '<p class="text-yellow-400 text-center col-span-full">Aún no hay imágenes en la galería.</p>';
+                    return;
+                }
+                grid.innerHTML = ''; // Limpia el mensaje de "cargando" solo si hay imágenes
+                querySnapshot.forEach((doc) => {
+                    const imageData = doc.data();
+                    const imgHTML = `
+                        <div class="rounded-lg overflow-hidden shadow-lg aspect-square">
+                            <img src="${imageData.imageUrl}" alt="Obra de arte para mascota" class="w-full h-full object-cover cursor-pointer hover:scale-110 transition-transform duration-300">
+                        </div>`;
+                    grid.innerHTML += imgHTML;
+                });
+            } catch (error) {
+                console.error("Error cargando galería: ", error);
+                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar la galería.</p>`;
+            }
+        }
+        
         async function getFirebaseImageUrl(imageName) {
             const imageRef = ref(storage, imageName);
             try {
@@ -652,39 +483,189 @@
                 body: formData,
             });
         }
+        
+        // --- INICIALIZACIÓN DE LA APP (CORREGIDA) ---
+        document.addEventListener('DOMContentLoaded', () => {
 
-        async function loadGalleryImages() {
-            const grid = document.getElementById('gallery-grid');
-            try {
-                const querySnapshot = await getDocs(collection(db, "gallery"));
-                if (querySnapshot.empty) {
-                    grid.innerHTML = '<p class="text-yellow-400 text-center col-span-full">Aún no hay imágenes en la galería.</p>';
+            const locations = {
+                "O'Higgins": ["Rancagua", "Machalí", "Graneros", "Olivar", "Doñihue", "Requínoa", "Codegua", "Mostazal", "Coinco", "Coltauco", "Rengo", "San Fernando", "Pichilemu"],
+                "Metropolitana de Santiago": ["Santiago", "Providencia", "Las Condes", "Maipú", "Puente Alto"],
+                "Valparaíso": ["Valparaíso", "Viña del Mar", "Quilpué", "Concón"],
+                "Maule": ["Talca", "Curicó", "Linares"],
+            };
+            const regionSelect = document.getElementById('region-select');
+            const comunaSelect = document.getElementById('comuna-select');
+            
+            function populateRegions() {
+                regionSelect.innerHTML = '<option value="">Selecciona una Región</option>';
+                Object.keys(locations).forEach(region => regionSelect.add(new Option(region, region)));
+            }
+            regionSelect.addEventListener('change', () => {
+                comunaSelect.innerHTML = '<option value="">Selecciona una Comuna</option>';
+                const comunas = locations[regionSelect.value] || [];
+                comunas.forEach(comuna => comunaSelect.add(new Option(comuna, comuna)));
+            });
+
+            function renderSummary() {
+                const content = `
+                    <p><strong>Categoría:</strong> ${orderState.category}</p>
+                    <p><strong>Mascota:</strong> ${orderState.petName}, ${orderState.petAge} años</p>
+                    <p><strong>Archivos:</strong> ${orderState.hasVideo ? 'Fotos y videos' : 'Solo fotos'}</p>
+                    <p><strong>Textos:</strong> ${orderState.surpriseMe ? '¡Sorpréndeme! Equipo elegirá los textos.' : 'Personalizados por el cliente.'}</p>
+                `;
+                document.getElementById('summary-content').innerHTML = content;
+            }
+
+            async function showPaymentDetails() {
+                const comuna = orderState.shipping.comuna;
+                const comunasAfueras = ['Machalí', 'Graneros', 'Olivar', 'Doñihue', 'Requínoa', 'Codegua', 'Mostazal', 'Coinco', 'Coltauco', 'Rengo'];
+                const COSTO_AFUERAS = 5000;
+                const COSTO_REGIONES = 8000;
+                
+                let qrImageName = 'qr_regiones.png';
+                orderState.shipping.cost = COSTO_REGIONES;
+
+                if (comuna === 'Rancagua') {
+                    qrImageName = 'qr_rancagua.png';
+                    orderState.shipping.cost = 0;
+                } else if (comunasAfueras.includes(comuna)) {
+                    qrImageName = 'qr_afueras.png';
+                    orderState.shipping.cost = COSTO_AFUERAS;
+                }
+                
+                const total = orderState.basePrice + orderState.shipping.cost;
+                document.getElementById('total-amount').textContent = `$${total.toLocaleString('es-CL')}`;
+
+                const qrImgElement = document.getElementById('qr-code-img');
+                const qrContainer = document.getElementById('qr-code-container');
+                qrContainer.innerHTML = '<p class="text-xs text-gray-400">Cargando QR...</p>';
+                try {
+                    const url = await getFirebaseImageUrl(qrImageName);
+                    qrImgElement.src = url;
+                    qrContainer.innerHTML = '';
+                    qrContainer.appendChild(qrImgElement);
+                } catch (error) {
+                    console.error("Error al cargar QR:", error);
+                    qrContainer.innerHTML = '<p class="text-xs text-red-500">No se pudo cargar el QR.</p>';
+                }
+            }
+
+            // --- NAVEGACIÓN Y EVENTOS ---
+            document.getElementById('start-project-btn').addEventListener('click', () => showSection('category-section'));
+            document.getElementById('back-to-category').addEventListener('click', () => showSection('category-section'));
+            document.getElementById('to-upload-section').addEventListener('click', () => {
+                const petName = document.getElementById('pet-name').value.trim();
+                const petAge = document.getElementById('pet-age').value.trim();
+                if (!petName || !petAge) {
+                    alert('Por favor, completa el nombre y la edad de tu mascota.');
                     return;
                 }
-                grid.innerHTML = ''; // Limpia el mensaje de "cargando" solo si hay imágenes
-                querySnapshot.forEach((doc) => {
-                    const imageData = doc.data();
-                    const imgHTML = `
-                        <div class="rounded-lg overflow-hidden shadow-lg aspect-square">
-                            <img src="${imageData.imageUrl}" alt="Obra de arte para mascota" class="w-full h-full object-cover cursor-pointer hover:scale-110 transition-transform duration-300">
-                        </div>`;
-                    grid.innerHTML += imgHTML;
-                });
-            } catch (error) {
-                console.error("Error cargando galería: ", error);
-                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar la galería.</p>`;
+                orderState.petName = petName;
+                orderState.petAge = petAge;
+                showSection('upload-section');
+            });
+            document.getElementById('back-to-pet-info').addEventListener('click', () => showSection('pet-info-section'));
+            document.getElementById('has-video-btn').addEventListener('click', () => {
+                orderState.hasVideo = true;
+                document.getElementById('video-choice-container').classList.add('hidden');
+                document.getElementById('file-inputs-container').classList.remove('hidden');
+                document.getElementById('photos-and-video-upload').classList.remove('hidden');
+                document.getElementById('photos-only-upload').classList.add('hidden');
+            });
+            document.getElementById('no-video-btn').addEventListener('click', () => {
+                orderState.hasVideo = false;
+                document.getElementById('video-choice-container').classList.add('hidden');
+                document.getElementById('file-inputs-container').classList.remove('hidden');
+                document.getElementById('photos-only-upload').classList.remove('hidden');
+                document.getElementById('photos-and-video-upload').classList.add('hidden');
+            });
+            const surpriseCheckbox = document.getElementById('surprise-me-checkbox');
+            const shortTextArea = document.getElementById('short-text');
+            const longTextArea = document.getElementById('long-text');
+            surpriseCheckbox.addEventListener('change', (e) => {
+                orderState.surpriseMe = e.target.checked;
+                document.getElementById('surprise-me-text').classList.toggle('hidden', !e.target.checked);
+                shortTextArea.disabled = e.target.checked;
+                longTextArea.disabled = e.target.checked;
+                if (e.target.checked) {
+                    shortTextArea.value = '';
+                    longTextArea.value = '';
+                }
+                updateCharCounter('short-text-counter', shortTextArea);
+                updateCharCounter('long-text-counter', longTextArea);
+            });
+            function updateCharCounter(counterId, textarea) {
+                const counter = document.getElementById(counterId);
+                const limit = counter.textContent.split('/')[1].trim();
+                const length = textarea.value.length;
+                counter.textContent = `${length} / ${limit}`;
+                counter.classList.toggle('text-red-500', length > limit);
+                counter.classList.toggle('text-gray-400', length <= limit);
             }
-        }
-        
-        // Inicializar la App
-        async function initializeAppLogic() {
+            shortTextArea.addEventListener('input', () => updateCharCounter('short-text-counter', shortTextArea));
+            longTextArea.addEventListener('input', () => updateCharCounter('long-text-counter', longTextArea));
+            document.getElementById('to-summary-section').addEventListener('click', () => {
+                if (orderState.hasVideo === null) {
+                    alert('Por favor, elige si subirás videos o solo fotos.');
+                    return;
+                }
+                orderState.shortText = shortTextArea.value;
+                orderState.longText = longTextArea.value;
+                renderSummary();
+                showSection('summary-section');
+            });
+            document.getElementById('back-to-upload').addEventListener('click', () => showSection('upload-section'));
+            document.getElementById('to-payment-section').addEventListener('click', async () => {
+                const clientName = document.getElementById('client-name-input').value.trim();
+                const clientPhone = document.getElementById('client-phone-input').value.trim();
+                const region = document.getElementById('region-select').value;
+                const comuna = document.getElementById('comuna-select').value;
+                const address = document.getElementById('address-input').value.trim();
+
+                if (!clientName || !clientPhone || !region || !comuna || !address) {
+                    alert('Por favor, completa todos los campos de despacho.');
+                    return;
+                }
+                orderState.clientName = clientName;
+                orderState.clientPhone = clientPhone;
+                orderState.shipping.region = region;
+                orderState.shipping.comuna = comuna;
+                orderState.shipping.address = address;
+
+                await showPaymentDetails();
+                showSection('payment-section');
+            });
+            document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
+            document.getElementById('whatsapp-btn').addEventListener('click', async (e) => {
+                const button = e.currentTarget;
+                const buttonText = document.getElementById('whatsapp-btn-text');
+                const spinner = document.getElementById('whatsapp-btn-spinner');
+
+                button.disabled = true;
+                buttonText.textContent = 'Registrando pedido...';
+                spinner.classList.remove('hidden');
+
+                try {
+                    await sendDataToGoogleSheet();
+                    const whatsappNumber = '56946902340';
+                    const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. 🐾`);
+                    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
+                } catch (error) {
+                    console.error('Error al enviar a Google Sheet:', error);
+                    alert('Hubo un error al registrar tu pedido. Por favor, intenta de nuevo o contáctanos directamente.');
+                } finally {
+                    button.disabled = false;
+                    buttonText.textContent = 'Enviar Comprobante por WhatsApp ✔️';
+                    spinner.classList.add('hidden');
+                }
+            });
+            
+            // Cargar datos de Firebase y mostrar la sección inicial
             populateRegions();
-            await loadCategoriesFromFirestore();
-            await loadGalleryImages(); 
+            loadCategoriesFromFirestore();
+            loadGalleryImages(); 
             showSection('home-section');
-        }
-        
-        initializeAppLogic();
+        });
 
     </script>
 </body>
