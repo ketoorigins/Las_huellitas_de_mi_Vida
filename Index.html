@@ -154,7 +154,7 @@
                 Elige tu Proyecto&nbsp;🐾
             </button>
 
-            <!-- NUEVA SECCIÓN DE GALERÍA -->
+            <!-- SECCIÓN DE GALERÍA -->
             <div id="gallery-section" class="mt-24">
                  <h2 class="text-4xl font-bold mt-8 mb-8" style="font-weight: 700;">Nuestras Obras Recientes&nbsp;🐾</h2>
                  <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
@@ -229,7 +229,7 @@
                     </div>
                     <div>
                         <label for="long-text" class="block text-sm font-medium text-[#00FFFF] mb-1">Tu Historia (Opcional)</label>
-                        <textarea id="long-text" rows="5" class="form-textarea w-full p-3 rounded-lg text-white" placeholder="Cuéntanos un poco sobre tu amiguito, sus gustos, alguna anécdota..."></textarea>
+                        <textarea id="long-text" rows="5" class="form-textarea w-full p-3 rounded-lg text-white" placeholder="Cuéntanos un poco sobre tu amiguito, sus gustos, alguna anéctoda..."></textarea>
                         <p id="long-text-counter" class="text-xs text-right text-gray-400 mt-1">0 / 400</p>
                     </div>
                     <div class="flex items-center space-x-3 p-3 bg-yellow-900/20 rounded-lg">
@@ -345,10 +345,6 @@
             measurementId: "G-0QB83X7TBC"
         };
 
-        if (firebaseConfig.apiKey === "TU_API_KEY" || !firebaseConfig.projectId) {
-            document.getElementById('firebase-error-overlay').classList.remove('hidden');
-        }
-
         const app = initializeApp(firebaseConfig);
         const storage = getStorage(app);
         const db = getFirestore(app);
@@ -360,8 +356,8 @@
             basePrice: 0,
             petName: '',
             petAge: '',
-            clientName: '', // Nuevo
-            clientPhone: '', // Nuevo
+            clientName: '',
+            clientPhone: '',
             hasVideo: null,
             shortText: '',
             longText: '',
@@ -374,9 +370,6 @@
             }
         };
         
-        // Precios y URL del script
-        const COSTO_AFUERAS = 5000;
-        const COSTO_REGIONES = 8000;
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec';
 
         const sections = document.querySelectorAll('main > section');
@@ -501,7 +494,6 @@
         
         document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
         
-        // --- NUEVA LÓGICA PARA EL BOTÓN DE WHATSAPP ---
         document.getElementById('whatsapp-btn').addEventListener('click', async (e) => {
             const button = e.currentTarget;
             const buttonText = document.getElementById('whatsapp-btn-text');
@@ -513,7 +505,6 @@
 
             try {
                 await sendDataToGoogleSheet();
-                // Si el envío es exitoso, redirige a WhatsApp
                 const whatsappNumber = '56946902340';
                 const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. 🐾`);
                 window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
@@ -521,7 +512,6 @@
                 console.error('Error al enviar a Google Sheet:', error);
                 alert('Hubo un error al registrar tu pedido. Por favor, intenta de nuevo o contáctanos directamente.');
             } finally {
-                // Restaura el botón
                 button.disabled = false;
                 buttonText.textContent = 'Enviar Comprobante por WhatsApp ✔️';
                 spinner.classList.add('hidden');
@@ -543,6 +533,8 @@
         async function showPaymentDetails() {
             const comuna = orderState.shipping.comuna;
             const comunasAfueras = ['Machalí', 'Graneros', 'Olivar', 'Doñihue', 'Requínoa', 'Codegua', 'Mostazal', 'Coinco', 'Coltauco', 'Rengo'];
+            const COSTO_AFUERAS = 5000;
+            const COSTO_REGIONES = 8000;
             
             let qrImageName = 'qr_regiones.png';
             orderState.shipping.cost = COSTO_REGIONES;
@@ -591,7 +583,7 @@
         });
 
         // --- FUNCIONES DE FIREBASE Y GOOGLE SHEETS ---
-
+        
         async function loadCategoriesFromFirestore() {
             const grid = document.getElementById('category-grid');
             grid.innerHTML = '<p class="text-center col-span-3">Cargando proyectos...</p>';
@@ -605,22 +597,30 @@
                 querySnapshot.forEach((doc) => {
                     const category = doc.data();
                     const cardHTML = `
-                        <div class="category-card p-8 rounded-xl cursor-pointer flex flex-col text-center" data-category="${category.name}" data-price="${category.price}">
-                            <img src="${category.imageUrl || 'https://placehold.co/400x300/333/FFF?text=Huellita'}" alt="${category.name}" class="w-full h-40 object-cover rounded-md mb-4">
-                            <h3 class="text-2xl font-bold mb-2" style="font-weight: 700;">${category.name}</h3>
-                            <p class="text-gray-400 text-sm mb-2">${category.size}</p>
-                            <p class="text-gray-300 flex-grow mb-4">${category.description}</p>
-                            <p class="text-2xl font-bold mt-auto text-green-400">$${category.price.toLocaleString('es-CL')}</p>
+                        <div class="category-card rounded-xl cursor-pointer flex flex-col text-center" data-category="${category.name}" data-price="${category.price}">
+                            <img src="${category.imageUrl || 'https://placehold.co/400x300/333/FFF?text=Huellita'}" alt="${category.name}" class="w-full h-40 object-cover rounded-t-xl flex-shrink-0">
+                            <div class="p-6 flex flex-col flex-grow">
+                                <h3 class="text-xl font-bold mb-1" style="font-weight: 700;">${category.name}</h3>
+                                <p class="text-gray-400 text-xs mb-2">${category.size}</p>
+                                <p class="text-gray-300 text-sm flex-grow mb-4">${category.description}</p>
+                                <p class="text-2xl font-bold mt-auto text-green-400">$${(category.price || 0).toLocaleString('es-CL')}</p>
+                            </div>
                         </div>`;
                     grid.innerHTML += cardHTML;
                 });
+                
                 addCategoryCardEventListeners();
             } catch (error) {
                 console.error("Error cargando categorías: ", error);
-                grid.innerHTML = `<p class="text-red-500 text-center col-span-3 p-4 rounded-lg bg-red-900/50">
-                    <strong class="font-bold">Error de Permisos</strong><br>
-                    No se pudieron cargar los proyectos. Para solucionarlo, ve a tu <a href="https://console.firebase.google.com/" target="_blank" class="underline text-cyan-300">consola de Firebase</a>, entra a <strong>Firestore Database</strong>, ve a la pestaña <strong>Reglas</strong> y asegúrate de que esté configurado para permitir la lectura.
-                </p>`;
+                const errorBox = document.createElement('div');
+                errorBox.className = "text-red-500 text-center col-span-3 p-4 rounded-lg bg-red-900/50";
+                errorBox.innerHTML = `<strong class="font-bold">Error de Permisos</strong><br>
+                    <p>No se pudieron cargar los proyectos. Para solucionarlo, ve a tu 
+                    <a href="https://console.firebase.google.com/" target="_blank" class="underline text-cyan-300">consola de Firebase</a>, 
+                    entra a <strong>Firestore Database</strong>, ve a la pestaña <strong>Reglas</strong> y 
+                    asegúrate de que esté configurada para permitir la lectura.</p>`;
+                grid.innerHTML = '';
+                grid.appendChild(errorBox);
             }
         }
 
@@ -653,17 +653,15 @@
             });
         }
 
-        // --- NUEVA FUNCIÓN PARA CARGAR LA GALERÍA ---
         async function loadGalleryImages() {
             const grid = document.getElementById('gallery-grid');
-            grid.innerHTML = '<p class="text-center col-span-full">Cargando galería...</p>';
             try {
                 const querySnapshot = await getDocs(collection(db, "gallery"));
-                grid.innerHTML = '';
                 if (querySnapshot.empty) {
                     grid.innerHTML = '<p class="text-yellow-400 text-center col-span-full">Aún no hay imágenes en la galería.</p>';
                     return;
                 }
+                grid.innerHTML = ''; // Limpia el mensaje de "cargando" solo si hay imágenes
                 querySnapshot.forEach((doc) => {
                     const imageData = doc.data();
                     const imgHTML = `
@@ -679,10 +677,14 @@
         }
         
         // Inicializar la App
-        populateRegions();
-        loadCategoriesFromFirestore();
-        loadGalleryImages(); // <-- Llamamos a la nueva función
-        showSection('home-section');
+        async function initializeAppLogic() {
+            populateRegions();
+            await loadCategoriesFromFirestore();
+            await loadGalleryImages(); 
+            showSection('home-section');
+        }
+        
+        initializeAppLogic();
 
     </script>
 </body>
