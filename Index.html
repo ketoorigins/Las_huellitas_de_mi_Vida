@@ -100,7 +100,7 @@
         }
         .paw-bg-container img {
             position: absolute;
-            opacity: 0.1;
+            opacity: 0.2; /* Ajustado según requerimiento */
             filter: brightness(1.2);
         }
     </style>
@@ -158,7 +158,7 @@
             <div id="gallery-section" class="mt-24">
                  <h2 class="text-4xl font-bold mt-8 mb-8" style="font-weight: 700;">Nuestras Obras Recientes&nbsp;🐾</h2>
                  <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-                    <!-- Las imágenes de la galería se cargarán aquí -->
+                     <!-- Las imágenes de la galería se cargarán aquí -->
                  </div>
             </div>
         </section>
@@ -174,75 +174,79 @@
         <!-- PASO 3: Formulario Datos de la Mascota -->
         <section id="pet-info-section" class="hidden section-fade-in">
              <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
-                <h2 id="pet-info-title" class="text-3xl font-bold text-center mb-6" style="font-weight: 700;">Datos de tu Mascota</h2>
-                <div class="space-y-6">
-                    <div>
-                        <label for="pet-name" class="block text-sm font-medium text-[#00FFFF] mb-1">Nombre de tu mascota</label>
-                        <input type="text" id="pet-name" class="form-input w-full p-3 rounded-lg text-white" placeholder="Ej: Tatán" autocomplete="off">
-                    </div>
-                    <div>
-                        <label for="pet-age" class="block text-sm font-medium text-[#00FFFF] mb-1">Edad (en años humanos)</label>
-                        <input type="number" id="pet-age" class="form-input w-full p-3 rounded-lg text-white" placeholder="Ej: 2" autocomplete="off">
-                    </div>
-                    <div class="flex justify-between items-center pt-4">
-                        <button id="back-to-category" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
-                        <button id="to-upload-section" class="main-button text-white font-bold py-2 px-6 rounded-full">Continuar</button>
-                    </div>
-                </div>
+                 <!-- Contenedor para la imagen del producto seleccionado -->
+                 <div class="flex justify-center mb-6">
+                    <img id="product-image-preview" src="" alt="Producto seleccionado" class="rounded-lg max-h-40 shadow-lg">
+                 </div>
+                 <h2 id="pet-info-title" class="text-3xl font-bold text-center mb-6" style="font-weight: 700;">Datos de tu Mascota</h2>
+                 <div class="space-y-6">
+                     <div>
+                         <label for="pet-name" class="block text-sm font-medium text-[#00FFFF] mb-1">Nombre de tu mascota</label>
+                         <input type="text" id="pet-name" class="form-input w-full p-3 rounded-lg text-white" placeholder="Ej: Tatán" autocomplete="off">
+                     </div>
+                     <div>
+                         <label for="pet-age" class="block text-sm font-medium text-[#00FFFF] mb-1">Edad (en años humanos)</label>
+                         <input type="number" id="pet-age" class="form-input w-full p-3 rounded-lg text-white" placeholder="Ej: 2" autocomplete="off">
+                     </div>
+                     <div class="flex justify-between items-center pt-4">
+                         <button id="back-to-category" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
+                         <button id="to-upload-section" class="main-button text-white font-bold py-2 px-6 rounded-full">Continuar</button>
+                     </div>
+                 </div>
              </div>
         </section>
 
         <!-- PASO 4: Formulario Carga de Archivos -->
         <section id="upload-section" class="hidden section-fade-in">
              <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
-                <h2 class="text-3xl font-bold text-center mb-6" style="font-weight: 700;">Ahora, sube tus recuerdos&nbsp;🐾</h2>
+                 <h2 class="text-3xl font-bold text-center mb-6" style="font-weight: 700;">Ahora, sube tus recuerdos&nbsp;🐾</h2>
                 
-                <div id="video-choice-container" class="text-center">
-                    <p class="text-[#00FFFF] mb-4">¿Incluirás videos en tu homenaje?</p>
-                    <div class="flex justify-center gap-4">
-                        <button id="has-video-btn" class="main-button font-bold py-3 px-6 rounded-full">Sí, tengo videos&nbsp;🎬</button>
-                        <button id="no-video-btn" class="secondary-button font-bold py-3 px-6 rounded-full">No, usaré solo fotos&nbsp;🖼️</button>
-                    </div>
-                </div>
+                 <div id="video-choice-container" class="text-center">
+                     <p class="text-[#00FFFF] mb-4">¿Incluirás videos en tu homenaje?</p>
+                     <div class="flex justify-center gap-4">
+                         <button id="has-video-btn" class="main-button font-bold py-3 px-6 rounded-full">Sí, tengo videos&nbsp;🎬</button>
+                         <button id="no-video-btn" class="secondary-button font-bold py-3 px-6 rounded-full">No, usaré solo fotos&nbsp;🖼️</button>
+                     </div>
+                 </div>
 
-                <div id="file-inputs-container" class="hidden space-y-6 mt-6">
-                    <div id="photos-and-video-upload" class="hidden space-y-4">
-                        <div>
-                            <label for="photo-input-multi" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga hasta 10 fotos</label>
-                            <input type="file" id="photo-input-multi" multiple accept="image/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
-                        </div>
-                        <div>
-                            <label for="video-input-multi" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga tus videos</label>
-                            <input type="file" id="video-input-multi" multiple accept="video/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
-                        </div>
-                    </div>
-                     <div id="photos-only-upload" class="hidden">
-                        <label for="photo-input-only" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga hasta 20 fotos</label>
-                        <p class="text-xs text-gray-400 mb-2">Con ellas crearemos un video emotivo para el QR de tu obra.</p>
-                        <input type="file" id="photo-input-only" multiple accept="image/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
-                    </div>
+                 <div id="file-inputs-container" class="hidden space-y-6 mt-6">
+                     <div id="photos-and-video-upload" class="hidden space-y-4">
+                         <div>
+                             <label for="photo-input-multi" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga hasta 10 fotos</label>
+                             <input type="file" id="photo-input-multi" multiple accept="image/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                         </div>
+                         <div>
+                             <label for="video-input-multi" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga tus videos</label>
+                             <input type="file" id="video-input-multi" multiple accept="video/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                         </div>
+                     </div>
+                      <div id="photos-only-upload" class="hidden">
+                         <label for="photo-input-only" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga hasta 20 fotos</label>
+                         <p class="text-xs text-gray-400 mb-2">Con ellas crearemos un video emotivo para el QR de tu obra.</p>
+                         <input type="file" id="photo-input-only" multiple accept="image/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                     </div>
 
-                    <div>
-                        <label for="short-text" class="block text-sm font-medium text-[#00FFFF] mb-1">Texto Corto (Opcional)</label>
-                        <textarea id="short-text" rows="3" class="form-textarea w-full p-3 rounded-lg text-white" placeholder="Una frase o fecha especial..."></textarea>
-                        <p id="short-text-counter" class="text-xs text-right text-gray-400 mt-1">0 / 150</p>
-                    </div>
-                    <div>
-                        <label for="long-text" class="block text-sm font-medium text-[#00FFFF] mb-1">Tu Historia (Opcional)</label>
-                        <textarea id="long-text" rows="5" class="form-textarea w-full p-3 rounded-lg text-white" placeholder="Cuéntanos un poco sobre tu amiguito, sus gustos, alguna anéctoda..."></textarea>
-                        <p id="long-text-counter" class="text-xs text-right text-gray-400 mt-1">0 / 400</p>
-                    </div>
-                    <div class="flex items-center space-x-3 p-3 bg-yellow-900/20 rounded-lg">
-                        <input id="surprise-me-checkbox" type="checkbox" class="h-5 w-5 rounded bg-transparent border-yellow-400 text-yellow-500 focus:ring-yellow-600">
-                        <label for="surprise-me-checkbox" class="font-bold text-yellow-300">¡Sorpréndeme!&nbsp;🐾</label>
-                    </div>
-                     <p id="surprise-me-text" class="text-xs text-yellow-400 hidden">Al marcar esta opción, con mucho respeto, empatía y amor, buscaremos el texto adecuado para tu obra.</p>
+                     <div>
+                         <label for="short-text" class="block text-sm font-medium text-[#00FFFF] mb-1">Texto Corto (Opcional)</label>
+                         <textarea id="short-text" rows="3" class="form-textarea w-full p-3 rounded-lg text-white" placeholder="Una frase o fecha especial..."></textarea>
+                         <p id="short-text-counter" class="text-xs text-right text-gray-400 mt-1">0 / 150</p>
+                     </div>
+                     <div>
+                         <label for="long-text" class="block text-sm font-medium text-[#00FFFF] mb-1">Tu Historia (Opcional)</label>
+                         <textarea id="long-text" rows="5" class="form-textarea w-full p-3 rounded-lg text-white" placeholder="Cuéntanos un poco sobre tu amiguito, sus gustos, alguna anéctoda..."></textarea>
+                         <p id="long-text-counter" class="text-xs text-right text-gray-400 mt-1">0 / 400</p>
+                     </div>
+                     <div class="flex items-center space-x-3 p-3 bg-yellow-900/20 rounded-lg">
+                         <input id="surprise-me-checkbox" type="checkbox" class="h-5 w-5 rounded bg-transparent border-yellow-400 text-yellow-500 focus:ring-yellow-600">
+                         <label for="surprise-me-checkbox" class="font-bold text-yellow-300">¡Sorpréndeme!&nbsp;🐾</label>
+                     </div>
+                      <p id="surprise-me-text" class="text-xs text-yellow-400 hidden">Al marcar esta opción, con mucho respeto, empatía y amor, buscaremos el texto adecuado para tu obra.</p>
 
-                    <div class="flex justify-between items-center pt-4">
-                        <button id="back-to-pet-info" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
-                        <button id="to-summary-section" class="main-button text-white font-bold py-2 px-6 rounded-full">Continuar al Resumen</button>
-                    </div>
-                </div>
+                     <div class="flex justify-between items-center pt-4">
+                         <button id="back-to-pet-info" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
+                         <button id="to-summary-section" class="main-button text-white font-bold py-2 px-6 rounded-full">Continuar al Resumen</button>
+                     </div>
+                 </div>
              </div>
         </section>
 
@@ -311,7 +315,7 @@
                     <p class="text-2xl font-bold">MONTO TOTAL: <span id="total-amount" class="text-green-400"></span></p>
                 </div>
                 <div class="mt-8">
-                     <!-- BOTÓN CAMBIADO DE <a> a <button> -->
+                    <!-- BOTÓN CAMBIADO DE <a> a <button> -->
                     <button id="whatsapp-btn" class="main-button inline-flex items-center justify-center text-white font-bold py-3 px-8 rounded-full text-lg w-full md:w-auto">
                         <span id="whatsapp-btn-text">Enviar Comprobante por WhatsApp&nbsp;✔️</span>
                         <svg id="whatsapp-btn-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -354,6 +358,7 @@
         const orderState = {
             category: '',
             basePrice: 0,
+            imageUrl: '', // Campo para guardar la URL de la imagen del producto
             petName: '',
             petAge: '',
             clientName: '',
@@ -395,10 +400,14 @@
                 }
                 querySnapshot.forEach((doc) => {
                     const category = doc.data();
+                    // AHORA USA EL CAMPO 'icon' PARA MOSTRAR EL EMOJI Y GUARDA 'imageUrl' en un data attribute
                     const cardHTML = `
-                        <div class="category-card rounded-xl cursor-pointer flex flex-col text-center" data-category="${category.name}" data-price="${category.price}">
-                            <img src="${category.imageUrl || 'https://placehold.co/400x300/333/FFF?text=Huellita'}" alt="${category.name}" class="w-full h-40 object-cover rounded-t-xl flex-shrink-0">
-                            <div class="p-6 flex flex-col flex-grow">
+                        <div class="category-card rounded-xl cursor-pointer flex flex-col text-center" 
+                             data-category="${category.name}" 
+                             data-price="${category.price}" 
+                             data-image-url="${category.imageUrl}">
+                            <div class="p-6 flex flex-col flex-grow items-center">
+                                <div class="text-6xl mb-4">${category.icon || '🐾'}</div>
                                 <h3 class="text-xl font-bold mb-1" style="font-weight: 700;">${category.name}</h3>
                                 <p class="text-gray-400 text-xs mb-2">${category.size}</p>
                                 <p class="text-gray-300 text-sm flex-grow mb-4">${category.description}</p>
@@ -413,6 +422,10 @@
                     card.addEventListener('click', () => {
                         orderState.category = card.dataset.category;
                         orderState.basePrice = parseInt(card.dataset.price);
+                        orderState.imageUrl = card.dataset.imageUrl; // Guarda la URL de la imagen
+
+                        // Muestra la imagen del producto en la siguiente sección
+                        document.getElementById('product-image-preview').src = orderState.imageUrl;
                         document.getElementById('pet-info-title').textContent = `Proyecto: ${orderState.category}`;
                         showSection('pet-info-section');
                     });
@@ -423,9 +436,9 @@
                 const errorBox = document.createElement('div');
                 errorBox.className = "text-red-500 text-center col-span-3 p-4 rounded-lg bg-red-900/50";
                 errorBox.innerHTML = `<strong class="font-bold">Error de Permisos</strong><br>
-                    <p>No se pudieron cargar los proyectos. Para solucionarlo, ve a tu 
-                    <a href="https://console.firebase.google.com/" target="_blank" class="underline text-cyan-300">consola de Firebase</a>, 
-                    entra a <strong>Firestore Database</strong>, ve a la pestaña <strong>Reglas</strong> y 
+                    <p>No se pudieron cargar los proyectos. Para solucionarlo, ve a tu 
+                    <a href="https://console.firebase.google.com/" target="_blank" class="underline text-cyan-300">consola de Firebase</a>, 
+                    entra a <strong>Firestore Database</strong>, ve a la pestaña <strong>Reglas</strong> y 
                     asegúrate de que esté configurada para permitir la lectura.</p>`;
                 grid.innerHTML = '';
                 grid.appendChild(errorBox);
@@ -484,7 +497,7 @@
             });
         }
         
-        // --- INICIALIZACIÓN DE LA APP (CORREGIDA) ---
+        // --- INICIALIZACIÓN DE LA APP ---
         document.addEventListener('DOMContentLoaded', () => {
 
             const locations = {
