@@ -380,7 +380,6 @@
 
             <!-- PASO 6: Envío y Pago -->
             <section id="payment-section" class="hidden max-w-5xl mx-auto section-fade-in">
-                <h2 class="text-4xl mb-8 text-center">Detalles de Envío y Pago 🐾</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     <!-- Columna Izquierda: Despacho y Resumen -->
                     <div class="bg-white/5 p-8 rounded-2xl border border-white/10 space-y-8">
@@ -519,52 +518,38 @@
         </div>
     </div>
 
-    <!-- NO SE USA EL MODAL DE PASSWORD, PERO SE DEJA POR SI SE NECESITA PARA OTRA COSA -->
-    <div id="password-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[101]">
-        <div class="bg-[#2b1634] p-8 rounded-lg shadow-2xl text-center border-2 border-[#4A00E0] w-full max-w-sm">
-            <h3 class="text-2xl mb-4">Ventana Segura</h3>
-            <p id="password-error" class="text-red-500 text-sm h-4 mb-2"></p>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             
-              // ######################################################################
-              // ###################       CONFIGURACIÓN       ###################
-              // ######################################################################
+            // ######################################################################
+            // ###################       CONFIGURACIÓN       ###################
+            // ######################################################################
 
-              // 1. Claves de Firebase (reemplaza con las tuyas)
-             const firebaseConfig = {
-               apiKey: "AIzaSyCA-WP1HvNPu-Oh6wOCjGPseyvxa7PMlPA",
-               authDomain: "huellitas-web-9108f.firebaseapp.com",
-               projectId: "huellitas-web-9108f",
-               storageBucket: "huellitas-web-9108f.appspot.com",
-               messagingSenderId: "1098590067913",
-               appId: "1:1098590067913:web:db7862baddcfb45f8f8118"
-             };
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            let firebaseConfig;
+            try {
+                firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : undefined;
+            } catch (e) {
+                console.error("Error parsing Firebase config:", e);
+            }
 
-
-              // 2. URL de Google Sheets (reemplaza con la tuya)
-              const googleSheetScriptUrl = 'https://script.google.com/macros/s/AKfycby5tX-z44J7tM31bYgW64_C7X5tTq0w8F9kG6J7r3L5s_N9m8X1g0B_V3K0a_R1qW2P/exec';
-
-              // 3. Número de WhatsApp (reemplaza con el tuyo)
-              const whatsappPhoneNumber = '56946902340'; // Incluye código de país, sin '+' ni espacios
-              
-              // ######################################################################
-              // ######################################################################
-              
-              const displays = {
-                  messageModal: document.getElementById('message-modal'),
-                  messageTitle: document.getElementById('message-title'),
-                  messageText: document.getElementById('message-text'),
-              };
-              const buttons = {
-                  messageClose: document.getElementById('message-close-btn'),
-               };
+            const googleSheetScriptUrl = 'https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec';
+            const whatsappPhoneNumber = '56946902340';
+            
+            // ######################################################################
+            
+            const displays = {
+                messageModal: document.getElementById('message-modal'),
+                messageTitle: document.getElementById('message-title'),
+                messageText: document.getElementById('message-text'),
+            };
+            const buttons = {
+                messageClose: document.getElementById('message-close-btn'),
+            };
 
             function showMessage(title, message) {
                 displays.messageTitle.textContent = title;
@@ -574,533 +559,525 @@
             buttons.messageClose.addEventListener('click', () => displays.messageModal.classList.add('hidden'));
 
             let isAdmin = false;
-
             const adminPassword = 'huellitas_admin';
             
-            // SE HAN ELIMINADO TODOS LOS MÉTODOS DE ACCESO OCULTOS.
-
-            if (!firebaseConfig.projectId) {
-                console.error("Configuración de Firebase no encontrada.");
-                showMessage("Error de Configuración", "No se encontraron las claves de Firebase. La aplicación no podrá guardar datos en la nube.");
-            } else {
-                initializeAppLogic();
+            if (!firebaseConfig || !firebaseConfig.projectId) {
+                console.error("Configuración de Firebase no encontrada o inválida.");
+                showMessage("Error de Configuración", "No se pudo cargar la configuración del servidor. La aplicación no funcionará correctamente.");
+                return; 
             }
 
-            async function initializeAppLogic() {
-                const app = initializeApp(firebaseConfig);
-                const db = getFirestore(app);
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            const auth = getAuth(app);
 
-                const galleryDocRef = doc(db, "content", "gallery");
-                const bankDetailsDocRef = doc(db, "content", "bankDetails");
-
-                // --- LOGIN DE ADMINISTRADOR DIRECTO Y VISIBLE ---
-                const adminPasswordInput = document.getElementById('admin-password-input');
-                const adminLoginBtn = document.getElementById('admin-login-btn');
-
-                adminLoginBtn.addEventListener('click', () => {
-                    if (adminPasswordInput.value === adminPassword) {
-                        isAdmin = true;
-                        document.getElementById('admin-panel').classList.remove('hidden');
-                        document.dispatchEvent(new Event('adminLoginSuccess'));
-                        adminPasswordInput.value = ''; // Limpiar el campo
-                    } else {
-                        showMessage('Acceso Denegado', 'La contraseña es incorrecta.');
-                        adminPasswordInput.value = ''; // Limpiar el campo
-                    }
-                });
-                
-                // Base de datos de productos (fácil de expandir en el futuro)
-                const PRODUCTS = [
-                    {
-                        id: 'standard-50x60',
-                        name: 'Obra Estándar',
-                        size: '50 x 60 cm',
-                        price: 79990,
-                        description: 'El tamaño perfecto para un recuerdo emotivo y presente, ideal para cualquier espacio.'
-                    }
-                ];
-
-                const SHIPPING_COSTS = {
-                    'centro': 0,
-                    'alrededores': 4500,
-                    'regiones': 8990
-                };
-
-                let isCouponApplied = false;
-                let discountAmount = 0;
-                const userSelection = { product: null, category: null, petName: null, petAge: null };
-                let bankDetails = {};
-                let galleryImages = [];
-
-                const pageContent = {
-                    main: document.getElementById('main-page-content'),
-                    form: document.getElementById('form-content'),
-                };
-
-                const sections = {
-                    productSelection: document.getElementById('product-selection-section'),
-                    petData: document.getElementById('pet-data-section'),
-                    upload: document.getElementById('upload-section'),
-                    summary: document.getElementById('summary-section'),
-                    payment: document.getElementById('payment-section'),
-                };
-
-                const allButtons = {
-                    ...buttons,
-                    startProject: document.getElementById('start-project-btn'),
-                    backToHome: document.querySelectorAll('.back-to-home-btn'),
-                    categoryCards: document.querySelectorAll('.category-card'),
-                    backToProducts: document.querySelector('.back-to-products-btn'),
-                    continueToUpload: document.getElementById('continue-to-upload-btn'),
-                    backToPetData: document.querySelector('.back-to-pet-data-btn'),
-                    continueToSummary: document.getElementById('continue-to-summary-btn'),
-                    backToUpload: document.querySelector('.back-to-upload-btn'),
-                    continueToPayment: document.getElementById('continue-to-payment-btn'),
-                    backToSummary: document.querySelectorAll('.back-to-summary-btn'),
-                    finishPurchase: document.getElementById('finish-purchase-btn'),
-                    withVideo: document.getElementById('with-video-btn'),
-                    noVideo: document.getElementById('no-video-btn'),
-                    changeChoice: document.getElementById('change-choice-btn'),
-                    applyCoupon: document.getElementById('apply-coupon-btn'),
-                    addImage: document.getElementById('add-image-btn'),
-                    saveBankDetails: document.getElementById('save-bank-details-btn'),
-                    closeAdmin: document.getElementById('close-admin-btn'),
-                };
-
-                const allInputs = {
-                    petName: document.getElementById('pet-name'),
-                    petAge: document.getElementById('pet-age'),
-                    shortText: document.getElementById('short-text'),
-                    longText: document.getElementById('long-text'),
-                    surpriseMe: document.getElementById('surprise-me'),
-                    galleryUrl: document.getElementById('gallery-url-input'),
-                    photos: document.getElementById('photos'),
-                    couponCode: document.getElementById('coupon-code'),
-                    shippingZone: document.getElementById('shipping-zone'),
-                    shippingFullName: document.getElementById('full-name'),
-                    shippingAddress: document.getElementById('address'),
-                    shippingCity: document.getElementById('city'),
-                    shippingPhone: document.getElementById('phone'),
-                    adminBanco: document.getElementById('admin-banco'),
-                    adminTipoCuenta: document.getElementById('admin-tipo-cuenta'),
-                    adminNumero: document.getElementById('admin-numero'),
-                    adminNombre: document.getElementById('admin-nombre'),
-                    adminRut: document.getElementById('admin-rut'),
-                    adminEmail: document.getElementById('admin-email'),
-                };
-
-                const allDisplays = {
-                    ...displays,
-                    productCardsContainer: document.getElementById('product-cards-container'),
-                    petDataTitle: document.getElementById('pet-data-title'),
-                    videoChoiceContainer: document.getElementById('video-choice-container'),
-                    mainUploadForm: document.getElementById('main-upload-form'),
-                    uploadContainers: document.getElementById('upload-containers'),
-                    photosContainer: document.getElementById('photos-upload-container'),
-                    videoContainer: document.getElementById('video-upload-container'),
-                    photosLabel: document.getElementById('photos-label'),
-                    photosDescription: document.getElementById('photos-description'),
-                    shortTextCounter: document.getElementById('short-text-counter'),
-                    longTextCounter: document.getElementById('long-text-counter'),
-                    galleryContainer: document.getElementById('gallery-container'),
-                    surpriseMeText: document.getElementById('surprise-me-homenaje-text'),
-                    summaryProductName: document.getElementById('summary-product-name'),
-                    summaryProductSize: document.getElementById('summary-product-size'),
-                    summaryCategory: document.getElementById('summary-category'),
-                    summaryPetName: document.getElementById('summary-pet-name'),
-                    summaryPetAge: document.getElementById('summary-pet-age'),
-                    summaryImagesContainer: document.getElementById('summary-images-container'),
-                    paymentProductName: document.getElementById('payment-product-name'),
-                    subtotalPrice: document.getElementById('subtotal-price'),
-                    shippingCost: document.getElementById('shipping-cost'),
-                    discountRow: document.getElementById('discount-row'),
-                    discountAmount: document.getElementById('discount-amount'),
-                    totalPrice: document.getElementById('total-price'),
-                };
-                
-                const decorativeImages = document.querySelectorAll('.decorative-pet-image');
-
-                // --- LÓGICA DE AUTO-REPARACIÓN DE GALERÍA MEJORADA ---
-                onSnapshot(galleryDocRef, (doc) => {
-                    const data = doc.data();
-                    // CONDICIÓN MEJORADA: Se activa si el documento no existe, no tiene 'images', el array está vacío o el primer objeto no tiene URL.
-                    if (!doc.exists() || !data || !data.images || data.images.length === 0 || !data.images[0].url) {
-                        
-                        console.log("Galería no válida detectada. Restaurando a valores por defecto en Firebase.");
-                        const defaultGalleryImages = [
-                            { id: 'def1', url: 'https://i.ibb.co/b3F0fM3/1.png', alt: 'Obra de arte de perro con fondo estrellado' },
-                            { id: 'def2', url: 'https://i.ibb.co/fC31N2Q/2.png', alt: 'Retrato de gato con flores' },
-                            { id: 'def3', url: 'https://i.ibb.co/bmgYy60/3.png', alt: 'Obra de arte conmemorativa de un conejo' },
-                            { id: 'def4', url: 'https://i.ibb.co/yQxGzSt/4.png', alt: 'Cuadro de un perrito celebrando su cumpleaños' }
-                        ];
-                        
-                        // Solo escribimos en Firebase si realmente no existe o está vacío para evitar bucles.
-                        if (!doc.exists() || !data || !data.images || data.images.length === 0) {
-                            setDoc(galleryDocRef, { images: defaultGalleryImages }).catch(error => {
-                                console.error("Error al escribir la galería por defecto:", error);
-                            });
-                        }
-
-                        // Para el usuario actual, mostramos inmediatamente las imágenes por defecto.
-                        galleryImages = defaultGalleryImages;
-                        renderGallery();
-
-                    } else {
-                        // La galería tiene imágenes válidas, las mostramos.
-                        galleryImages = data.images;
-                        renderGallery();
-                    }
-                });
-
-
-                onSnapshot(bankDetailsDocRef, (doc) => {
-                    if (doc.exists()) {
-                        bankDetails = doc.data();
-                        renderBankDetails();
-                        if (isAdmin) {
-                            populateAdminBankInputs(bankDetails);
-                        }
-                    }
-                });
-                
-                function formatPrice(value) {
-                    return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
                 }
+            } catch (error) {
+                console.error("Authentication failed:", error);
+                showMessage("Error de Conexión", "No se pudo autenticar con el servidor. Por favor, refresca la página.");
+                return;
+            }
 
-                function renderProducts() {
-                    allDisplays.productCardsContainer.innerHTML = '';
-                    PRODUCTS.forEach(product => {
-                        const card = document.createElement('div');
-                        card.className = 'product-card gradient-border-card p-8 rounded-2xl cursor-pointer text-center';
-                        card.dataset.productId = product.id;
-                        card.innerHTML = `
-                            <h3 class="text-3xl mb-2">${product.name}</h3>
-                            <p class="text-xl text-gray-400 mb-4">${product.size}</p>
-                            <p class="mb-6">${product.description}</p>
-                            <p class="text-4xl font-bold text-white">${formatPrice(product.price)}</p>
-                        `;
-                        card.addEventListener('click', () => {
-                            userSelection.product = product;
-                            
-                            allDisplays.petDataTitle.textContent = `Proyecto: ${userSelection.category}`;
-                            decorativeImages.forEach(img => img.classList.add('hidden'));
-                            if (userSelection.category.includes('Homenaje')) document.getElementById('deco-homenaje').classList.remove('hidden');
-                            else if (userSelection.category.includes('Celebrando su Vida')) document.getElementById('deco-celebrando').classList.remove('hidden');
-                            else if (userSelection.category.includes('Nueva Familia')) document.getElementById('deco-familia').classList.remove('hidden');
+            const galleryDocRef = doc(db, "artifacts", appId, "public", "data", "content", "gallery");
+            const bankDetailsDocRef = doc(db, "artifacts", appId, "public", "data", "content", "bankDetails");
 
-                            goToFormSection(sections.petData);
-                        });
-                        allDisplays.productCardsContainer.appendChild(card);
-                    });
+            const adminPasswordInput = document.getElementById('admin-password-input');
+            const adminLoginBtn = document.getElementById('admin-login-btn');
+
+            adminLoginBtn.addEventListener('click', () => {
+                if (adminPasswordInput.value === adminPassword) {
+                    isAdmin = true;
+                    document.getElementById('admin-panel').classList.remove('hidden');
+                    document.dispatchEvent(new Event('adminLoginSuccess'));
+                    adminPasswordInput.value = '';
+                } else {
+                    showMessage('Acceso Denegado', 'La contraseña es incorrecta.');
+                    adminPasswordInput.value = '';
                 }
-                
-                function populateAdminBankInputs(details) {
-                    allInputs.adminBanco.value = details.banco || '';
-                    allInputs.adminTipoCuenta.value = details.tipoCuenta || '';
-                    allInputs.adminNumero.value = details.numero || '';
-                    allInputs.adminNombre.value = details.nombre || '';
-                    allInputs.adminRut.value = details.rut || '';
-                    allInputs.adminEmail.value = details.email || '';
+            });
+            
+            const PRODUCTS = [
+                {
+                    id: 'standard-50x60',
+                    name: 'Obra Estándar',
+                    size: '50 x 60 cm',
+                    price: 79990,
+                    description: 'El tamaño perfecto para un recuerdo emotivo y presente, ideal para cualquier espacio.'
                 }
+            ];
 
-                function renderBankDetails() {
-                    if (bankDetails) {
-                        document.querySelectorAll('#transfer-payment-details [data-key]').forEach(span => {
-                            span.textContent = bankDetails[span.dataset.key] || '';
+            const SHIPPING_COSTS = {
+                'centro': 0,
+                'alrededores': 4500,
+                'regiones': 8990
+            };
+
+            let isCouponApplied = false;
+            let discountAmount = 0;
+            const userSelection = { product: null, category: null, petName: null, petAge: null };
+            let bankDetails = {};
+            let galleryImages = [];
+
+            const pageContent = {
+                main: document.getElementById('main-page-content'),
+                form: document.getElementById('form-content'),
+            };
+
+            const sections = {
+                productSelection: document.getElementById('product-selection-section'),
+                petData: document.getElementById('pet-data-section'),
+                upload: document.getElementById('upload-section'),
+                summary: document.getElementById('summary-section'),
+                payment: document.getElementById('payment-section'),
+            };
+
+            const allButtons = {
+                ...buttons,
+                startProject: document.getElementById('start-project-btn'),
+                backToHome: document.querySelectorAll('.back-to-home-btn'),
+                categoryCards: document.querySelectorAll('.category-card'),
+                backToProducts: document.querySelector('.back-to-products-btn'),
+                continueToUpload: document.getElementById('continue-to-upload-btn'),
+                backToPetData: document.querySelector('.back-to-pet-data-btn'),
+                continueToSummary: document.getElementById('continue-to-summary-btn'),
+                backToUpload: document.querySelector('.back-to-upload-btn'),
+                continueToPayment: document.getElementById('continue-to-payment-btn'),
+                backToSummary: document.querySelectorAll('.back-to-summary-btn'),
+                finishPurchase: document.getElementById('finish-purchase-btn'),
+                withVideo: document.getElementById('with-video-btn'),
+                noVideo: document.getElementById('no-video-btn'),
+                changeChoice: document.getElementById('change-choice-btn'),
+                applyCoupon: document.getElementById('apply-coupon-btn'),
+                addImage: document.getElementById('add-image-btn'),
+                saveBankDetails: document.getElementById('save-bank-details-btn'),
+                closeAdmin: document.getElementById('close-admin-btn'),
+            };
+
+            const allInputs = {
+                petName: document.getElementById('pet-name'),
+                petAge: document.getElementById('pet-age'),
+                shortText: document.getElementById('short-text'),
+                longText: document.getElementById('long-text'),
+                surpriseMe: document.getElementById('surprise-me'),
+                galleryUrl: document.getElementById('gallery-url-input'),
+                photos: document.getElementById('photos'),
+                couponCode: document.getElementById('coupon-code'),
+                shippingZone: document.getElementById('shipping-zone'),
+                shippingFullName: document.getElementById('full-name'),
+                shippingAddress: document.getElementById('address'),
+                shippingCity: document.getElementById('city'),
+                shippingPhone: document.getElementById('phone'),
+                adminBanco: document.getElementById('admin-banco'),
+                adminTipoCuenta: document.getElementById('admin-tipo-cuenta'),
+                adminNumero: document.getElementById('admin-numero'),
+                adminNombre: document.getElementById('admin-nombre'),
+                adminRut: document.getElementById('admin-rut'),
+                adminEmail: document.getElementById('admin-email'),
+            };
+
+            const allDisplays = {
+                ...displays,
+                productCardsContainer: document.getElementById('product-cards-container'),
+                petDataTitle: document.getElementById('pet-data-title'),
+                videoChoiceContainer: document.getElementById('video-choice-container'),
+                mainUploadForm: document.getElementById('main-upload-form'),
+                uploadContainers: document.getElementById('upload-containers'),
+                photosContainer: document.getElementById('photos-upload-container'),
+                videoContainer: document.getElementById('video-upload-container'),
+                photosLabel: document.getElementById('photos-label'),
+                photosDescription: document.getElementById('photos-description'),
+                shortTextCounter: document.getElementById('short-text-counter'),
+                longTextCounter: document.getElementById('long-text-counter'),
+                galleryContainer: document.getElementById('gallery-container'),
+                surpriseMeText: document.getElementById('surprise-me-homenaje-text'),
+                summaryProductName: document.getElementById('summary-product-name'),
+                summaryProductSize: document.getElementById('summary-product-size'),
+                summaryCategory: document.getElementById('summary-category'),
+                summaryPetName: document.getElementById('summary-pet-name'),
+                summaryPetAge: document.getElementById('summary-pet-age'),
+                summaryImagesContainer: document.getElementById('summary-images-container'),
+                paymentProductName: document.getElementById('payment-product-name'),
+                subtotalPrice: document.getElementById('subtotal-price'),
+                shippingCost: document.getElementById('shipping-cost'),
+                discountRow: document.getElementById('discount-row'),
+                discountAmount: document.getElementById('discount-amount'),
+                totalPrice: document.getElementById('total-price'),
+            };
+            
+            const decorativeImages = document.querySelectorAll('.decorative-pet-image');
+
+            onSnapshot(galleryDocRef, (doc) => {
+                const data = doc.data();
+                if (!doc.exists() || !data || !data.images || data.images.length === 0 || !data.images[0].url) {
+                    
+                    const defaultGalleryImages = [
+                        { id: 'def1', url: 'https://i.ibb.co/b3F0fM3/1.png', alt: 'Obra de arte de perro con fondo estrellado' },
+                        { id: 'def2', url: 'https://i.ibb.co/fC31N2Q/2.png', alt: 'Retrato de gato con flores' },
+                        { id: 'def3', url: 'https://i.ibb.co/bmgYy60/3.png', alt: 'Obra de arte conmemorativa de un conejo' },
+                        { id: 'def4', url: 'https://i.ibb.co/yQxGzSt/4.png', alt: 'Cuadro de un perrito celebrando su cumpleaños' }
+                    ];
+                    
+                    if (!doc.exists() || !data || !data.images || data.images.length === 0) {
+                        setDoc(galleryDocRef, { images: defaultGalleryImages }).catch(error => {
+                            console.error("Error al escribir la galería por defecto:", error);
                         });
                     }
-                }
-                
-                function renderGallery() {
-                    allDisplays.galleryContainer.innerHTML = '';
-                    if (galleryImages.length === 0) {
-                        allDisplays.galleryContainer.innerHTML = `<p class="col-span-full text-center text-gray-400">Nuestra galería se está actualizando. ¡Vuelve pronto!</p>`;
-                        return;
-                    }
-                    galleryImages.forEach(img => {
-                        const idAttribute = typeof img.id === 'number' ? img.id.toString() : img.id;
-                        const deleteButtonHTML = isAdmin ? `<div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><button data-id="${idAttribute}" class="delete-image-btn text-white bg-red-600/80 rounded-full w-10 h-10 font-bold">X</button></div>` : '';
-                        allDisplays.galleryContainer.innerHTML += `<div class="relative group overflow-hidden rounded-lg"><img src="${img.url}" alt="${img.alt || 'Pet memorial'}" class="w-full h-full object-cover aspect-square transition-transform duration-300 group-hover:scale-110">${deleteButtonHTML}</div>`;
-                    });
-                }
 
-                document.addEventListener('adminLoginSuccess', () => {
+                    galleryImages = defaultGalleryImages;
                     renderGallery();
-                    populateAdminBankInputs(bankDetails);
-                });
 
-                // --- LÓGICA DE NAVEGACIÓN Y FLUJO ---
-
-                function goToFormSection(targetSection) {
-                    Object.values(sections).forEach(s => s.classList.add('hidden'));
-                    pageContent.main.classList.add('hidden');
-                    pageContent.form.classList.remove('hidden');
-                    targetSection.classList.remove('hidden');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    galleryImages = data.images;
+                    renderGallery();
                 }
+            });
 
-                function showHomePage() {
-                    Object.values(sections).forEach(s => s.classList.add('hidden'));
-                    pageContent.form.classList.add('hidden');
-                    pageContent.main.classList.remove('hidden');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+            onSnapshot(bankDetailsDocRef, (doc) => {
+                if (doc.exists()) {
+                    bankDetails = doc.data();
+                    renderBankDetails();
+                    if (isAdmin) {
+                        populateAdminBankInputs(bankDetails);
+                    }
                 }
+            });
+            
+            function formatPrice(value) {
+                return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
+            }
 
-                allButtons.startProject.addEventListener('click', () => {
-                    document.getElementById('projects-section').scrollIntoView({ behavior: 'smooth' });
-                });
-
-                allButtons.backToHome.forEach(btn => btn.addEventListener('click', showHomePage));
-                allButtons.backToProducts.addEventListener('click', () => goToFormSection(sections.productSelection));
-                allButtons.backToPetData.addEventListener('click', () => goToFormSection(sections.petData));
-                allButtons.backToUpload.addEventListener('click', () => goToFormSection(sections.upload));
-                allButtons.backToSummary.forEach(btn => btn.addEventListener('click', () => goToFormSection(sections.summary)));
-
-
-                allButtons.categoryCards.forEach(card => {
+            function renderProducts() {
+                allDisplays.productCardsContainer.innerHTML = '';
+                PRODUCTS.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card gradient-border-card p-8 rounded-2xl cursor-pointer text-center';
+                    card.dataset.productId = product.id;
+                    card.innerHTML = `
+                        <h3 class="text-3xl mb-2">${product.name}</h3>
+                        <p class="text-xl text-gray-400 mb-4">${product.size}</p>
+                        <p class="mb-6">${product.description}</p>
+                        <p class="text-4xl font-bold text-white">${formatPrice(product.price)}</p>
+                    `;
                     card.addEventListener('click', () => {
-                        userSelection.category = card.dataset.category;
-                        renderProducts();
-                        goToFormSection(sections.productSelection);
+                        userSelection.product = product;
+                        
+                        allDisplays.petDataTitle.textContent = `Proyecto: ${userSelection.category}`;
+                        decorativeImages.forEach(img => img.classList.add('hidden'));
+                        if (userSelection.category.includes('Homenaje')) document.getElementById('deco-homenaje').classList.remove('hidden');
+                        else if (userSelection.category.includes('Celebrando su Vida')) document.getElementById('deco-celebrando').classList.remove('hidden');
+                        else if (userSelection.category.includes('Nueva Familia')) document.getElementById('deco-familia').classList.remove('hidden');
+
+                        goToFormSection(sections.petData);
                     });
+                    allDisplays.productCardsContainer.appendChild(card);
                 });
-                
-                allButtons.continueToUpload.addEventListener('click', () => {
-                    if (allInputs.petName.value.trim() === '' || allInputs.petAge.value === '') {
-                        showMessage('Campos Incompletos', 'Por favor, completa todos los campos para continuar.');
-                        return;
-                    }
-                    userSelection.petName = allInputs.petName.value;
-                    userSelection.petAge = allInputs.petAge.value;
-                    allDisplays.surpriseMeText.classList.toggle('hidden', !userSelection.category.includes('Homenaje'));
-                    
-                    goToFormSection(sections.upload);
-                });
-                
-                allButtons.continueToSummary.addEventListener('click', () => {
-                    allDisplays.summaryProductName.textContent = `Tu ${userSelection.product.name}`;
-                    allDisplays.summaryProductSize.textContent = `Tamaño del cuadro: ${userSelection.product.size}`;
-                    allDisplays.summaryCategory.textContent = userSelection.category;
-                    allDisplays.summaryPetName.textContent = userSelection.petName;
-                    allDisplays.summaryPetAge.textContent = `${userSelection.petAge} años`;
-                    allDisplays.summaryImagesContainer.innerHTML = '';
-                    const imagesToShow = galleryImages.slice(0, 2);
-                    if(imagesToShow.length > 0) {
-                        imagesToShow.forEach(galleryImage => {
-                            allDisplays.summaryImagesContainer.innerHTML += `<img src="${galleryImage.url}" alt="${galleryImage.alt}" class="rounded-lg w-full aspect-square object-cover">`;
-                        });
-                    }
-                    goToFormSection(sections.summary);
-                });
-                
-                allButtons.continueToPayment.addEventListener('click', () => {
-                    updatePaymentSummary();
-                    goToFormSection(sections.payment);
-                });
-                
-                allButtons.finishPurchase.addEventListener('click', () => {
-                    const shippingForm = document.getElementById('shipping-form');
-                    if (!shippingForm.checkValidity()) {
-                        showMessage('Datos Faltantes', 'Por favor, completa todos los campos de la dirección de despacho.');
-                        return;
-                    }
-                    
-                    const selectedZone = allInputs.shippingZone.value;
-                    const shippingCost = SHIPPING_COSTS[selectedZone];
-                    const productPrice = userSelection.product.price;
-                    const total = productPrice + shippingCost - discountAmount;
+            }
+            
+            function populateAdminBankInputs(details) {
+                allInputs.adminBanco.value = details.banco || '';
+                allInputs.adminTipoCuenta.value = details.tipoCuenta || '';
+                allInputs.adminNumero.value = details.numero || '';
+                allInputs.adminNombre.value = details.nombre || '';
+                allInputs.adminRut.value = details.rut || '';
+                allInputs.adminEmail.value = details.email || '';
+            }
 
-                    const orderData = {
-                        producto: userSelection.product.name,
-                        tamaño: userSelection.product.size,
-                        categoria: userSelection.category,
-                        nombreMascota: userSelection.petName,
-                        edadMascota: userSelection.petAge,
-                        nombreCliente: allInputs.shippingFullName.value,
-                        direccion: allInputs.shippingAddress.value,
-                        comuna: allInputs.shippingCity.value,
-                        telefono: allInputs.shippingPhone.value,
-                        costoProducto: productPrice,
-                        costoEnvio: shippingCost,
-                        descuento: discountAmount,
-                        totalPagado: total
-                    };
+            function renderBankDetails() {
+                if (bankDetails) {
+                    document.querySelectorAll('#transfer-payment-details [data-key]').forEach(span => {
+                        span.textContent = bankDetails[span.dataset.key] || '';
+                    });
+                }
+            }
+            
+            function renderGallery() {
+                allDisplays.galleryContainer.innerHTML = '';
+                if (galleryImages.length === 0) {
+                    allDisplays.galleryContainer.innerHTML = `<p class="col-span-full text-center text-gray-400">Nuestra galería se está actualizando. ¡Vuelve pronto!</p>`;
+                    return;
+                }
+                galleryImages.forEach(img => {
+                    const idAttribute = typeof img.id === 'number' ? img.id.toString() : img.id;
+                    const deleteButtonHTML = isAdmin ? `<div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><button data-id="${idAttribute}" class="delete-image-btn text-white bg-red-600/80 rounded-full w-10 h-10 font-bold">X</button></div>` : '';
+                    allDisplays.galleryContainer.innerHTML += `<div class="relative group overflow-hidden rounded-lg"><img src="${img.url}" alt="${img.alt || 'Pet memorial'}" class="w-full h-full object-cover aspect-square transition-transform duration-300 group-hover:scale-110">${deleteButtonHTML}</div>`;
+                });
+            }
 
-                    const purchaseButton = allButtons.finishPurchase;
-                    purchaseButton.disabled = true;
-                    purchaseButton.innerHTML = 'Procesando...';
+            document.addEventListener('adminLoginSuccess', () => {
+                renderGallery();
+                populateAdminBankInputs(bankDetails);
+            });
 
-                    if(googleSheetScriptUrl && googleSheetScriptUrl !== 'https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec') {
-                        fetch(googleSheetScriptUrl, {
-                            method: 'POST',
-                            mode: 'no-cors',
-                            cache: 'no-cache',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({data: orderData})
-                        })
-                        .then(() => {
-                           console.log('Success (assumed due to no-cors)');
-                           openWhatsApp();
-                        })
-                        .catch((error) => {
-                            console.error('Error:', error);
-                            showMessage('Error', 'Hubo un error al registrar tu pedido. Por favor, intenta de nuevo.');
-                        })
-                        .finally(() => {
-                            purchaseButton.disabled = false;
-                            purchaseButton.innerHTML = 'Enviar Comprobante por WhatsApp 🐾';
-                        });
-                    } else {
-                        console.log('URL de Google Sheet no configurada. Abriendo WhatsApp directamente.');
+            function goToFormSection(targetSection) {
+                Object.values(sections).forEach(s => s.classList.add('hidden'));
+                pageContent.main.classList.add('hidden');
+                pageContent.form.classList.remove('hidden');
+                targetSection.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            function showHomePage() {
+                Object.values(sections).forEach(s => s.classList.add('hidden'));
+                pageContent.form.classList.add('hidden');
+                pageContent.main.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            allButtons.startProject.addEventListener('click', () => {
+                document.getElementById('projects-section').scrollIntoView({ behavior: 'smooth' });
+            });
+
+            allButtons.backToHome.forEach(btn => btn.addEventListener('click', showHomePage));
+            allButtons.backToProducts.addEventListener('click', () => goToFormSection(sections.productSelection));
+            allButtons.backToPetData.addEventListener('click', () => goToFormSection(sections.petData));
+            allButtons.backToUpload.addEventListener('click', () => goToFormSection(sections.upload));
+            allButtons.backToSummary.forEach(btn => btn.addEventListener('click', () => goToFormSection(sections.summary)));
+
+            allButtons.categoryCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    userSelection.category = card.dataset.category;
+                    renderProducts();
+                    goToFormSection(sections.productSelection);
+                });
+            });
+            
+            allButtons.continueToUpload.addEventListener('click', () => {
+                if (allInputs.petName.value.trim() === '' || allInputs.petAge.value === '') {
+                    showMessage('Campos Incompletos', 'Por favor, completa todos los campos para continuar.');
+                    return;
+                }
+                userSelection.petName = allInputs.petName.value;
+                userSelection.petAge = allInputs.petAge.value;
+                allDisplays.surpriseMeText.classList.toggle('hidden', !userSelection.category.includes('Homenaje'));
+                
+                goToFormSection(sections.upload);
+            });
+            
+            allButtons.continueToSummary.addEventListener('click', () => {
+                allDisplays.summaryProductName.textContent = `Tu ${userSelection.product.name}`;
+                allDisplays.summaryProductSize.textContent = `Tamaño del cuadro: ${userSelection.product.size}`;
+                allDisplays.summaryCategory.textContent = userSelection.category;
+                allDisplays.summaryPetName.textContent = userSelection.petName;
+                allDisplays.summaryPetAge.textContent = `${userSelection.petAge} años`;
+                allDisplays.summaryImagesContainer.innerHTML = '';
+                const imagesToShow = galleryImages.slice(0, 2);
+                if(imagesToShow.length > 0) {
+                    imagesToShow.forEach(galleryImage => {
+                        allDisplays.summaryImagesContainer.innerHTML += `<img src="${galleryImage.url}" alt="${galleryImage.alt}" class="rounded-lg w-full aspect-square object-cover">`;
+                    });
+                }
+                goToFormSection(sections.summary);
+            });
+            
+            allButtons.continueToPayment.addEventListener('click', () => {
+                updatePaymentSummary();
+                goToFormSection(sections.payment);
+            });
+            
+            allButtons.finishPurchase.addEventListener('click', () => {
+                const shippingForm = document.getElementById('shipping-form');
+                if (!shippingForm.checkValidity()) {
+                    showMessage('Datos Faltantes', 'Por favor, completa todos los campos de la dirección de despacho.');
+                    return;
+                }
+                
+                const selectedZone = allInputs.shippingZone.value;
+                const shippingCost = SHIPPING_COSTS[selectedZone];
+                const productPrice = userSelection.product.price;
+                const total = productPrice + shippingCost - discountAmount;
+
+                const orderData = {
+                    producto: userSelection.product.name,
+                    tamaño: userSelection.product.size,
+                    categoria: userSelection.category,
+                    nombreMascota: userSelection.petName,
+                    edadMascota: userSelection.petAge,
+                    nombreCliente: allInputs.shippingFullName.value,
+                    direccion: allInputs.shippingAddress.value,
+                    comuna: allInputs.shippingCity.value,
+                    telefono: allInputs.shippingPhone.value,
+                    costoProducto: productPrice,
+                    costoEnvio: shippingCost,
+                    descuento: discountAmount,
+                    totalPagado: total
+                };
+
+                const purchaseButton = allButtons.finishPurchase;
+                purchaseButton.disabled = true;
+                purchaseButton.innerHTML = 'Procesando...';
+
+                if(googleSheetScriptUrl) {
+                    fetch(googleSheetScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        cache: 'no-cache',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({data: orderData})
+                    })
+                    .then(() => {
+                        console.log('Success (assumed due to no-cors)');
                         openWhatsApp();
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        showMessage('Error', 'Hubo un error al registrar tu pedido. Por favor, intenta de nuevo.');
+                    })
+                    .finally(() => {
                         purchaseButton.disabled = false;
                         purchaseButton.innerHTML = 'Enviar Comprobante por WhatsApp 🐾';
-                    }
-                });
-
-                function openWhatsApp() {
-                    const message = encodeURIComponent('¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago. 🐾');
-                    window.open(`https://api.whatsapp.com/send?phone=${whatsappPhoneNumber}&text=${message}`, '_blank');
-                }
-
-                // --- LÓGICA DE FORMULARIOS Y COMPONENTES ---
-
-                function showUploadForm(withVideo) {
-                    allDisplays.videoChoiceContainer.classList.add('hidden');
-                    allDisplays.mainUploadForm.classList.remove('hidden');
-                    if (withVideo) {
-                        allDisplays.videoContainer.classList.remove('hidden');
-                        allDisplays.photosDescription.textContent = "Puedes subir hasta 10 fotos.";
-                    } else {
-                        allDisplays.videoContainer.classList.add('hidden');
-                        allDisplays.photosDescription.textContent = "Puedes subir hasta 20 fotos. Crearemos un video emotivo a partir de ellas.";
-                    }
-                }
-
-                allButtons.withVideo.addEventListener('click', () => showUploadForm(true));
-                allButtons.noVideo.addEventListener('click', () => showUploadForm(false));
-                allButtons.changeChoice.addEventListener('click', () => {
-                    allDisplays.mainUploadForm.classList.add('hidden');
-                    allDisplays.videoChoiceContainer.classList.remove('hidden');
-                });
-                
-                function updatePaymentSummary() {
-                    const productPrice = userSelection.product.price;
-                    const selectedZone = allInputs.shippingZone.value;
-                    const shippingCost = SHIPPING_COSTS[selectedZone];
-                    let total = productPrice + shippingCost;
-                    if (isCouponApplied) {
-                        total -= discountAmount;
-                    }
-                    allDisplays.paymentProductName.textContent = `Precio ${userSelection.product.name}:`;
-                    allDisplays.subtotalPrice.textContent = formatPrice(productPrice);
-                    allDisplays.shippingCost.textContent = formatPrice(shippingCost);
-                    allDisplays.totalPrice.textContent = formatPrice(total);
-                }
-                
-                allInputs.shippingZone.addEventListener('change', updatePaymentSummary);
-
-                allButtons.applyCoupon.addEventListener('click', () => {
-                    const code = allInputs.couponCode.value.trim().toUpperCase();
-                    if (isCouponApplied) {
-                        showMessage('Aviso', 'Ya se ha aplicado un descuento en esta compra.');
-                        return;
-                    }
-                    if (code.includes('HUELLITAS')) {
-                        isCouponApplied = true;
-                        discountAmount = userSelection.product.price * 0.15;
-                        allDisplays.discountAmount.textContent = `- ${formatPrice(discountAmount)}`;
-                        allDisplays.discountRow.classList.remove('hidden');
-                        updatePaymentSummary();
-                        showMessage('¡Éxito!', 'Cupón del 15% aplicado con éxito.');
-                        allInputs.couponCode.disabled = true;
-                        allButtons.applyCoupon.disabled = true;
-                        allButtons.applyCoupon.textContent = 'Aplicado';
-                    } else {
-                        showMessage('Error', 'El código del cupón no es válido.');
-                    }
-                });
-
-                function setupCounter(inputElement, counterElement, maxLength) {
-                    inputElement.addEventListener('input', () => {
-                        const currentLength = inputElement.value.length;
-                        counterElement.textContent = `${currentLength}/${maxLength}`;
-                        counterElement.classList.toggle('text-red-500', currentLength > maxLength);
                     });
+                } else {
+                    console.log('URL de Google Sheet no configurada. Abriendo WhatsApp directamente.');
+                    openWhatsApp();
+                    purchaseButton.disabled = false;
+                    purchaseButton.innerHTML = 'Enviar Comprobante por WhatsApp 🐾';
                 }
-                setupCounter(allInputs.shortText, allDisplays.shortTextCounter, 150);
-                setupCounter(allInputs.longText, allDisplays.longTextCounter, 400);
+            });
 
-                allInputs.surpriseMe.addEventListener('change', (e) => {
-                    const isChecked = e.target.checked;
-                    allInputs.shortText.disabled = isChecked;
-                    allInputs.longText.disabled = isChecked;
-                    if (isChecked) {
-                        allInputs.shortText.value = '';
-                        allInputs.longText.value = '';
-                        allInputs.shortText.dispatchEvent(new Event('input'));
-                        allInputs.longText.dispatchEvent(new Event('input'));
-                    }
-                });
+            function openWhatsApp() {
+                const message = encodeURIComponent('¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago. 🐾');
+                window.open(`https://api.whatsapp.com/send?phone=${whatsappPhoneNumber}&text=${message}`, '_blank');
+            }
 
-                // --- FUNCIONES DE ADMINISTRADOR ---
-
-                async function updateGalleryInFirebase() {
-                    try {
-                        const imagesToSave = galleryImages.filter(img => typeof img.id !== 'string' || !img.id.startsWith('def'));
-                        await setDoc(galleryDocRef, { images: imagesToSave });
-                        console.log("Gallery updated in Firebase");
-                    } catch (e) {
-                        console.error("Error updating gallery: ", e);
-                    }
+            function showUploadForm(withVideo) {
+                allDisplays.videoChoiceContainer.classList.add('hidden');
+                allDisplays.mainUploadForm.classList.remove('hidden');
+                if (withVideo) {
+                    allDisplays.videoContainer.classList.remove('hidden');
+                    allDisplays.photosDescription.textContent = "Puedes subir hasta 10 fotos.";
+                } else {
+                    allDisplays.videoContainer.classList.add('hidden');
+                    allDisplays.photosDescription.textContent = "Puedes subir hasta 20 fotos. Crearemos un video emotivo a partir de ellas.";
                 }
+            }
 
-                allButtons.addImage.addEventListener('click', () => {
-                    const url = allInputs.galleryUrl.value.trim();
-                    if (url) {
-                        if (galleryImages.some(img => typeof img.id === 'string' && img.id.startsWith('def'))) {
-                           galleryImages = [];
-                        }
-                        galleryImages.unshift({ id: Date.now(), url: url, alt: 'Nueva imagen de mascota' });
-                        updateGalleryInFirebase();
-                        allInputs.galleryUrl.value = '';
-                    }
-                });
+            allButtons.withVideo.addEventListener('click', () => showUploadForm(true));
+            allButtons.noVideo.addEventListener('click', () => showUploadForm(false));
+            allButtons.changeChoice.addEventListener('click', () => {
+                allDisplays.mainUploadForm.classList.add('hidden');
+                allDisplays.videoChoiceContainer.classList.remove('hidden');
+            });
+            
+            function updatePaymentSummary() {
+                const productPrice = userSelection.product.price;
+                const selectedZone = allInputs.shippingZone.value;
+                const shippingCost = SHIPPING_COSTS[selectedZone];
+                let total = productPrice + shippingCost;
+                if (isCouponApplied) {
+                    total -= discountAmount;
+                }
+                allDisplays.paymentProductName.textContent = `Precio ${userSelection.product.name}:`;
+                allDisplays.subtotalPrice.textContent = formatPrice(productPrice);
+                allDisplays.shippingCost.textContent = formatPrice(shippingCost);
+                allDisplays.totalPrice.textContent = formatPrice(total);
+            }
+            
+            allInputs.shippingZone.addEventListener('change', updatePaymentSummary);
 
-                allDisplays.galleryContainer.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('delete-image-btn')) {
-                        const idToDelete = e.target.dataset.id;
-                        galleryImages = galleryImages.filter(img => img.id.toString() !== idToDelete);
-                        updateGalleryInFirebase();
-                    }
-                });
-                
-                allButtons.closeAdmin.addEventListener('click', () => {
-                    document.getElementById('admin-panel').classList.add('hidden');
-                    isAdmin = false;
-                    renderGallery();
-                });
+            allButtons.applyCoupon.addEventListener('click', () => {
+                const code = allInputs.couponCode.value.trim().toUpperCase();
+                if (isCouponApplied) {
+                    showMessage('Aviso', 'Ya se ha aplicado un descuento en esta compra.');
+                    return;
+                }
+                if (code.includes('HUELLITAS')) {
+                    isCouponApplied = true;
+                    discountAmount = userSelection.product.price * 0.15;
+                    allDisplays.discountAmount.textContent = `- ${formatPrice(discountAmount)}`;
+                    allDisplays.discountRow.classList.remove('hidden');
+                    updatePaymentSummary();
+                    showMessage('¡Éxito!', 'Cupón del 15% aplicado con éxito.');
+                    allInputs.couponCode.disabled = true;
+                    allButtons.applyCoupon.disabled = true;
+                    allButtons.applyCoupon.textContent = 'Aplicado';
+                } else {
+                    showMessage('Error', 'El código del cupón no es válido.');
+                }
+            });
 
-                allButtons.saveBankDetails.addEventListener('click', async () => {
-                    const newBankDetails = {
-                        banco: allInputs.adminBanco.value,
-                        tipoCuenta: allInputs.adminTipoCuenta.value,
-                        numero: allInputs.adminNumero.value,
-                        nombre: allInputs.adminNombre.value,
-                        rut: allInputs.adminRut.value,
-                        email: allInputs.adminEmail.value,
-                    };
-                    try {
-                        await setDoc(bankDetailsDocRef, newBankDetails);
-                        showMessage('¡Guardado!', '¡Datos bancarios guardados con éxito!');
-                    } catch(e) {
-                        console.error("Error saving bank details: ", e);
-                        showMessage('Error', 'No se pudieron guardar los datos. Intenta de nuevo.');
-                    }
+            function setupCounter(inputElement, counterElement, maxLength) {
+                inputElement.addEventListener('input', () => {
+                    const currentLength = inputElement.value.length;
+                    counterElement.textContent = `${currentLength}/${maxLength}`;
+                    counterElement.classList.toggle('text-red-500', currentLength > maxLength);
                 });
             }
+            setupCounter(allInputs.shortText, allDisplays.shortTextCounter, 150);
+            setupCounter(allInputs.longText, allDisplays.longTextCounter, 400);
+
+            allInputs.surpriseMe.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                allInputs.shortText.disabled = isChecked;
+                allInputs.longText.disabled = isChecked;
+                if (isChecked) {
+                    allInputs.shortText.value = '';
+                    allInputs.longText.value = '';
+                    allInputs.shortText.dispatchEvent(new Event('input'));
+                    allInputs.longText.dispatchEvent(new Event('input'));
+                }
+            });
+
+            async function updateGalleryInFirebase() {
+                try {
+                    const imagesToSave = galleryImages.filter(img => typeof img.id !== 'string' || !img.id.startsWith('def'));
+                    await setDoc(galleryDocRef, { images: imagesToSave });
+                } catch (e) {
+                    console.error("Error updating gallery: ", e);
+                    showMessage('Error', 'No se pudo actualizar la galería. Revisa los permisos de la base de datos.');
+                }
+            }
+
+            allButtons.addImage.addEventListener('click', () => {
+                const url = allInputs.galleryUrl.value.trim();
+                if (url) {
+                    if (galleryImages.some(img => typeof img.id === 'string' && img.id.startsWith('def'))) {
+                        galleryImages = [];
+                    }
+                    galleryImages.unshift({ id: Date.now(), url: url, alt: 'Nueva imagen de mascota' });
+                    updateGalleryInFirebase();
+                    allInputs.galleryUrl.value = '';
+                }
+            });
+
+            allDisplays.galleryContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-image-btn')) {
+                    const idToDelete = e.target.dataset.id;
+                    galleryImages = galleryImages.filter(img => img.id.toString() !== idToDelete);
+                    updateGalleryInFirebase();
+                }
+            });
+            
+            allButtons.closeAdmin.addEventListener('click', () => {
+                document.getElementById('admin-panel').classList.add('hidden');
+                isAdmin = false;
+                renderGallery();
+            });
+
+            allButtons.saveBankDetails.addEventListener('click', async () => {
+                const newBankDetails = {
+                    banco: allInputs.adminBanco.value,
+                    tipoCuenta: allInputs.adminTipoCuenta.value,
+                    numero: allInputs.adminNumero.value,
+                    nombre: allInputs.adminNombre.value,
+                    rut: allInputs.adminRut.value,
+                    email: allInputs.adminEmail.value,
+                };
+                try {
+                    await setDoc(bankDetailsDocRef, newBankDetails);
+                    showMessage('¡Guardado!', '¡Datos bancarios guardados con éxito!');
+                } catch(e) {
+                    console.error("Error saving bank details: ", e);
+                    showMessage('Error', 'No se pudieron guardar los datos. Intenta de nuevo.');
+                }
+            });
+            
         });
     </script>
 </body>
