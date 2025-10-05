@@ -331,6 +331,11 @@
         </section>
 
     </main>
+
+    <!-- Notificación Toast -->
+    <div id="toast-notification" class="hidden fixed bottom-5 right-5 bg-red-500 text-white py-3 px-6 rounded-full shadow-lg text-center z-[100] opacity-0 transition-opacity duration-300">
+        <p id="toast-message"></p>
+    </div>
     
     <!-- Firebase SDK -->
     <script type="module">
@@ -387,6 +392,30 @@
                 window.scrollTo(0, 0);
             }
         }
+
+        // Nueva función para mostrar notificaciones en lugar de alerts
+        function showNotification(message, isError = true) {
+            const toast = document.getElementById('toast-notification');
+            const toastMessage = document.getElementById('toast-message');
+
+            toastMessage.textContent = message;
+            toast.classList.remove('hidden');
+            
+            // Gestionar color de fondo
+            toast.classList.remove('bg-red-500', 'bg-green-500');
+            toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
+
+            // Forzar reflow para que la transición funcione al re-aparecer
+            void toast.offsetWidth; 
+
+            toast.classList.remove('opacity-0');
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                // Esperar a que la transición de opacidad termine para añadir 'hidden'
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 3000); // La notificación es visible por 3 segundos
+        }
         
         async function loadCategoriesFromFirestore() {
             const grid = document.getElementById('category-grid');
@@ -400,7 +429,6 @@
                 }
                 querySnapshot.forEach((doc) => {
                     const category = doc.data();
-                    // AHORA USA EL CAMPO 'icon' PARA MOSTRAR EL EMOJI Y GUARDA 'imageUrl' en un data attribute
                     const cardHTML = `
                         <div class="category-card rounded-xl cursor-pointer flex flex-col text-center" 
                              data-category="${category.name}" 
@@ -417,14 +445,12 @@
                     grid.innerHTML += cardHTML;
                 });
                 
-                // Attach listeners AFTER cards are created
                 document.querySelectorAll('.category-card').forEach(card => {
                     card.addEventListener('click', () => {
                         orderState.category = card.dataset.category;
                         orderState.basePrice = parseInt(card.dataset.price);
-                        orderState.imageUrl = card.dataset.imageUrl; // Guarda la URL de la imagen
+                        orderState.imageUrl = card.dataset.imageUrl;
 
-                        // Muestra la imagen del producto en la siguiente sección
                         document.getElementById('product-image-preview').src = orderState.imageUrl;
                         document.getElementById('pet-info-title').textContent = `Proyecto: ${orderState.category}`;
                         showSection('pet-info-section');
@@ -453,7 +479,7 @@
                     grid.innerHTML = '<p class="text-yellow-400 text-center col-span-full">Aún no hay imágenes en la galería.</p>';
                     return;
                 }
-                grid.innerHTML = ''; // Limpia el mensaje de "cargando" solo si hay imágenes
+                grid.innerHTML = ''; 
                 querySnapshot.forEach((doc) => {
                     const imageData = doc.data();
                     const imgHTML = `
@@ -497,7 +523,6 @@
             });
         }
         
-        // --- INICIALIZACIÓN DE LA APP ---
         document.addEventListener('DOMContentLoaded', () => {
 
             const locations = {
@@ -570,7 +595,7 @@
                 const petName = document.getElementById('pet-name').value.trim();
                 const petAge = document.getElementById('pet-age').value.trim();
                 if (!petName || !petAge) {
-                    alert('Por favor, completa el nombre y la edad de tu mascota.');
+                    showNotification('Por favor, completa nombre y edad.');
                     return;
                 }
                 orderState.petName = petName;
@@ -619,7 +644,7 @@
             longTextArea.addEventListener('input', () => updateCharCounter('long-text-counter', longTextArea));
             document.getElementById('to-summary-section').addEventListener('click', () => {
                 if (orderState.hasVideo === null) {
-                    alert('Por favor, elige si subirás videos o solo fotos.');
+                    showNotification('Por favor, elige si subirás videos o solo fotos.');
                     return;
                 }
                 orderState.shortText = shortTextArea.value;
@@ -629,24 +654,38 @@
             });
             document.getElementById('back-to-upload').addEventListener('click', () => showSection('upload-section'));
             document.getElementById('to-payment-section').addEventListener('click', async () => {
-                const clientName = document.getElementById('client-name-input').value.trim();
-                const clientPhone = document.getElementById('client-phone-input').value.trim();
-                const region = document.getElementById('region-select').value;
-                const comuna = document.getElementById('comuna-select').value;
-                const address = document.getElementById('address-input').value.trim();
-
-                if (!clientName || !clientPhone || !region || !comuna || !address) {
-                    alert('Por favor, completa todos los campos de despacho.');
-                    return;
+                try {
+                    const clientName = document.getElementById('client-name-input').value.trim();
+                    const clientPhone = document.getElementById('client-phone-input').value.trim();
+                    const region = document.getElementById('region-select').value;
+                    const comuna = document.getElementById('comuna-select').value;
+                    const address = document.getElementById('address-input').value.trim();
+    
+                    // Validación mejorada para dar feedback específico
+                    let missingField = '';
+                    if (!clientName) missingField = 'Nombre Completo';
+                    else if (!clientPhone) missingField = 'Teléfono';
+                    else if (!region) missingField = 'Región';
+                    else if (!comuna) missingField = 'Comuna';
+                    else if (!address) missingField = 'Dirección';
+    
+                    if (missingField) {
+                        showNotification(`Por favor, completa el campo: ${missingField}.`);
+                        return;
+                    }
+    
+                    orderState.clientName = clientName;
+                    orderState.clientPhone = clientPhone;
+                    orderState.shipping.region = region;
+                    orderState.shipping.comuna = comuna;
+                    orderState.shipping.address = address;
+    
+                    await showPaymentDetails();
+                    showSection('payment-section');
+                } catch (error) {
+                    console.error("Error al procesar para el pago:", error);
+                    showNotification("Ocurrió un error inesperado. Inténtalo de nuevo.");
                 }
-                orderState.clientName = clientName;
-                orderState.clientPhone = clientPhone;
-                orderState.shipping.region = region;
-                orderState.shipping.comuna = comuna;
-                orderState.shipping.address = address;
-
-                await showPaymentDetails();
-                showSection('payment-section');
             });
             document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
             document.getElementById('whatsapp-btn').addEventListener('click', async (e) => {
@@ -665,7 +704,7 @@
                     window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
                 } catch (error) {
                     console.error('Error al enviar a Google Sheet:', error);
-                    alert('Hubo un error al registrar tu pedido. Por favor, intenta de nuevo o contáctanos directamente.');
+                    showNotification('Hubo un error al registrar tu pedido. Contáctanos.');
                 } finally {
                     button.disabled = false;
                     buttonText.textContent = 'Enviar Comprobante por WhatsApp ✔️';
@@ -683,4 +722,6 @@
     </script>
 </body>
 </html>
+
+
 
