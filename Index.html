@@ -189,7 +189,7 @@
              <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
                  <!-- Contenedor para la imagen del producto seleccionado -->
                  <div class="flex justify-center mb-4">
-                    <img id="product-image-preview" src="" alt="Producto seleccionado" class="rounded-lg max-h-40 shadow-lg">
+                     <img id="product-image-preview" src="" alt="Producto seleccionado" class="rounded-lg max-h-40 shadow-lg">
                  </div>
                  <!-- NUEVO: Contenedor para las miniaturas -->
                  <div id="thumbnail-container" class="flex justify-center gap-2 mb-6">
@@ -276,7 +276,6 @@
                 </div>
                 <h3 class="text-2xl font-bold text-center mb-4" style="font-weight: 700;">Información de Despacho</h3>
                 <div id="shipping-form" class="space-y-4">
-                    <!-- NUEVOS CAMPOS AÑADIDOS AQUI -->
                     <div>
                         <label for="client-name-input" class="block text-sm font-medium text-[#00FFFF] mb-1">Tu Nombre Completo</label>
                         <input type="text" id="client-name-input" class="form-input w-full p-3 rounded-lg text-white" placeholder="Para el registro del pedido">
@@ -285,7 +284,6 @@
                         <label for="client-phone-input" class="block text-sm font-medium text-[#00FFFF] mb-1">Tu Teléfono (WhatsApp)</label>
                         <input type="tel" id="client-phone-input" class="form-input w-full p-3 rounded-lg text-white" placeholder="+56 9 1234 5678">
                     </div>
-                    <!-- FIN DE NUEVOS CAMPOS -->
                     <div>
                         <label for="region-select" class="block text-sm font-medium text-[#00FFFF] mb-1">Región</label>
                         <select id="region-select" class="form-select w-full p-3 rounded-lg text-white"></select>
@@ -301,7 +299,6 @@
                 </div>
                  <div class="flex justify-between items-center pt-6">
                     <button id="back-to-upload" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
-                    <!-- BOTÓN "CONTINUAR AL PAGO" CON LÓGICA SIMPLIFICADA -->
                     <button id="to-payment-section" class="main-button text-white font-bold py-2 px-6 rounded-full">
                         Continuar al Pago
                     </button>
@@ -309,26 +306,22 @@
             </div>
         </section>
 
-        <!-- PASO 6: Pago Y CONFIRMACIÓN FINAL (LA PÁGINA QUE FALTABA) -->
+        <!-- PASO 6: Pago Y CONFIRMACIÓN FINAL -->
         <section id="payment-section" class="hidden section-fade-in">
             <div class="max-w-xl mx-auto bg-black/20 p-8 rounded-xl border border-white/10 text-center">
                 <h2 class="text-3xl font-bold mb-2" style="font-weight: 700;">¡Estás a un paso de terminar!</h2>
                 <p class="text-gray-300 mb-6">Realiza tu pago a través de los siguientes medios. Una vez listo, vuelve aquí y presiona "Finalizar Compra" para enviarnos tu comprobante.</p>
                 <div id="payment-details" class="grid md:grid-cols-2 gap-8 items-center">
+                    <!-- Contenido de pago se cargará aquí dinámicamente -->
                     <div class="flex flex-col items-center">
                         <h3 class="text-xl font-bold mb-2 text-[#00FFFF]">Paga con QR Mercado Pago</h3>
                         <div id="qr-code-container" class="bg-white p-2 rounded-lg h-48 w-48 flex items-center justify-center text-center">
-                            <!-- El QR o mensaje de error se cargará aquí -->
+                             <p class="text-xs text-gray-800">Cargando QR...</p>
                         </div>
                     </div>
-                    <div id="bank-details-container" class="text-left bg-white/5 p-4 rounded-lg">
+                    <div id="transfer-details-container" class="text-left bg-white/5 p-4 rounded-lg">
                         <h3 class="text-xl font-bold mb-3 text-[#00FFFF]">Datos para Transferencia</h3>
-                        <p class="text-sm"><strong>Banco:</strong> <span id="bank-name">[Tu Banco]</span></p>
-                        <p class="text-sm"><strong>Tipo de Cuenta:</strong> <span id="account-type">[Tu Tipo de Cuenta]</span></p>
-                        <p class="text-sm"><strong>Nº de Cuenta:</strong> <span id="account-number">[Tu Número de Cuenta]</span></p>
-                        <p class="text-sm"><strong>Nombre:</strong> <span id="account-holder">[Tu Nombre Completo]</span></p>
-                        <p class="text-sm"><strong>RUT:</strong> <span id="rut">[Tu RUT]</span></p>
-                        <p class="text-sm"><strong>Email:</strong> <span id="email">[Tu Email]</span></p>
+                        <!-- Datos se cargarán aquí -->
                     </div>
                 </div>
                 <div class="mt-8">
@@ -359,7 +352,6 @@
     <!-- Firebase SDK (versiones actualizadas) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
         import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -373,7 +365,6 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const storage = getStorage(app);
         const db = getFirestore(app);
 
         // --- LÓGICA DE LA APLICACIÓN ---
@@ -397,6 +388,8 @@
                 cost: 0,
             }
         };
+
+        let paymentConfig = {}; // Almacenará los métodos de pago de Firebase
         
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec';
 
@@ -428,7 +421,7 @@
             setTimeout(() => {
                 toast.classList.add('opacity-0');
                 setTimeout(() => toast.classList.add('hidden'), 300);
-            }, 5000); // Aumentado a 5 segundos para dar tiempo a leer
+            }, 5000);
         }
         
         function renderProductGallery(urls) {
@@ -465,11 +458,6 @@
 
         function getImageUrlsFromCategory(category) {
             if (category.imageUrls && Array.isArray(category.imageUrls) && category.imageUrls.length > 0) return category.imageUrls;
-            if (category.ImageUrls && Array.isArray(category.ImageUrls) && category.ImageUrls.length > 0) return category.ImageUrls;
-            if (category.images && Array.isArray(category.images) && category.images.length > 0) return category.images;
-            if (category.imageUrl && typeof category.imageUrl === 'string') return [category.imageUrl];
-            if (category.ImageUrl && typeof category.ImageUrl === 'string') return [category.ImageUrl];
-            if (category.image && typeof category.image === 'string') return [category.image];
             return [];
         }
 
@@ -523,9 +511,9 @@
                 const errorBox = document.createElement('div');
                 errorBox.className = "text-red-500 text-center col-span-3 p-4 rounded-lg bg-red-900/50";
                 errorBox.innerHTML = `<strong class="font-bold">Error de Permisos</strong><br>
-                    <p>No se pudieron cargar los proyectos. Para solucionarlo, ve a tu 
-                    <a href="https://console.firebase.google.com/" target="_blank" class="underline text-cyan-300">consola de Firebase</a>, 
-                    entra a <strong>Firestore Database</strong>, ve a la pestaña <strong>Reglas</strong> y 
+                    <p>No se pudieron cargar los proyectos. Para solucionarlo, ve a tu 
+                    <a href="https://console.firebase.google.com/" target="_blank" class="underline text-cyan-300">consola de Firebase</a>, 
+                    entra a <strong>Firestore Database</strong>, ve a la pestaña <strong>Reglas</strong> y 
                     asegúrate de que esté configurada para permitir la lectura.</p>`;
                 grid.innerHTML = '';
                 grid.appendChild(errorBox);
@@ -554,21 +542,20 @@
                 grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar la galería.</p>`;
             }
         }
-
-        async function getFirebaseImageUrl(imageName) {
+        
+        async function loadPaymentMethods() {
             try {
-                const imageRef = ref(storage, imageName);
-                const url = await getDownloadURL(imageRef);
-                return url;
+                const docRef = doc(db, "config", "paymentMethods");
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    paymentConfig = docSnap.data();
+                } else {
+                    console.error("No se encontró el documento de configuración de pagos (config/paymentMethods) en Firestore.");
+                }
             } catch (error) {
-                console.error(`Error al obtener la URL para ${imageName}:`, error);
-                if (error.code === 'storage/object-not-found') {
-                    throw new Error(`El archivo QR "${imageName}" no se encontró en Firebase Storage. Revisa que el nombre sea exacto.`);
-                }
-                if (error.code === 'storage/unauthorized' || error.code === 'storage/retry-limit-exceeded') {
-                    throw new Error(`¡Error de Permisos en Firebase! Ve a Storage > Reglas, asegúrate de que 'allow read;' esté presente y haz clic en 'PUBLICAR'.`);
-                }
-                throw new Error(`No se pudo cargar el QR. Revisa tu conexión a internet.`);
+                console.error("Error al cargar los métodos de pago:", error);
+                showNotification("Error al cargar la información de pago.");
             }
         }
 
@@ -578,38 +565,14 @@
             formData.append('Nombre Mascota', orderState.petName);
             formData.append('Edad Mascota', orderState.petAge);
             formData.append('Nombre Cliente', orderState.clientName);
-            formData.append('Dirección', orderState.shipping.address);
-            formData.append('Comuna/Ciudad', orderState.shipping.comuna);
+            formData.append('Dirección', `${orderState.shipping.address}, ${orderState.shipping.comuna}, ${orderState.shipping.region}`);
             formData.append('Telefono', orderState.clientPhone);
             formData.append('Costo Envio', orderState.shipping.cost);
             formData.append('Total Pagado', orderState.basePrice + orderState.shipping.cost);
             await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
         }
         
-        // --- NUEVA FUNCIÓN PARA CARGAR DATOS BANCARIOS ---
-        async function loadBankDetails() {
-            try {
-                const docRef = doc(db, "config", "paymentMethods");
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    document.getElementById('bank-name').textContent = data.bankName || '[No definido]';
-                    document.getElementById('account-type').textContent = data.accountType || '[No definido]';
-                    document.getElementById('account-number').textContent = data.accountNumber || '[No definido]';
-                    document.getElementById('account-holder').textContent = data.accountHolder || '[No definido]';
-                    document.getElementById('rut').textContent = data.rut || '[No definido]';
-                    document.getElementById('email').textContent = data.email || '[No definido]';
-                } else {
-                    console.warn("El documento 'paymentMethods' no existe en la colección 'config'. Se usarán los datos de ejemplo.");
-                }
-            } catch (error) {
-                console.error("Error al cargar los datos bancarios:", error);
-                showNotification("No se pudieron cargar los datos de transferencia.", true);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
 
             const locations = {
                 "Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"],
@@ -652,44 +615,66 @@
                 document.getElementById('summary-content').innerHTML = content;
             }
 
-            async function showPaymentDetails() {
+            function showPaymentDetails() {
                 const qrContainer = document.getElementById('qr-code-container');
-                try {
-                    const comuna = orderState.shipping.comuna;
-                    const comunasAfueras = ['Machalí', 'Graneros', 'Olivar', 'Doñihue', 'Requínoa', 'Codegua', 'Mostazal', 'Coinco', 'Coltauco', 'Rengo'];
-                    const COSTO_AFUERAS = 5000;
-                    const COSTO_REGIONES = 8000;
-                    
-                    let qrImageName = 'qr_regiones.png';
-                    orderState.shipping.cost = COSTO_REGIONES;
+                const transferDetailsContainer = document.getElementById('transfer-details-container');
 
-                    if (comuna === 'Rancagua') {
-                        qrImageName = 'qr_rancagua.png';
-                        orderState.shipping.cost = 0;
-                    } else if (comunasAfueras.includes(comuna)) {
-                        qrImageName = 'qr_afueras.png';
-                        orderState.shipping.cost = COSTO_AFUERAS;
-                    }
-                    
-                    const total = orderState.basePrice + orderState.shipping.cost;
-                    document.getElementById('total-amount').textContent = `$${total.toLocaleString('es-CL')}`;
-                    
-                    qrContainer.innerHTML = '<p class="text-xs text-gray-400">Cargando QR...</p>';
-                    const url = await getFirebaseImageUrl(qrImageName);
-                    
+                // --- 1. Calculate Shipping Cost and Total ---
+                const comuna = orderState.shipping.comuna;
+                const comunasAledanas = ['Machalí', 'Graneros', 'Olivar', 'Doñihue', 'Requínoa', 'Codegua', 'Mostazal', 'Coinco', 'Coltauco', 'Rengo'];
+                
+                let qrUrlKey = 'qrUrlRegiones'; // Default
+                orderState.shipping.cost = 8000;
+
+                if (comuna === 'Rancagua') {
+                    qrUrlKey = 'qrUrlRancagua';
+                    orderState.shipping.cost = 0;
+                } else if (comunasAledanas.includes(comuna)) {
+                    qrUrlKey = 'qrUrlAfueras';
+                    orderState.shipping.cost = 5000;
+                }
+                
+                const total = orderState.basePrice + orderState.shipping.cost;
+                document.getElementById('total-amount').textContent = `$${total.toLocaleString('es-CL')}`;
+                
+                // --- 2. Populate Payment Info from loaded config ---
+                qrContainer.innerHTML = ''; 
+                transferDetailsContainer.innerHTML = '<h3 class="text-xl font-bold mb-3 text-[#00FFFF]">Datos para Transferencia</h3>';
+
+                if (Object.keys(paymentConfig).length === 0) {
+                    qrContainer.innerHTML = `<p class="text-xs text-red-500 p-2">Error: No se pudo cargar la información de pago.</p>`;
+                    transferDetailsContainer.innerHTML += `<p class="text-xs text-red-500">No disponible.</p>`;
+                    return;
+                }
+
+                // Populate QR Code
+                const qrUrl = paymentConfig[qrUrlKey];
+                if (qrUrl) {
+                    const qrLink = document.createElement('a');
+                    qrLink.href = qrUrl;
+                    qrLink.target = '_blank';
+                    qrLink.title = 'Abrir QR en una nueva pestaña';
+
                     const qrImgElement = document.createElement('img');
-                    qrImgElement.id = 'qr-code-img';
-                    qrImgElement.src = url;
+                    qrImgElement.src = qrUrl;
                     qrImgElement.alt = 'Código QR de Mercado Pago';
                     qrImgElement.className = 'h-full w-full object-contain';
                     
-                    qrContainer.innerHTML = '';
-                    qrContainer.appendChild(qrImgElement);
-
-                } catch (error) {
-                    console.error("Error en showPaymentDetails:", error);
-                    qrContainer.innerHTML = `<p class="text-xs text-red-500 p-2">${error.message}</p>`;
+                    qrLink.appendChild(qrImgElement);
+                    qrContainer.appendChild(qrLink);
+                } else {
+                    qrContainer.innerHTML = `<p class="text-xs text-red-500 p-2">QR no disponible para esta ubicación.</p>`;
                 }
+
+                // Populate Bank Transfer Details
+                transferDetailsContainer.innerHTML += `
+                    <p class="text-sm"><strong>Banco:</strong> ${paymentConfig.bank || '[No disponible]'}</p>
+                    <p class="text-sm"><strong>Tipo de Cuenta:</strong> ${paymentConfig.accountType || '[No disponible]'}</p>
+                    <p class="text-sm"><strong>Nº de Cuenta:</strong> ${paymentConfig.accountNumber || '[No disponible]'}</p>
+                    <p class="text-sm"><strong>Nombre:</strong> ${paymentConfig.name || '[No disponible]'}</p>
+                    <p class="text-sm"><strong>RUT:</strong> ${paymentConfig.rut || '[No disponible]'}</p>
+                    <p class="text-sm"><strong>Email:</strong> ${paymentConfig.email || '[No disponible]'}</p>
+                `;
             }
 
             // --- NAVEGACIÓN Y EVENTOS ---
@@ -758,7 +743,6 @@
             });
             document.getElementById('back-to-upload').addEventListener('click', () => showSection('upload-section'));
             
-            // --- LÓGICA CORREGIDA DEL BOTÓN "CONTINUAR AL PAGO" ---
             document.getElementById('to-payment-section').addEventListener('click', () => {
                 const clientName = document.getElementById('client-name-input').value.trim();
                 const clientPhone = document.getElementById('client-phone-input').value.trim();
@@ -778,18 +762,14 @@
                     return;
                 }
 
-                // Guarda los datos
                 orderState.clientName = clientName;
                 orderState.clientPhone = clientPhone;
                 orderState.shipping.region = region;
                 orderState.shipping.comuna = comuna;
                 orderState.shipping.address = address;
 
-                // 1. Muestra inmediatamente la página de pago
                 showSection('payment-section');
-                
-                // 2. Carga los datos del QR en segundo plano
-                showPaymentDetails();
+                showPaymentDetails(); // Carga la info de pago
             });
 
             document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
@@ -806,7 +786,7 @@
                 try {
                     await sendDataToGoogleSheet();
                     
-                    const whatsappNumber = '56946902340';
+                    const whatsappNumber = '56946902340'; // Reemplazar si es necesario
                     const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. 🐾`);
                     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
                     
@@ -824,10 +804,11 @@
                 }
             });
             
+            // --- INICIALIZACIÓN DE LA APP ---
+            await loadPaymentMethods(); // Carga la info de pago al inicio
             populateRegions();
             loadCategoriesFromFirestore();
-            loadGalleryImages();
-            loadBankDetails(); // <-- Cargar datos bancarios al iniciar
+            loadGalleryImages(); 
             showSection('home-section');
         });
 
