@@ -103,6 +103,19 @@
             opacity: 0.2; /* Ajustado según requerimiento */
             filter: brightness(1.2);
         }
+        /* Estilos para la nueva galería de miniaturas */
+        .thumbnail-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+        .thumbnail-image.active {
+            border-color: #00FFFF; /* Color de acento cian */
+        }
     </style>
 </head>
 <body class="text-[#F0F0F0] antialiased overflow-x-hidden">
@@ -175,8 +188,12 @@
         <section id="pet-info-section" class="hidden section-fade-in">
              <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
                  <!-- Contenedor para la imagen del producto seleccionado -->
-                 <div class="flex justify-center mb-6">
+                 <div class="flex justify-center mb-4">
                     <img id="product-image-preview" src="" alt="Producto seleccionado" class="rounded-lg max-h-40 shadow-lg">
+                 </div>
+                 <!-- NUEVO: Contenedor para las miniaturas -->
+                 <div id="thumbnail-container" class="flex justify-center gap-2 mb-6">
+                     <!-- Las miniaturas se generarán aquí con JavaScript -->
                  </div>
                  <h2 id="pet-info-title" class="text-3xl font-bold text-center mb-6" style="font-weight: 700;">Datos de tu Mascota</h2>
                  <div class="space-y-6">
@@ -363,7 +380,7 @@
         const orderState = {
             category: '',
             basePrice: 0,
-            imageUrl: '', // Campo para guardar la URL de la imagen del producto
+            imageUrls: [], 
             petName: '',
             petAge: '',
             clientName: '',
@@ -393,7 +410,6 @@
             }
         }
 
-        // Nueva función para mostrar notificaciones en lugar de alerts
         function showNotification(message, isError = true) {
             const toast = document.getElementById('toast-notification');
             const toastMessage = document.getElementById('toast-message');
@@ -401,22 +417,80 @@
             toastMessage.textContent = message;
             toast.classList.remove('hidden');
             
-            // Gestionar color de fondo
             toast.classList.remove('bg-red-500', 'bg-green-500');
             toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
 
-            // Forzar reflow para que la transición funcione al re-aparecer
             void toast.offsetWidth; 
 
             toast.classList.remove('opacity-0');
 
             setTimeout(() => {
                 toast.classList.add('opacity-0');
-                // Esperar a que la transición de opacidad termine para añadir 'hidden'
                 setTimeout(() => toast.classList.add('hidden'), 300);
-            }, 3000); // La notificación es visible por 3 segundos
+            }, 3000);
         }
         
+        function renderProductGallery(urls) {
+            const previewImage = document.getElementById('product-image-preview');
+            const thumbnailContainer = document.getElementById('thumbnail-container');
+            thumbnailContainer.innerHTML = ''; 
+
+            if (!urls || urls.length === 0) {
+                previewImage.src = 'https://placehold.co/400x300/333/FFF?text=Sin+Imagen';
+                return;
+            }
+
+            previewImage.src = urls[0];
+
+            if (urls.length > 1) {
+                urls.forEach((url, index) => {
+                    const thumb = document.createElement('img');
+                    thumb.src = url;
+                    thumb.classList.add('thumbnail-image');
+                    if (index === 0) {
+                        thumb.classList.add('active');
+                    }
+
+                    thumb.addEventListener('click', () => {
+                        previewImage.src = url;
+                        document.querySelectorAll('.thumbnail-image').forEach(t => t.classList.remove('active'));
+                        thumb.classList.add('active');
+                    });
+
+                    thumbnailContainer.appendChild(thumb);
+                });
+            }
+        }
+
+        // --- FUNCIÓN MEJORADA Y MÁS ROBUSTA PARA OBTENER IMÁGENES ---
+        function getImageUrlsFromCategory(category) {
+            // 1. Busca un array (la opción preferida) con varias combinaciones de nombres
+            if (category.imageUrls && Array.isArray(category.imageUrls) && category.imageUrls.length > 0) {
+                return category.imageUrls;
+            }
+            if (category.ImageUrls && Array.isArray(category.ImageUrls) && category.ImageUrls.length > 0) {
+                return category.ImageUrls;
+            }
+            if (category.images && Array.isArray(category.images) && category.images.length > 0) {
+                return category.images;
+            }
+
+            // 2. Si no encuentra un array, busca una sola imagen (string) y la convierte en array
+            if (category.imageUrl && typeof category.imageUrl === 'string') {
+                return [category.imageUrl]; // Devuelve como un array de un solo elemento
+            }
+            if (category.ImageUrl && typeof category.ImageUrl === 'string') {
+                return [category.ImageUrl];
+            }
+            if (category.image && typeof category.image === 'string') {
+                return [category.image];
+            }
+
+            // 3. Si no encuentra absolutamente nada, devuelve un array vacío
+            return [];
+        }
+
+
         async function loadCategoriesFromFirestore() {
             const grid = document.getElementById('category-grid');
             grid.innerHTML = '<p class="text-center col-span-3">Cargando proyectos...</p>';
@@ -429,11 +503,14 @@
                 }
                 querySnapshot.forEach((doc) => {
                     const category = doc.data();
+                    // Usamos la nueva función robusta para obtener las URLs
+                    const imageUrls = getImageUrlsFromCategory(category); 
+
                     const cardHTML = `
                         <div class="category-card rounded-xl cursor-pointer flex flex-col text-center" 
                              data-category="${category.name}" 
                              data-price="${category.price}" 
-                             data-image-url="${category.imageUrl}">
+                             data-image-urls='${JSON.stringify(imageUrls)}'>
                             <div class="p-6 flex flex-col flex-grow items-center">
                                 <div class="text-6xl mb-4">${category.icon || '🐾'}</div>
                                 <h3 class="text-xl font-bold mb-1" style="font-weight: 700;">${category.name}</h3>
@@ -447,13 +524,20 @@
                 
                 document.querySelectorAll('.category-card').forEach(card => {
                     card.addEventListener('click', () => {
-                        orderState.category = card.dataset.category;
-                        orderState.basePrice = parseInt(card.dataset.price);
-                        orderState.imageUrl = card.dataset.imageUrl;
+                        try {
+                            orderState.category = card.dataset.category;
+                            orderState.basePrice = parseInt(card.dataset.price);
+                            // Se parsea el string JSON del atributo data para obtener el array
+                            orderState.imageUrls = JSON.parse(card.dataset.imageUrls); 
 
-                        document.getElementById('product-image-preview').src = orderState.imageUrl;
-                        document.getElementById('pet-info-title').textContent = `Proyecto: ${orderState.category}`;
-                        showSection('pet-info-section');
+                            renderProductGallery(orderState.imageUrls); 
+
+                            document.getElementById('pet-info-title').textContent = `Proyecto: ${orderState.category}`;
+                            showSection('pet-info-section');
+                        } catch (e) {
+                            console.error("Error al procesar la categoría:", e);
+                            showNotification("No se pudo cargar el producto. Inténtalo de nuevo.");
+                        }
                     });
                 });
 
@@ -722,6 +806,4 @@
     </script>
 </body>
 </html>
-
-
 
