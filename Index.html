@@ -772,23 +772,41 @@
                 }
             });
             document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
+            
+            // --- LÓGICA DEL BOTÓN DE WHATSAPP MEJORADA ---
             document.getElementById('whatsapp-btn').addEventListener('click', async (e) => {
                 const button = e.currentTarget;
                 const buttonText = document.getElementById('whatsapp-btn-text');
                 const spinner = document.getElementById('whatsapp-btn-spinner');
 
+                // 1. Abrir WhatsApp inmediatamente para evitar bloqueadores de pop-ups
+                try {
+                    const whatsappNumber = '56946902340';
+                    const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. 🐾`);
+                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
+                    
+                    const newTab = window.open(whatsappUrl, '_blank');
+                    if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
+                        showNotification('Tu navegador bloqueó la ventana de WhatsApp. Habilita las ventanas emergentes.');
+                        return;
+                    }
+                } catch (error) {
+                    console.error("Error abriendo WhatsApp:", error);
+                    showNotification("No se pudo abrir WhatsApp. Revisa tu conexión.");
+                    return;
+                }
+
+                // 2. Registrar el pedido en segundo plano
                 button.disabled = true;
                 buttonText.textContent = 'Registrando pedido...';
                 spinner.classList.remove('hidden');
 
                 try {
                     await sendDataToGoogleSheet();
-                    const whatsappNumber = '56946902340';
-                    const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. 🐾`);
-                    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
+                    // Opcional: mostrar un mensaje de éxito si fuera necesario, aunque el usuario ya está en WhatsApp
                 } catch (error) {
                     console.error('Error al enviar a Google Sheet:', error);
-                    showNotification('Hubo un error al registrar tu pedido. Contáctanos.');
+                    showNotification('Tu pedido no se pudo registrar. Por favor, contáctanos.');
                 } finally {
                     button.disabled = false;
                     buttonText.textContent = 'Enviar Comprobante por WhatsApp ✔️';
