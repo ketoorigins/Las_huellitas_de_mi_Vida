@@ -301,7 +301,14 @@
                 </div>
                  <div class="flex justify-between items-center pt-6">
                     <button id="back-to-upload" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
-                    <button id="to-payment-section" class="main-button text-white font-bold py-2 px-6 rounded-full">Continuar al Pago</button>
+                    <!-- BOTÓN "CONTINUAR AL PAGO" MODIFICADO CON SPINNER -->
+                    <button id="to-payment-section" class="main-button inline-flex items-center justify-center text-white font-bold py-2 px-6 rounded-full" style="min-width: 180px;">
+                        <span id="to-payment-btn-text">Continuar al Pago</span>
+                        <svg id="to-payment-btn-spinner" class="animate-spin ml-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </section>
@@ -427,7 +434,7 @@
             setTimeout(() => {
                 toast.classList.add('opacity-0');
                 setTimeout(() => toast.classList.add('hidden'), 300);
-            }, 3000);
+            }, 5000); // Aumentado a 5 segundos para dar tiempo a leer
         }
         
         function renderProductGallery(urls) {
@@ -464,32 +471,14 @@
 
         // --- FUNCIÓN MEJORADA Y MÁS ROBUSTA PARA OBTENER IMÁGENES ---
         function getImageUrlsFromCategory(category) {
-            // 1. Busca un array (la opción preferida) con varias combinaciones de nombres
-            if (category.imageUrls && Array.isArray(category.imageUrls) && category.imageUrls.length > 0) {
-                return category.imageUrls;
-            }
-            if (category.ImageUrls && Array.isArray(category.ImageUrls) && category.ImageUrls.length > 0) {
-                return category.ImageUrls;
-            }
-            if (category.images && Array.isArray(category.images) && category.images.length > 0) {
-                return category.images;
-            }
-
-            // 2. Si no encuentra un array, busca una sola imagen (string) y la convierte en array
-            if (category.imageUrl && typeof category.imageUrl === 'string') {
-                return [category.imageUrl]; // Devuelve como un array de un solo elemento
-            }
-            if (category.ImageUrl && typeof category.ImageUrl === 'string') {
-                return [category.ImageUrl];
-            }
-            if (category.image && typeof category.image === 'string') {
-                return [category.image];
-            }
-
-            // 3. Si no encuentra absolutamente nada, devuelve un array vacío
+            if (category.imageUrls && Array.isArray(category.imageUrls) && category.imageUrls.length > 0) return category.imageUrls;
+            if (category.ImageUrls && Array.isArray(category.ImageUrls) && category.ImageUrls.length > 0) return category.ImageUrls;
+            if (category.images && Array.isArray(category.images) && category.images.length > 0) return category.images;
+            if (category.imageUrl && typeof category.imageUrl === 'string') return [category.imageUrl];
+            if (category.ImageUrl && typeof category.ImageUrl === 'string') return [category.ImageUrl];
+            if (category.image && typeof category.image === 'string') return [category.image];
             return [];
         }
-
 
         async function loadCategoriesFromFirestore() {
             const grid = document.getElementById('category-grid');
@@ -503,9 +492,7 @@
                 }
                 querySnapshot.forEach((doc) => {
                     const category = doc.data();
-                    // Usamos la nueva función robusta para obtener las URLs
                     const imageUrls = getImageUrlsFromCategory(category); 
-
                     const cardHTML = `
                         <div class="category-card rounded-xl cursor-pointer flex flex-col text-center" 
                              data-category="${category.name}" 
@@ -527,11 +514,8 @@
                         try {
                             orderState.category = card.dataset.category;
                             orderState.basePrice = parseInt(card.dataset.price);
-                            // Se parsea el string JSON del atributo data para obtener el array
                             orderState.imageUrls = JSON.parse(card.dataset.imageUrls); 
-
                             renderProductGallery(orderState.imageUrls); 
-
                             document.getElementById('pet-info-title').textContent = `Proyecto: ${orderState.category}`;
                             showSection('pet-info-section');
                         } catch (e) {
@@ -578,19 +562,26 @@
             }
         }
         
+        // --- FUNCIÓN PARA OBTENER IMAGEN CON MANEJO DE ERRORES MEJORADO ---
         async function getFirebaseImageUrl(imageName) {
-            const imageRef = ref(storage, imageName);
             try {
-                return await getDownloadURL(imageRef);
+                const imageRef = ref(storage, imageName);
+                const url = await getDownloadURL(imageRef);
+                return url;
             } catch (error) {
-                console.error(`No se pudo obtener la URL para ${imageName}:`, error);
-                return 'https://placehold.co/200x200/333/FFF?text=Error_QR';
+                console.error(`Error al obtener la URL para ${imageName}:`, error);
+                if (error.code === 'storage/object-not-found') {
+                    throw new Error(`El archivo QR "${imageName}" no se encontró en Firebase Storage.`);
+                }
+                if (error.code === 'storage/unauthorized') {
+                    throw new Error(`Error de permisos. Ajusta las reglas de Firebase Storage para permitir lectura pública.`);
+                }
+                throw new Error(`No se pudo cargar el QR. Revisa tu conexión.`);
             }
         }
         
         async function sendDataToGoogleSheet() {
             const formData = new FormData();
-            
             formData.append('Categoria', orderState.category);
             formData.append('Nombre Mascota', orderState.petName);
             formData.append('Edad Mascota', orderState.petAge);
@@ -600,11 +591,7 @@
             formData.append('Telefono', orderState.clientPhone);
             formData.append('Costo Envio', orderState.shipping.cost);
             formData.append('Total Pagado', orderState.basePrice + orderState.shipping.cost);
-            
-            await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                body: formData,
-            });
+            await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
         }
         
         document.addEventListener('DOMContentLoaded', () => {
@@ -639,36 +626,38 @@
             }
 
             async function showPaymentDetails() {
-                const comuna = orderState.shipping.comuna;
-                const comunasAfueras = ['Machalí', 'Graneros', 'Olivar', 'Doñihue', 'Requínoa', 'Codegua', 'Mostazal', 'Coinco', 'Coltauco', 'Rengo'];
-                const COSTO_AFUERAS = 5000;
-                const COSTO_REGIONES = 8000;
-                
-                let qrImageName = 'qr_regiones.png';
-                orderState.shipping.cost = COSTO_REGIONES;
-
-                if (comuna === 'Rancagua') {
-                    qrImageName = 'qr_rancagua.png';
-                    orderState.shipping.cost = 0;
-                } else if (comunasAfueras.includes(comuna)) {
-                    qrImageName = 'qr_afueras.png';
-                    orderState.shipping.cost = COSTO_AFUERAS;
-                }
-                
-                const total = orderState.basePrice + orderState.shipping.cost;
-                document.getElementById('total-amount').textContent = `$${total.toLocaleString('es-CL')}`;
-
-                const qrImgElement = document.getElementById('qr-code-img');
-                const qrContainer = document.getElementById('qr-code-container');
-                qrContainer.innerHTML = '<p class="text-xs text-gray-400">Cargando QR...</p>';
                 try {
-                    const url = await getFirebaseImageUrl(qrImageName);
+                    const comuna = orderState.shipping.comuna;
+                    const comunasAfueras = ['Machalí', 'Graneros', 'Olivar', 'Doñihue', 'Requínoa', 'Codegua', 'Mostazal', 'Coinco', 'Coltauco', 'Rengo'];
+                    const COSTO_AFUERAS = 5000;
+                    const COSTO_REGIONES = 8000;
+                    
+                    let qrImageName = 'qr_regiones.png';
+                    orderState.shipping.cost = COSTO_REGIONES;
+
+                    if (comuna === 'Rancagua') {
+                        qrImageName = 'qr_rancagua.png';
+                        orderState.shipping.cost = 0;
+                    } else if (comunasAfueras.includes(comuna)) {
+                        qrImageName = 'qr_afueras.png';
+                        orderState.shipping.cost = COSTO_AFUERAS;
+                    }
+                    
+                    const total = orderState.basePrice + orderState.shipping.cost;
+                    document.getElementById('total-amount').textContent = `$${total.toLocaleString('es-CL')}`;
+
+                    const qrImgElement = document.getElementById('qr-code-img');
+                    const qrContainer = document.getElementById('qr-code-container');
+                    qrContainer.innerHTML = '<p class="text-xs text-gray-400">Cargando QR...</p>';
+
+                    const url = await getFirebaseImageUrl(qrImageName); // Usamos la nueva función mejorada
                     qrImgElement.src = url;
                     qrContainer.innerHTML = '';
                     qrContainer.appendChild(qrImgElement);
+
                 } catch (error) {
-                    console.error("Error al cargar QR:", error);
-                    qrContainer.innerHTML = '<p class="text-xs text-red-500">No se pudo cargar el QR.</p>';
+                    console.error("Error en showPaymentDetails:", error);
+                    throw error;
                 }
             }
 
@@ -737,7 +726,13 @@
                 showSection('summary-section');
             });
             document.getElementById('back-to-upload').addEventListener('click', () => showSection('upload-section'));
+            
+            // --- EVENT LISTENER DEL BOTÓN "CONTINUAR AL PAGO" MEJORADO ---
             document.getElementById('to-payment-section').addEventListener('click', async () => {
+                const button = document.getElementById('to-payment-section');
+                const buttonText = document.getElementById('to-payment-btn-text');
+                const spinner = document.getElementById('to-payment-btn-spinner');
+
                 try {
                     const clientName = document.getElementById('client-name-input').value.trim();
                     const clientPhone = document.getElementById('client-phone-input').value.trim();
@@ -745,7 +740,6 @@
                     const comuna = document.getElementById('comuna-select').value;
                     const address = document.getElementById('address-input').value.trim();
     
-                    // Validación mejorada para dar feedback específico
                     let missingField = '';
                     if (!clientName) missingField = 'Nombre Completo';
                     else if (!clientPhone) missingField = 'Teléfono';
@@ -758,28 +752,36 @@
                         return;
                     }
     
+                    button.disabled = true;
+                    buttonText.textContent = 'Cargando...';
+                    spinner.classList.remove('hidden');
+
                     orderState.clientName = clientName;
                     orderState.clientPhone = clientPhone;
                     orderState.shipping.region = region;
                     orderState.shipping.comuna = comuna;
                     orderState.shipping.address = address;
     
-                    await showPaymentDetails();
+                    await showPaymentDetails(); 
                     showSection('payment-section');
+
                 } catch (error) {
                     console.error("Error al procesar para el pago:", error);
-                    showNotification("Ocurrió un error inesperado. Inténtalo de nuevo.");
+                    showNotification(error.message || "No se pudo cargar la información del pago.");
+                } finally {
+                    button.disabled = false;
+                    buttonText.textContent = 'Continuar al Pago';
+                    spinner.classList.add('hidden');
                 }
             });
+
             document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
             
-            // --- LÓGICA DEL BOTÓN DE WHATSAPP MEJORADA ---
             document.getElementById('whatsapp-btn').addEventListener('click', async (e) => {
                 const button = e.currentTarget;
                 const buttonText = document.getElementById('whatsapp-btn-text');
                 const spinner = document.getElementById('whatsapp-btn-spinner');
 
-                // 1. Abrir WhatsApp inmediatamente para evitar bloqueadores de pop-ups
                 try {
                     const whatsappNumber = '56946902340';
                     const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. 🐾`);
@@ -787,7 +789,7 @@
                     
                     const newTab = window.open(whatsappUrl, '_blank');
                     if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
-                        showNotification('Tu navegador bloqueó la ventana de WhatsApp. Habilita las ventanas emergentes.');
+                        showNotification('Tu navegador bloqueó la ventana de WhatsApp.');
                         return;
                     }
                 } catch (error) {
@@ -796,14 +798,12 @@
                     return;
                 }
 
-                // 2. Registrar el pedido en segundo plano
                 button.disabled = true;
                 buttonText.textContent = 'Registrando pedido...';
                 spinner.classList.remove('hidden');
 
                 try {
                     await sendDataToGoogleSheet();
-                    // Opcional: mostrar un mensaje de éxito si fuera necesario, aunque el usuario ya está en WhatsApp
                 } catch (error) {
                     console.error('Error al enviar a Google Sheet:', error);
                     showNotification('Tu pedido no se pudo registrar. Por favor, contáctanos.');
@@ -814,7 +814,6 @@
                 }
             });
             
-            // Cargar datos de Firebase y mostrar la sección inicial
             populateRegions();
             loadCategoriesFromFirestore();
             loadGalleryImages(); 
