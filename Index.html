@@ -313,15 +313,15 @@
             </div>
         </section>
 
-        <!-- PASO 6: Pago -->
+        <!-- PASO 6: Pago Y CONFIRMACIÓN FINAL (MODIFICADO) -->
         <section id="payment-section" class="hidden section-fade-in">
             <div class="max-w-xl mx-auto bg-black/20 p-8 rounded-xl border border-white/10 text-center">
-                <h2 class="text-3xl font-bold mb-4" style="font-weight: 700;">¡Último paso! Realiza tu pago</h2>
-                <p class="text-gray-300 mb-6">Elige tu método preferido. Una vez realizado, envíanos el comprobante por WhatsApp.</p>
+                <h2 class="text-3xl font-bold mb-2" style="font-weight: 700;">¡Estás a un paso de terminar!</h2>
+                <p class="text-gray-300 mb-6">Realiza tu pago a través de los siguientes medios. Una vez listo, vuelve aquí y presiona "Finalizar Compra" para enviarnos tu comprobante.</p>
                 <div id="payment-details" class="grid md:grid-cols-2 gap-8 items-center">
                     <div class="flex flex-col items-center">
                         <h3 class="text-xl font-bold mb-2 text-[#00FFFF]">Paga con QR Mercado Pago</h3>
-                        <div id="qr-code-container" class="bg-white p-2 rounded-lg h-48 w-48 flex items-center justify-center">
+                        <div id="qr-code-container" class="bg-white p-2 rounded-lg h-48 w-48 flex items-center justify-center text-center">
                             <img id="qr-code-img" src="" alt="Código QR de Mercado Pago" class="h-full w-full object-contain">
                         </div>
                     </div>
@@ -339,10 +339,9 @@
                     <p class="text-2xl font-bold">MONTO TOTAL: <span id="total-amount" class="text-green-400"></span></p>
                 </div>
                 <div class="mt-8">
-                    <!-- BOTÓN CAMBIADO DE <a> a <button> -->
-                    <button id="whatsapp-btn" class="main-button inline-flex items-center justify-center text-white font-bold py-3 px-8 rounded-full text-lg w-full md:w-auto">
-                        <span id="whatsapp-btn-text">Enviar Comprobante por WhatsApp&nbsp;✔️</span>
-                        <svg id="whatsapp-btn-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <button id="finish-purchase-btn" class="main-button inline-flex items-center justify-center text-white font-bold py-3 px-8 rounded-full text-lg w-full md:w-auto">
+                        <span id="finish-purchase-btn-text">Finalizar Compra y Enviar Comprobante</span>
+                        <svg id="finish-purchase-btn-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -361,12 +360,11 @@
         <p id="toast-message"></p>
     </div>
     
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (versiones actualizadas) -->
     <script type="module">
-        // Importa las funciones que necesitas de los SDKs
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js";
-        import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-storage.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDR42aJIpDkXL5T2vgj-J2ceZFVZCqzCms",
@@ -469,7 +467,6 @@
             }
         }
 
-        // --- FUNCIÓN MEJORADA Y MÁS ROBUSTA PARA OBTENER IMÁGENES ---
         function getImageUrlsFromCategory(category) {
             if (category.imageUrls && Array.isArray(category.imageUrls) && category.imageUrls.length > 0) return category.imageUrls;
             if (category.ImageUrls && Array.isArray(category.ImageUrls) && category.ImageUrls.length > 0) return category.ImageUrls;
@@ -562,11 +559,17 @@
             }
         }
         
-        // --- FUNCIÓN PARA OBTENER IMAGEN CON MANEJO DE ERRORES MEJORADO ---
+        // --- FUNCIÓN PARA OBTENER IMAGEN CON TIMEOUT ---
         async function getFirebaseImageUrl(imageName) {
+            const TIMEOUT_MS = 15000; // 15 segundos
+
+            const downloadPromise = getDownloadURL(ref(storage, imageName));
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error(`No se pudo conectar con Firebase para cargar el QR. Revisa que los archivos QR existan en Storage y que las reglas de permisos son correctas.`)), TIMEOUT_MS);
+            });
+
             try {
-                const imageRef = ref(storage, imageName);
-                const url = await getDownloadURL(imageRef);
+                const url = await Promise.race([downloadPromise, timeoutPromise]);
                 return url;
             } catch (error) {
                 console.error(`Error al obtener la URL para ${imageName}:`, error);
@@ -576,7 +579,7 @@
                 if (error.code === 'storage/unauthorized') {
                     throw new Error(`Error de permisos. Ajusta las reglas de Firebase Storage para permitir lectura pública.`);
                 }
-                throw new Error(`No se pudo cargar el QR. Revisa tu conexión.`);
+                throw error; // Relanza el error de timeout o cualquier otro
             }
         }
         
@@ -596,23 +599,36 @@
         
         document.addEventListener('DOMContentLoaded', () => {
 
+            // --- LISTA COMPLETA DE REGIONES Y COMUNAS DE CHILE ---
             const locations = {
-                "O'Higgins": ["Rancagua", "Machalí", "Graneros", "Olivar", "Doñihue", "Requínoa", "Codegua", "Mostazal", "Coinco", "Coltauco", "Rengo", "San Fernando", "Pichilemu"],
-                "Metropolitana de Santiago": ["Santiago", "Providencia", "Las Condes", "Maipú", "Puente Alto"],
-                "Valparaíso": ["Valparaíso", "Viña del Mar", "Quilpué", "Concón"],
-                "Maule": ["Talca", "Curicó", "Linares"],
+                "Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"],
+                "Tarapacá": ["Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"],
+                "Antofagasta": ["Antofagasta", "Mejillones", "Sierra Gorda", "Taltal", "Calama", "Ollagüe", "San Pedro de Atacama", "Tocopilla", "María Elena"],
+                "Atacama": ["Copiapó", "Caldera", "Tierra Amarilla", "Chañaral", "Diego de Almagro", "Vallenar", "Alto del Carmen", "Freirina", "Huasco"],
+                "Coquimbo": ["La Serena", "Coquimbo", "Andacollo", "La Higuera", "Paiguano", "Vicuña", "Illapel", "Canela", "Los Vilos", "Salamanca", "Ovalle", "Combarbalá", "Monte Patria", "Punitaqui", "Río Hurtado"],
+                "Valparaíso": ["Valparaíso", "Casablanca", "Concón", "Juan Fernández", "Puchuncaví", "Quintero", "Viña del Mar", "Isla de Pascua", "Los Andes", "Calle Larga", "Rinconada", "San Esteban", "La Ligua", "Cabildo", "Papudo", "Petorca", "Zapallar", "Quillota", "Calera", "Hijuelas", "La Cruz", "Nogales", "San Antonio", "Algarrobo", "Cartagena", "El Quisco", "El Tabo", "Santo Domingo", "San Felipe", "Catemu", "Llaillay", "Panquehue", "Putaendo", "Santa María", "Quilpué", "Limache", "Olmué", "Villa Alemana"],
+                "Metropolitana de Santiago": ["Santiago", "Cerrillos", "Cerro Navia", "Conchalí", "El Bosque", "Estación Central", "Huechuraba", "Independencia", "La Cisterna", "La Florida", "La Granja", "La Pintana", "La Reina", "Las Condes", "Lo Barnechea", "Lo Espejo", "Lo Prado", "Macul", "Maipú", "Ñuñoa", "Pedro Aguirre Cerda", "Peñalolén", "Providencia", "Pudahuel", "Quilicura", "Quinta Normal", "Recoleta", "Renca", "San Joaquín", "San Miguel", "San Ramón", "Vitacura", "Puente Alto", "Pirque", "San José de Maipo", "Colina", "Lampa", "Tiltil", "San Bernardo", "Buin", "Calera de Tango", "Paine", "Melipilla", "Alhué", "Curacaví", "María Pinto", "San Pedro", "Talagante", "El Monte", "Isla de Maipo", "Padre Hurtado", "Peñaflor"],
+                "O'Higgins": ["Rancagua", "Codegua", "Coinco", "Coltauco", "Doñihue", "Graneros", "Las Cabras", "Machalí", "Malloa", "Mostazal", "Olivar", "Peumo", "Pichidegua", "Quinta de Tilcoco", "Rengo", "Requínoa", "San Vicente", "Pichilemu", "La Estrella", "Litueche", "Marchihue", "Navidad", "Paredones", "San Fernando", "Chépica", "Chimbarongo", "Lolol", "Nancagua", "Palmilla", "Peralillo", "Placilla", "Pumanque", "Santa Cruz"],
+                "Maule": ["Talca", "Constitución", "Curepto", "Empedrado", "Maule", "Pelarco", "Pencahue", "Río Claro", "San Clemente", "San Rafael", "Cauquenes", "Chanco", "Pelluhue", "Curicó", "Hualañé", "Licantén", "Molina", "Rauco", "Romeral", "Sagrada Familia", "Teno", "Vichuquén", "Linares", "Colbún", "Longaví", "Parral", "Retiro", "San Javier", "Villa Alegre", "Yerbas Buenas"],
+                "Ñuble": ["Chillán", "Bulnes", "Chillán Viejo", "El Carmen", "Pemuco", "Pinto", "Quillón", "San Ignacio", "Yungay", "Quirihue", "Cobquecura", "Coelemu", "Ninhue", "Portezuelo", "Ránquil", "Treguaco", "San Carlos", "Coihueco", "Ñiquén", "San Fabián", "San Nicolás"],
+                "Biobío": ["Concepción", "Coronel", "Chiguayante", "Florida", "Hualqui", "Lota", "Penco", "San Pedro de la Paz", "Santa Juana", "Talcahuano", "Tomé", "Hualpén", "Lebu", "Arauco", "Cañete", "Contulmo", "Curanilahue", "Los Álamos", "Tirúa", "Los Ángeles", "Antuco", "Cabrero", "Laja", "Mulchén", "Nacimiento", "Negrete", "Quilaco", "Quilleco", "San Rosendo", "Santa Bárbara", "Tucapel", "Yumbel", "Alto Biobío"],
+                "Araucanía": ["Temuco", "Carahue", "Cunco", "Curarrehue", "Freire", "Galvarino", "Gorbea", "Lautaro", "Loncoche", "Melipeuco", "Nueva Imperial", "Padre las Casas", "Perquenco", "Pitrufquén", "Pucón", "Saavedra", "Teodoro Schmidt", "Toltén", "Vilcún", "Villarrica", "Cholchol", "Angol", "Collipulli", "Curacautín", "Ercilla", "Lonquimay", "Los Sauces", "Lumaco", "Purén", "Renaico", "Traiguén", "Victoria"],
+                "Los Ríos": ["Valdivia", "Corral", "Lanco", "Los Lagos", "Máfil", "Mariquina", "Paillaco", "Panguipulli", "La Unión", "Futrono", "Lago Ranco", "Río Bueno"],
+                "Los Lagos": ["Puerto Montt", "Calbuco", "Cochamó", "Fresia", "Frutillar", "Los Muermos", "Llanquihue", "Maullín", "Puerto Varas", "Castro", "Ancud", "Chonchi", "Curaco de Vélez", "Dalcahue", "Puqueldón", "Queilén", "Quellón", "Quemchi", "Quinchao", "Osorno", "Puerto Octay", "Purranque", "Puyehue", "Río Negro", "San Juan de la Costa", "San Pablo", "Chaitén", "Futaleufú", "Hualaihué", "Palena"],
+                "Aysén": ["Coyhaique", "Lago Verde", "Aysén", "Cisnes", "Guaitecas", "Cochrane", "O'Higgins", "Tortel", "Chile Chico", "Río Ibáñez"],
+                "Magallanes": ["Punta Arenas", "Laguna Blanca", "Río Verde", "San Gregorio", "Cabo de Hornos (Ex Navarino)", "Antártica", "Porvenir", "Primavera", "Timaukel", "Natales", "Torres del Paine"]
             };
             const regionSelect = document.getElementById('region-select');
             const comunaSelect = document.getElementById('comuna-select');
             
             function populateRegions() {
                 regionSelect.innerHTML = '<option value="">Selecciona una Región</option>';
-                Object.keys(locations).forEach(region => regionSelect.add(new Option(region, region)));
+                Object.keys(locations).sort().forEach(region => regionSelect.add(new Option(region, region)));
             }
             regionSelect.addEventListener('change', () => {
                 comunaSelect.innerHTML = '<option value="">Selecciona una Comuna</option>';
                 const comunas = locations[regionSelect.value] || [];
-                comunas.forEach(comuna => comunaSelect.add(new Option(comuna, comuna)));
+                comunas.sort().forEach(comuna => comunaSelect.add(new Option(comuna, comuna)));
             });
 
             function renderSummary() {
@@ -626,6 +642,7 @@
             }
 
             async function showPaymentDetails() {
+                const qrContainer = document.getElementById('qr-code-container');
                 try {
                     const comuna = orderState.shipping.comuna;
                     const comunasAfueras = ['Machalí', 'Graneros', 'Olivar', 'Doñihue', 'Requínoa', 'Codegua', 'Mostazal', 'Coinco', 'Coltauco', 'Rengo'];
@@ -645,18 +662,18 @@
                     
                     const total = orderState.basePrice + orderState.shipping.cost;
                     document.getElementById('total-amount').textContent = `$${total.toLocaleString('es-CL')}`;
-
-                    const qrImgElement = document.getElementById('qr-code-img');
-                    const qrContainer = document.getElementById('qr-code-container');
+                    
                     qrContainer.innerHTML = '<p class="text-xs text-gray-400">Cargando QR...</p>';
-
-                    const url = await getFirebaseImageUrl(qrImageName); // Usamos la nueva función mejorada
+                    const qrImgElement = document.getElementById('qr-code-img');
+                    
+                    const url = await getFirebaseImageUrl(qrImageName); 
                     qrImgElement.src = url;
                     qrContainer.innerHTML = '';
                     qrContainer.appendChild(qrImgElement);
 
                 } catch (error) {
                     console.error("Error en showPaymentDetails:", error);
+                    qrContainer.innerHTML = `<p class="text-xs text-red-500 p-2">${error.message}</p>`;
                     throw error;
                 }
             }
@@ -727,7 +744,6 @@
             });
             document.getElementById('back-to-upload').addEventListener('click', () => showSection('upload-section'));
             
-            // --- EVENT LISTENER DEL BOTÓN "CONTINUAR AL PAGO" MEJORADO ---
             document.getElementById('to-payment-section').addEventListener('click', async () => {
                 const button = document.getElementById('to-payment-section');
                 const buttonText = document.getElementById('to-payment-btn-text');
@@ -777,12 +793,18 @@
 
             document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
             
-            document.getElementById('whatsapp-btn').addEventListener('click', async (e) => {
+            document.getElementById('finish-purchase-btn').addEventListener('click', async (e) => {
                 const button = e.currentTarget;
-                const buttonText = document.getElementById('whatsapp-btn-text');
-                const spinner = document.getElementById('whatsapp-btn-spinner');
+                const buttonText = document.getElementById('finish-purchase-btn-text');
+                const spinner = document.getElementById('finish-purchase-btn-spinner');
+
+                button.disabled = true;
+                buttonText.textContent = 'Registrando...';
+                spinner.classList.remove('hidden');
 
                 try {
+                    await sendDataToGoogleSheet();
+                    
                     const whatsappNumber = '56946902340';
                     const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. 🐾`);
                     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
@@ -790,26 +812,13 @@
                     const newTab = window.open(whatsappUrl, '_blank');
                     if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
                         showNotification('Tu navegador bloqueó la ventana de WhatsApp.');
-                        return;
                     }
                 } catch (error) {
-                    console.error("Error abriendo WhatsApp:", error);
-                    showNotification("No se pudo abrir WhatsApp. Revisa tu conexión.");
-                    return;
-                }
-
-                button.disabled = true;
-                buttonText.textContent = 'Registrando pedido...';
-                spinner.classList.remove('hidden');
-
-                try {
-                    await sendDataToGoogleSheet();
-                } catch (error) {
-                    console.error('Error al enviar a Google Sheet:', error);
+                    console.error('Error al finalizar la compra:', error);
                     showNotification('Tu pedido no se pudo registrar. Por favor, contáctanos.');
                 } finally {
                     button.disabled = false;
-                    buttonText.textContent = 'Enviar Comprobante por WhatsApp ✔️';
+                    buttonText.textContent = 'Finalizar Compra y Enviar Comprobante';
                     spinner.classList.add('hidden');
                 }
             });
