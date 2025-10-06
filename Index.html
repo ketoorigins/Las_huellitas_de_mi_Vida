@@ -395,7 +395,7 @@
                 address: '',
                 cost: 0,
             },
-            storageFolderUrl: '' // NUEVO: Para guardar el enlace a la carpeta de archivos
+            storageFolderUrl: '' 
         };
 
         let paymentConfig = {}; 
@@ -567,44 +567,48 @@
                 showNotification("Error al cargar la información de pago.");
             }
         }
-
-        // --- NUEVA FUNCIÓN PARA SUBIR ARCHIVOS ---
+        
         async function uploadFiles(orderId) {
+            console.log("Iniciando subida de archivos para la orden:", orderId);
             const filePromises = [];
             const textPromises = [];
 
-            // 1. Determinar qué input de archivos usar
             const photoInput = orderState.hasVideo ? document.getElementById('photo-input-multi') : document.getElementById('photo-input-only');
             const videoInput = orderState.hasVideo ? document.getElementById('video-input-multi') : null;
 
-            // 2. Preparar subida de fotos
             for (const file of photoInput.files) {
                 const filePath = `orders/${orderId}/${file.name}`;
                 const fileRef = ref(storage, filePath);
+                console.log("Subiendo foto:", file.name);
                 filePromises.push(uploadBytes(fileRef, file));
             }
 
-            // 3. Preparar subida de videos (si aplica)
             if (videoInput) {
                 for (const file of videoInput.files) {
                     const filePath = `orders/${orderId}/${file.name}`;
                     const fileRef = ref(storage, filePath);
+                    console.log("Subiendo video:", file.name);
                     filePromises.push(uploadBytes(fileRef, file));
                 }
             }
 
-            // 4. Preparar subida de textos
-            if (orderState.shortText) {
-                const textRef = ref(storage, `orders/${orderId}/texto_corto.txt`);
-                textPromises.push(uploadString(textRef, orderState.shortText));
-            }
-            if (orderState.longText) {
-                const textRef = ref(storage, `orders/${orderId}/historia.txt`);
-                textPromises.push(uploadString(textRef, orderState.longText));
+            if (!orderState.surpriseMe) {
+                if (orderState.shortText) {
+                    const textRef = ref(storage, `orders/${orderId}/texto_corto.txt`);
+                    console.log("Subiendo texto corto.");
+                    textPromises.push(uploadString(textRef, orderState.shortText));
+                }
+                if (orderState.longText) {
+                    const textRef = ref(storage, `orders/${orderId}/historia.txt`);
+                    console.log("Subiendo historia.");
+                    textPromises.push(uploadString(textRef, orderState.longText));
+                }
+            } else {
+                 console.log("Opción 'Sorpréndeme' marcada, no se subirán textos.");
             }
 
-            // 5. Ejecutar todas las subidas en paralelo
             await Promise.all([...filePromises, ...textPromises]);
+            console.log("Todos los archivos se han subido correctamente.");
         }
 
 
@@ -618,7 +622,6 @@
             formData.append('Telefono', orderState.clientPhone);
             formData.append('Costo Envio', orderState.shipping.cost);
             formData.append('Total Pagado', orderState.basePrice + orderState.shipping.cost);
-            // NUEVO CAMPO: Se envía el enlace a la carpeta de archivos
             formData.append('Carpeta de Archivos', orderState.storageFolderUrl);
             await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
         }
@@ -779,7 +782,6 @@
             shortTextArea.addEventListener('input', () => updateCharCounter('short-text-counter', shortTextArea));
             longTextArea.addEventListener('input', () => updateCharCounter('long-text-counter', longTextArea));
             
-            // --- LÓGICA DE SUBIDA DE ARCHIVOS AÑADIDA AQUÍ ---
             document.getElementById('to-summary-section').addEventListener('click', async (e) => {
                 const button = e.currentTarget;
                 const buttonText = document.getElementById('to-summary-btn-text');
@@ -803,6 +805,7 @@
                 try {
                     orderState.shortText = shortTextArea.value;
                     orderState.longText = longTextArea.value;
+                    orderState.surpriseMe = surpriseCheckbox.checked;
                     
                     const timestamp = new Date().toISOString();
                     const orderId = `pedido_${orderState.petName.replace(/\s+/g, '_')}_${timestamp}`;
@@ -817,7 +820,12 @@
 
                 } catch (error) {
                     console.error("Error al subir los archivos:", error);
-                    showNotification("Hubo un error al subir tus archivos. Inténtalo de nuevo.");
+                    // --- MANEJO DE ERRORES MEJORADO ---
+                    if (error.code === 'storage/unauthorized') {
+                        showNotification("Error de Permisos en Firebase. Revisa las reglas de Storage.");
+                    } else {
+                        showNotification("Hubo un error al subir tus archivos. Inténtalo de nuevo.");
+                    }
                 } finally {
                     button.disabled = false;
                     buttonText.textContent = 'Continuar al Resumen';
