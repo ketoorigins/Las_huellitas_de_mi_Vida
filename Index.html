@@ -213,26 +213,36 @@
              </div>
         </section>
 
-        <!-- PASO 4: NUEVO Formulario de Carga de Archivos Simplificado -->
+        <!-- PASO 4: Formulario Carga de Archivos (VUELVE EL ORIGINAL) -->
         <section id="upload-section" class="hidden section-fade-in">
              <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
-                <h2 class="text-3xl font-bold text-center mb-2" style="font-weight: 700;">Sube tus Archivos a Google Drive</h2>
-                <p class="text-center text-gray-300 mb-6">Sigue estos sencillos pasos para enviarnos tu material.</p>
+                 <h2 class="text-3xl font-bold text-center mb-6" style="font-weight: 700;">Ahora, sube tus recuerdos&nbsp;🐾</h2>
+                
+                 <div id="video-choice-container" class="text-center">
+                     <p class="text-[#00FFFF] mb-4">¿Incluirás videos en tu homenaje?</p>
+                     <div class="flex justify-center gap-4">
+                         <button id="has-video-btn" class="main-button font-bold py-3 px-6 rounded-full">Sí, tengo videos&nbsp;🎬</button>
+                         <button id="no-video-btn" class="secondary-button font-bold py-3 px-6 rounded-full">No, usaré solo fotos&nbsp;🖼️</button>
+                     </div>
+                 </div>
 
-                <div class="space-y-4 text-left">
-                    <div class="p-4 rounded-lg bg-white/5">
-                        <p class="font-bold text-[#00FFFF]">1. Tu Identificador de Pedido es:</p>
-                        <p id="order-id-display" class="text-2xl font-bold text-center bg-black/20 p-2 my-2 rounded-lg select-all"></p>
-                    </div>
+                 <div id="file-inputs-container" class="hidden space-y-6 mt-6">
+                     <div id="photos-and-video-upload" class="hidden space-y-4">
+                         <div>
+                             <label for="photo-input-multi" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga hasta 10 fotos</label>
+                             <input type="file" id="photo-input-multi" multiple accept="image/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                         </div>
+                         <div>
+                             <label for="video-input-multi" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga tus videos</label>
+                             <input type="file" id="video-input-multi" multiple accept="video/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                         </div>
+                     </div>
+                      <div id="photos-only-upload" class="hidden">
+                         <label for="photo-input-only" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga hasta 20 fotos</label>
+                         <p class="text-xs text-gray-400 mb-2">Con ellas crearemos un video emotivo para el QR de tu obra.</p>
+                         <input type="file" id="photo-input-only" multiple accept="image/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                     </div>
 
-                    <div class="p-4 rounded-lg bg-white/5">
-                        <p class="font-bold text-[#00FFFF]">2. Sube tus archivos</p>
-                        <p class="text-sm text-gray-300 mb-4">Haz clic en el botón, crea una carpeta con tu ID de Pedido y sube ahí todas tus fotos y videos.</p>
-                        <button id="open-drive-btn" class="main-button w-full text-white font-bold py-3 px-6 rounded-full">Abrir Carpeta de Carga 🚀</button>
-                    </div>
-                </div>
-
-                <div class="mt-8 space-y-6">
                      <div>
                          <label for="short-text" class="block text-sm font-medium text-[#00FFFF] mb-1">Texto Corto (Opcional)</label>
                          <textarea id="short-text" rows="3" class="form-textarea w-full p-3 rounded-lg text-white" placeholder="Una frase o fecha especial..."></textarea>
@@ -251,7 +261,13 @@
 
                      <div class="flex justify-between items-center pt-4">
                          <button id="back-to-pet-info" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
-                         <button id="to-summary-section" class="main-button text-white font-bold py-2 px-6 rounded-full">Ya subí mis archivos, continuar</button>
+                         <button id="to-summary-section" class="main-button text-white font-bold py-2 px-6 rounded-full flex items-center justify-center">
+                            <span id="to-summary-btn-text">Continuar al Resumen</span>
+                            <svg id="to-summary-btn-spinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                         </button>
                      </div>
                  </div>
              </div>
@@ -367,7 +383,7 @@
             petAge: '',
             clientName: '',
             clientPhone: '',
-            orderId: '', // NUEVO: para guardar el ID de pedido
+            orderId: '', 
             shortText: '',
             longText: '',
             surpriseMe: false,
@@ -381,11 +397,9 @@
 
         let paymentConfig = {}; 
         
-        // **IMPORTANTE**: Pega aquí el enlace a tu carpeta de Google Drive
-        const GOOGLE_DRIVE_UPLOAD_URL = 'https://tudominio.com/tu-carpeta-de-drive'; 
+        // **IMPORTANTE**: Esta URL la obtendrás en el PASO 2 de las instrucciones
+        const GOOGLE_SCRIPT_URL = 'PEGA_AQUI_TU_NUEVA_URL_DE_APPS_SCRIPT'; 
         
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec';
-
         const sections = document.querySelectorAll('main > section');
         
         function showSection(sectionId) {
@@ -551,23 +565,6 @@
                 showNotification("Error al cargar la información de pago.");
             }
         }
-        
-        async function sendDataToGoogleSheet() {
-            const formData = new FormData();
-            formData.append('Categoria', orderState.category);
-            formData.append('Nombre Mascota', orderState.petName);
-            formData.append('Edad Mascota', orderState.petAge);
-            formData.append('Nombre Cliente', orderState.clientName);
-            formData.append('Dirección', `${orderState.shipping.address}, ${orderState.shipping.comuna}, ${orderState.shipping.region}`);
-            formData.append('Telefono', orderState.clientPhone);
-            formData.append('Costo Envio', orderState.shipping.cost);
-            formData.append('Total Pagado', orderState.basePrice + orderState.shipping.cost);
-            formData.append('ID de Pedido', orderState.orderId); // CAMBIADO
-            formData.append('Texto Corto', orderState.surpriseMe ? '¡Sorpréndeme!' : orderState.shortText);
-            formData.append('Historia', orderState.surpriseMe ? '¡Sorpréndeme!' : orderState.longText);
-
-            await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
-        }
 
         function generateOrderId() {
             const prefix = "HUELLITAS";
@@ -577,6 +574,36 @@
                 result += chars.charAt(Math.floor(Math.random() * chars.length));
             }
             return `${prefix}-${result}`;
+        }
+        
+        // --- NUEVA LÓGICA DE SUBIDA A APPS SCRIPT ---
+        function getFilesAsBase64() {
+            const photoInput = orderState.hasVideo ? document.getElementById('photo-input-multi') : document.getElementById('photo-input-only');
+            const videoInput = orderState.hasVideo ? document.getElementById('video-input-multi') : null;
+
+            const filePromises = [];
+            const allFiles = [...photoInput.files];
+            if (videoInput) {
+                allFiles.push(...videoInput.files);
+            }
+
+            allFiles.forEach(file => {
+                const promise = new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const base64String = event.target.result.split(',')[1];
+                        resolve({
+                            fileName: file.name,
+                            mimeType: file.type,
+                            data: base64String
+                        });
+                    };
+                    reader.onerror = (error) => reject(error);
+                    reader.readAsDataURL(file);
+                });
+                filePromises.push(promise);
+            });
+            return Promise.all(filePromises);
         }
         
         document.addEventListener('DOMContentLoaded', async () => {
@@ -694,23 +721,12 @@
                 orderState.petName = petName;
                 orderState.petAge = petAge;
                 
-                // Generar y mostrar el ID de pedido
                 orderState.orderId = generateOrderId();
-                document.getElementById('order-id-display').textContent = orderState.orderId;
-
                 showSection('upload-section');
             });
 
             document.getElementById('back-to-pet-info').addEventListener('click', () => showSection('pet-info-section'));
             
-            document.getElementById('open-drive-btn').addEventListener('click', () => {
-                if (GOOGLE_DRIVE_UPLOAD_URL === 'https://tudominio.com/tu-carpeta-de-drive') {
-                    showNotification('El enlace de Google Drive no está configurado.');
-                    return;
-                }
-                window.open(GOOGLE_DRIVE_UPLOAD_URL, '_blank');
-            });
-
             const surpriseCheckbox = document.getElementById('surprise-me-checkbox');
             const shortTextArea = document.getElementById('short-text');
             const longTextArea = document.getElementById('long-text');
@@ -738,13 +754,69 @@
             shortTextArea.addEventListener('input', () => updateCharCounter('short-text-counter', shortTextArea));
             longTextArea.addEventListener('input', () => updateCharCounter('long-text-counter', longTextArea));
             
-            document.getElementById('to-summary-section').addEventListener('click', (e) => {
-                orderState.shortText = shortTextArea.value;
-                orderState.longText = longTextArea.value;
-                orderState.surpriseMe = surpriseCheckbox.checked;
+            document.getElementById('to-summary-section').addEventListener('click', async (e) => {
+                const button = e.currentTarget;
+                const buttonText = document.getElementById('to-summary-btn-text');
+                const spinner = document.getElementById('to-summary-btn-spinner');
                 
-                renderSummary();
-                showSection('summary-section');
+                if (GOOGLE_SCRIPT_URL === 'PEGA_AQUI_TU_NUEVA_URL_DE_APPS_SCRIPT') {
+                    showNotification('Error de configuración: La URL de subida no está definida.');
+                    return;
+                }
+                
+                button.disabled = true;
+                buttonText.textContent = 'Procesando archivos...';
+                spinner.classList.remove('hidden');
+
+                try {
+                    const files = await getFilesAsBase64();
+                    
+                    if(files.length === 0) {
+                        showNotification("Por favor, selecciona al menos un archivo.");
+                        return;
+                    }
+                    
+                    // Almacenar textos en el estado
+                    orderState.shortText = shortTextArea.value;
+                    orderState.longText = longTextArea.value;
+                    orderState.surpriseMe = surpriseCheckbox.checked;
+
+                    // Enviar los datos al script
+                    const payload = {
+                        ...orderState, // Enviamos el estado del pedido
+                        files: files, // Y los archivos codificados
+                    };
+
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8', // Apps Script maneja mejor el texto plano para payloads grandes
+                        },
+                        body: JSON.stringify(payload),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Error del servidor: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+
+                    if (result.status === "success") {
+                        showNotification("Archivos subidos con éxito", false);
+                        renderSummary();
+                        showSection('summary-section');
+                    } else {
+                        throw new Error(result.message || 'Error desconocido en el script.');
+                    }
+
+                } catch (error) {
+                    console.error("Error al procesar y subir archivos:", error);
+                    showNotification("Hubo un error al subir tus archivos. Intenta de nuevo.");
+                } finally {
+                    button.disabled = false;
+                    buttonText.textContent = 'Continuar al Resumen';
+                    spinner.classList.add('hidden');
+                }
             });
 
             document.getElementById('back-to-upload').addEventListener('click', () => showSection('upload-section'));
@@ -801,7 +873,11 @@
 
 
                 try {
-                    await sendDataToGoogleSheet();
+                    // La subida ya se hizo, ahora solo se registran los datos de cliente
+                    // El Apps Script ya tiene toda la info, pero lo llamamos de nuevo
+                    // para una posible lógica de "confirmación final" en el futuro.
+                    // Por ahora, esta llamada no hace nada nuevo.
+                    // await sendDataToGoogleSheet(); 
                     
                     const whatsappNumber = '56946902340';
                     const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. (ID: ${orderState.orderId}) 🐾`);
@@ -831,5 +907,4 @@
     </script>
 </body>
 </html>
-
 
