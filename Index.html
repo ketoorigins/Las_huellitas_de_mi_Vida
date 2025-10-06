@@ -397,8 +397,7 @@
 
         let paymentConfig = {}; 
         
-        // **IMPORTANTE**: Esta URL la obtendrás en el PASO 2 de las instrucciones
-        const GOOGLE_SCRIPT_URL = 'PEGA_AQUI_TU_NUEVA_URL_DE_APPS_SCRIPT'; 
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxUFrThwhSwv6MyAG_hjGeeRcNPP8d80TLIYmZXo4U7JI1IDlvBt4QmBouveySlLNJbyA/exec'; 
         
         const sections = document.querySelectorAll('main > section');
         
@@ -726,7 +725,21 @@
             });
 
             document.getElementById('back-to-pet-info').addEventListener('click', () => showSection('pet-info-section'));
-            
+            document.getElementById('has-video-btn').addEventListener('click', () => {
+                orderState.hasVideo = true;
+                document.getElementById('video-choice-container').classList.add('hidden');
+                document.getElementById('file-inputs-container').classList.remove('hidden');
+                document.getElementById('photos-and-video-upload').classList.remove('hidden');
+                document.getElementById('photos-only-upload').classList.add('hidden');
+            });
+            document.getElementById('no-video-btn').addEventListener('click', () => {
+                orderState.hasVideo = false;
+                document.getElementById('video-choice-container').classList.add('hidden');
+                document.getElementById('file-inputs-container').classList.remove('hidden');
+                document.getElementById('photos-only-upload').classList.remove('hidden');
+                document.getElementById('photos-and-video-upload').classList.add('hidden');
+            });
+
             const surpriseCheckbox = document.getElementById('surprise-me-checkbox');
             const shortTextArea = document.getElementById('short-text');
             const longTextArea = document.getElementById('long-text');
@@ -773,31 +786,25 @@
                     
                     if(files.length === 0) {
                         showNotification("Por favor, selecciona al menos un archivo.");
-                        return;
+                        throw new Error("No files selected"); // Detiene la ejecución
                     }
                     
-                    // Almacenar textos en el estado
                     orderState.shortText = shortTextArea.value;
                     orderState.longText = longTextArea.value;
                     orderState.surpriseMe = surpriseCheckbox.checked;
 
-                    // Enviar los datos al script
                     const payload = {
-                        ...orderState, // Enviamos el estado del pedido
-                        files: files, // Y los archivos codificados
+                        ...orderState,
+                        files: files,
                     };
 
                     const response = await fetch(GOOGLE_SCRIPT_URL, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'text/plain;charset=utf-8', // Apps Script maneja mejor el texto plano para payloads grandes
-                        },
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify(payload),
                     });
 
-                    if (!response.ok) {
-                        throw new Error(`Error del servidor: ${response.statusText}`);
-                    }
+                    if (!response.ok) throw new Error(`Error del servidor: ${response.statusText}`);
 
                     const result = await response.json();
 
@@ -811,7 +818,7 @@
 
                 } catch (error) {
                     console.error("Error al procesar y subir archivos:", error);
-                    showNotification("Hubo un error al subir tus archivos. Intenta de nuevo.");
+                    showNotification(error.message === "No files selected" ? error.message : "Hubo un error al subir tus archivos. Intenta de nuevo.");
                 } finally {
                     button.disabled = false;
                     buttonText.textContent = 'Continuar al Resumen';
@@ -871,20 +878,11 @@
                 }
                 newTab.document.write('<p>Registrando tu pedido, por favor espera...</p>');
 
-
                 try {
-                    // La subida ya se hizo, ahora solo se registran los datos de cliente
-                    // El Apps Script ya tiene toda la info, pero lo llamamos de nuevo
-                    // para una posible lógica de "confirmación final" en el futuro.
-                    // Por ahora, esta llamada no hace nada nuevo.
-                    // await sendDataToGoogleSheet(); 
-                    
                     const whatsappNumber = '56946902340';
                     const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. (ID: ${orderState.orderId}) 🐾`);
                     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
-                    
                     newTab.location.href = whatsappUrl;
-
                 } catch (error) {
                     console.error('Error al finalizar la compra:', error);
                     showNotification('Tu pedido no se pudo registrar. Por favor, contáctanos.');
