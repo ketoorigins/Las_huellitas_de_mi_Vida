@@ -783,20 +783,34 @@
                 buttonText.textContent = 'Registrando...';
                 spinner.classList.remove('hidden');
 
+                // --- CORRECCIÓN PARA EVITAR BLOQUEO DE POP-UP ---
+                // 1. Abre una nueva pestaña INMEDIATAMENTE.
+                const newTab = window.open('', '_blank');
+                if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
+                    showNotification('Por favor, permite las ventanas emergentes para este sitio.');
+                    button.disabled = false;
+                    buttonText.textContent = 'Finalizar Compra y Enviar Comprobante';
+                    spinner.classList.add('hidden');
+                    return; // Detiene la ejecución si el pop-up fue bloqueado de inmediato.
+                }
+                newTab.document.write('<p>Registrando tu pedido, por favor espera...</p>');
+
+
                 try {
+                    // 2. Envía los datos a Google Sheets mientras la pestaña ya está abierta.
                     await sendDataToGoogleSheet();
                     
-                    const whatsappNumber = '56946902340'; // Reemplazar si es necesario
+                    const whatsappNumber = '56946902340';
                     const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. 🐾`);
                     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
                     
-                    const newTab = window.open(whatsappUrl, '_blank');
-                    if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
-                        showNotification('Tu navegador bloqueó la ventana de WhatsApp.');
-                    }
+                    // 3. Redirige la pestaña que ya abrimos a la URL de WhatsApp.
+                    newTab.location.href = whatsappUrl;
+
                 } catch (error) {
                     console.error('Error al finalizar la compra:', error);
                     showNotification('Tu pedido no se pudo registrar. Por favor, contáctanos.');
+                    newTab.close(); // Cierra la pestaña si hubo un error.
                 } finally {
                     button.disabled = false;
                     buttonText.textContent = 'Finalizar Compra y Enviar Comprobante';
