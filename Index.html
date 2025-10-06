@@ -261,7 +261,13 @@
 
                      <div class="flex justify-between items-center pt-4">
                          <button id="back-to-pet-info" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
-                         <button id="to-summary-section" class="main-button text-white font-bold py-2 px-6 rounded-full">Continuar al Resumen</button>
+                         <button id="to-summary-section" class="main-button text-white font-bold py-2 px-6 rounded-full flex items-center justify-center">
+                            <span id="to-summary-btn-text">Continuar al Resumen</span>
+                            <svg id="to-summary-btn-spinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                         </button>
                      </div>
                  </div>
              </div>
@@ -353,6 +359,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, uploadString } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDR42aJIpDkXL5T2vgj-J2ceZFVZCqzCms",
@@ -366,6 +373,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
         // --- LÓGICA DE LA APLICACIÓN ---
         
@@ -386,10 +394,11 @@
                 comuna: '',
                 address: '',
                 cost: 0,
-            }
+            },
+            storageFolderUrl: '' // NUEVO: Para guardar el enlace a la carpeta de archivos
         };
 
-        let paymentConfig = {}; // Almacenará los métodos de pago de Firebase
+        let paymentConfig = {}; 
         
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5Rv_MV-2bd8rxP9ly6Tju9CIUGXjpE8aPKYTs8lSgEd_y0mA191L1OLmnUC_6lCz2/exec';
 
@@ -420,7 +429,7 @@
 
             setTimeout(() => {
                 toast.classList.add('opacity-0');
-                setTimeout(() => toast.classList.add('hidden'), 300);
+                setTimeout(() => toast.classList.add('hidden'), 5000);
             }, 5000);
         }
         
@@ -559,6 +568,46 @@
             }
         }
 
+        // --- NUEVA FUNCIÓN PARA SUBIR ARCHIVOS ---
+        async function uploadFiles(orderId) {
+            const filePromises = [];
+            const textPromises = [];
+
+            // 1. Determinar qué input de archivos usar
+            const photoInput = orderState.hasVideo ? document.getElementById('photo-input-multi') : document.getElementById('photo-input-only');
+            const videoInput = orderState.hasVideo ? document.getElementById('video-input-multi') : null;
+
+            // 2. Preparar subida de fotos
+            for (const file of photoInput.files) {
+                const filePath = `orders/${orderId}/${file.name}`;
+                const fileRef = ref(storage, filePath);
+                filePromises.push(uploadBytes(fileRef, file));
+            }
+
+            // 3. Preparar subida de videos (si aplica)
+            if (videoInput) {
+                for (const file of videoInput.files) {
+                    const filePath = `orders/${orderId}/${file.name}`;
+                    const fileRef = ref(storage, filePath);
+                    filePromises.push(uploadBytes(fileRef, file));
+                }
+            }
+
+            // 4. Preparar subida de textos
+            if (orderState.shortText) {
+                const textRef = ref(storage, `orders/${orderId}/texto_corto.txt`);
+                textPromises.push(uploadString(textRef, orderState.shortText));
+            }
+            if (orderState.longText) {
+                const textRef = ref(storage, `orders/${orderId}/historia.txt`);
+                textPromises.push(uploadString(textRef, orderState.longText));
+            }
+
+            // 5. Ejecutar todas las subidas en paralelo
+            await Promise.all([...filePromises, ...textPromises]);
+        }
+
+
         async function sendDataToGoogleSheet() {
             const formData = new FormData();
             formData.append('Categoria', orderState.category);
@@ -569,6 +618,8 @@
             formData.append('Telefono', orderState.clientPhone);
             formData.append('Costo Envio', orderState.shipping.cost);
             formData.append('Total Pagado', orderState.basePrice + orderState.shipping.cost);
+            // NUEVO CAMPO: Se envía el enlace a la carpeta de archivos
+            formData.append('Carpeta de Archivos', orderState.storageFolderUrl);
             await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
         }
         
@@ -619,11 +670,10 @@
                 const qrContainer = document.getElementById('qr-code-container');
                 const transferDetailsContainer = document.getElementById('transfer-details-container');
 
-                // --- 1. Calculate Shipping Cost and Total ---
                 const comuna = orderState.shipping.comuna;
                 const comunasAledanas = ['Machalí', 'Graneros', 'Olivar', 'Doñihue', 'Requínoa', 'Codegua', 'Mostazal', 'Coinco', 'Coltauco', 'Rengo'];
                 
-                let qrUrlKey = 'qrUrlRegiones'; // Default
+                let qrUrlKey = 'qrUrlRegiones'; 
                 orderState.shipping.cost = 8000;
 
                 if (comuna === 'Rancagua') {
@@ -637,7 +687,6 @@
                 const total = orderState.basePrice + orderState.shipping.cost;
                 document.getElementById('total-amount').textContent = `$${total.toLocaleString('es-CL')}`;
                 
-                // --- 2. Populate Payment Info from loaded config ---
                 qrContainer.innerHTML = ''; 
                 transferDetailsContainer.innerHTML = '<h3 class="text-xl font-bold mb-3 text-[#00FFFF]">Datos para Transferencia</h3>';
 
@@ -647,7 +696,6 @@
                     return;
                 }
 
-                // Populate QR Code
                 const qrUrl = paymentConfig[qrUrlKey];
                 if (qrUrl) {
                     const qrLink = document.createElement('a');
@@ -666,7 +714,6 @@
                     qrContainer.innerHTML = `<p class="text-xs text-red-500 p-2">QR no disponible para esta ubicación.</p>`;
                 }
 
-                // Populate Bank Transfer Details
                 transferDetailsContainer.innerHTML += `
                     <p class="text-sm"><strong>Banco:</strong> ${paymentConfig.bank || '[No disponible]'}</p>
                     <p class="text-sm"><strong>Tipo de Cuenta:</strong> ${paymentConfig.accountType || '[No disponible]'}</p>
@@ -731,16 +778,53 @@
             }
             shortTextArea.addEventListener('input', () => updateCharCounter('short-text-counter', shortTextArea));
             longTextArea.addEventListener('input', () => updateCharCounter('long-text-counter', longTextArea));
-            document.getElementById('to-summary-section').addEventListener('click', () => {
+            
+            // --- LÓGICA DE SUBIDA DE ARCHIVOS AÑADIDA AQUÍ ---
+            document.getElementById('to-summary-section').addEventListener('click', async (e) => {
+                const button = e.currentTarget;
+                const buttonText = document.getElementById('to-summary-btn-text');
+                const spinner = document.getElementById('to-summary-btn-spinner');
+
                 if (orderState.hasVideo === null) {
                     showNotification('Por favor, elige si subirás videos o solo fotos.');
                     return;
                 }
-                orderState.shortText = shortTextArea.value;
-                orderState.longText = longTextArea.value;
-                renderSummary();
-                showSection('summary-section');
+                
+                const photoInput = orderState.hasVideo ? document.getElementById('photo-input-multi') : document.getElementById('photo-input-only');
+                if (photoInput.files.length === 0) {
+                    showNotification('Por favor, selecciona al menos una foto.');
+                    return;
+                }
+
+                button.disabled = true;
+                buttonText.textContent = 'Subiendo archivos...';
+                spinner.classList.remove('hidden');
+
+                try {
+                    orderState.shortText = shortTextArea.value;
+                    orderState.longText = longTextArea.value;
+                    
+                    const timestamp = new Date().toISOString();
+                    const orderId = `pedido_${orderState.petName.replace(/\s+/g, '_')}_${timestamp}`;
+                    
+                    await uploadFiles(orderId);
+                    
+                    const consoleUrl = `https://console.firebase.google.com/project/${firebaseConfig.projectId}/storage/${firebaseConfig.storageBucket}/files~2Forders~2F${orderId}`;
+                    orderState.storageFolderUrl = consoleUrl;
+                    
+                    renderSummary();
+                    showSection('summary-section');
+
+                } catch (error) {
+                    console.error("Error al subir los archivos:", error);
+                    showNotification("Hubo un error al subir tus archivos. Inténtalo de nuevo.");
+                } finally {
+                    button.disabled = false;
+                    buttonText.textContent = 'Continuar al Resumen';
+                    spinner.classList.add('hidden');
+                }
             });
+
             document.getElementById('back-to-upload').addEventListener('click', () => showSection('upload-section'));
             
             document.getElementById('to-payment-section').addEventListener('click', () => {
@@ -769,7 +853,7 @@
                 orderState.shipping.address = address;
 
                 showSection('payment-section');
-                showPaymentDetails(); // Carga la info de pago
+                showPaymentDetails();
             });
 
             document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
@@ -783,34 +867,30 @@
                 buttonText.textContent = 'Registrando...';
                 spinner.classList.remove('hidden');
 
-                // --- CORRECCIÓN PARA EVITAR BLOQUEO DE POP-UP ---
-                // 1. Abre una nueva pestaña INMEDIATAMENTE.
                 const newTab = window.open('', '_blank');
                 if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
                     showNotification('Por favor, permite las ventanas emergentes para este sitio.');
                     button.disabled = false;
                     buttonText.textContent = 'Finalizar Compra y Enviar Comprobante';
                     spinner.classList.add('hidden');
-                    return; // Detiene la ejecución si el pop-up fue bloqueado de inmediato.
+                    return;
                 }
                 newTab.document.write('<p>Registrando tu pedido, por favor espera...</p>');
 
 
                 try {
-                    // 2. Envía los datos a Google Sheets mientras la pestaña ya está abierta.
                     await sendDataToGoogleSheet();
                     
                     const whatsappNumber = '56946902340';
                     const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. 🐾`);
                     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
                     
-                    // 3. Redirige la pestaña que ya abrimos a la URL de WhatsApp.
                     newTab.location.href = whatsappUrl;
 
                 } catch (error) {
                     console.error('Error al finalizar la compra:', error);
                     showNotification('Tu pedido no se pudo registrar. Por favor, contáctanos.');
-                    newTab.close(); // Cierra la pestaña si hubo un error.
+                    newTab.close();
                 } finally {
                     button.disabled = false;
                     buttonText.textContent = 'Finalizar Compra y Enviar Comprobante';
@@ -819,7 +899,7 @@
             });
             
             // --- INICIALIZACIÓN DE LA APP ---
-            await loadPaymentMethods(); // Carga la info de pago al inicio
+            await loadPaymentMethods(); 
             populateRegions();
             loadCategoriesFromFirestore();
             loadGalleryImages(); 
