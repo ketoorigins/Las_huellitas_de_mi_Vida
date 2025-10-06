@@ -301,19 +301,15 @@
                 </div>
                  <div class="flex justify-between items-center pt-6">
                     <button id="back-to-upload" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
-                    <!-- BOTÓN "CONTINUAR AL PAGO" MODIFICADO CON SPINNER -->
-                    <button id="to-payment-section" class="main-button inline-flex items-center justify-center text-white font-bold py-2 px-6 rounded-full" style="min-width: 180px;">
-                        <span id="to-payment-btn-text">Continuar al Pago</span>
-                        <svg id="to-payment-btn-spinner" class="animate-spin ml-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
+                    <!-- BOTÓN "CONTINUAR AL PAGO" CON LÓGICA SIMPLIFICADA -->
+                    <button id="to-payment-section" class="main-button text-white font-bold py-2 px-6 rounded-full">
+                        Continuar al Pago
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- PASO 6: Pago Y CONFIRMACIÓN FINAL (MODIFICADO) -->
+        <!-- PASO 6: Pago Y CONFIRMACIÓN FINAL (LA PÁGINA QUE FALTABA) -->
         <section id="payment-section" class="hidden section-fade-in">
             <div class="max-w-xl mx-auto bg-black/20 p-8 rounded-xl border border-white/10 text-center">
                 <h2 class="text-3xl font-bold mb-2" style="font-weight: 700;">¡Estás a un paso de terminar!</h2>
@@ -322,7 +318,7 @@
                     <div class="flex flex-col items-center">
                         <h3 class="text-xl font-bold mb-2 text-[#00FFFF]">Paga con QR Mercado Pago</h3>
                         <div id="qr-code-container" class="bg-white p-2 rounded-lg h-48 w-48 flex items-center justify-center text-center">
-                            <img id="qr-code-img" src="" alt="Código QR de Mercado Pago" class="h-full w-full object-contain">
+                            <!-- El QR o mensaje de error se cargará aquí -->
                         </div>
                     </div>
                     <div class="text-left bg-white/5 p-4 rounded-lg">
@@ -559,27 +555,20 @@
             }
         }
         
-        // --- FUNCIÓN PARA OBTENER IMAGEN CON TIMEOUT ---
         async function getFirebaseImageUrl(imageName) {
-            const TIMEOUT_MS = 15000; // 15 segundos
-
-            const downloadPromise = getDownloadURL(ref(storage, imageName));
-            const timeoutPromise = new Promise((_, reject) => {
-                setTimeout(() => reject(new Error(`No se pudo conectar con Firebase para cargar el QR. Revisa que los archivos QR existan en Storage y que las reglas de permisos son correctas.`)), TIMEOUT_MS);
-            });
-
             try {
-                const url = await Promise.race([downloadPromise, timeoutPromise]);
+                const imageRef = ref(storage, imageName);
+                const url = await getDownloadURL(imageRef);
                 return url;
             } catch (error) {
                 console.error(`Error al obtener la URL para ${imageName}:`, error);
                 if (error.code === 'storage/object-not-found') {
-                    throw new Error(`El archivo QR "${imageName}" no se encontró en Firebase Storage.`);
+                    throw new Error(`El archivo QR "${imageName}" no se encontró en Firebase Storage. Revisa que el nombre sea exacto.`);
                 }
                 if (error.code === 'storage/unauthorized') {
-                    throw new Error(`Error de permisos. Ajusta las reglas de Firebase Storage para permitir lectura pública.`);
+                    throw new Error(`Error de permisos. Ajusta las reglas de Firebase Storage para permitir lectura pública y presiona "Publicar".`);
                 }
-                throw error; // Relanza el error de timeout o cualquier otro
+                throw new Error(`No se pudo cargar el QR. Revisa tu conexión a internet y la configuración de Firebase.`);
             }
         }
         
@@ -599,7 +588,6 @@
         
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- LISTA COMPLETA DE REGIONES Y COMUNAS DE CHILE ---
             const locations = {
                 "Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"],
                 "Tarapacá": ["Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"],
@@ -664,17 +652,20 @@
                     document.getElementById('total-amount').textContent = `$${total.toLocaleString('es-CL')}`;
                     
                     qrContainer.innerHTML = '<p class="text-xs text-gray-400">Cargando QR...</p>';
-                    const qrImgElement = document.getElementById('qr-code-img');
+                    const url = await getFirebaseImageUrl(qrImageName);
                     
-                    const url = await getFirebaseImageUrl(qrImageName); 
+                    const qrImgElement = document.createElement('img');
+                    qrImgElement.id = 'qr-code-img';
                     qrImgElement.src = url;
+                    qrImgElement.alt = 'Código QR de Mercado Pago';
+                    qrImgElement.className = 'h-full w-full object-contain';
+                    
                     qrContainer.innerHTML = '';
                     qrContainer.appendChild(qrImgElement);
 
                 } catch (error) {
                     console.error("Error en showPaymentDetails:", error);
                     qrContainer.innerHTML = `<p class="text-xs text-red-500 p-2">${error.message}</p>`;
-                    throw error;
                 }
             }
 
@@ -744,51 +735,38 @@
             });
             document.getElementById('back-to-upload').addEventListener('click', () => showSection('upload-section'));
             
-            document.getElementById('to-payment-section').addEventListener('click', async () => {
-                const button = document.getElementById('to-payment-section');
-                const buttonText = document.getElementById('to-payment-btn-text');
-                const spinner = document.getElementById('to-payment-btn-spinner');
+            // --- LÓGICA CORREGIDA DEL BOTÓN "CONTINUAR AL PAGO" ---
+            document.getElementById('to-payment-section').addEventListener('click', () => {
+                const clientName = document.getElementById('client-name-input').value.trim();
+                const clientPhone = document.getElementById('client-phone-input').value.trim();
+                const region = document.getElementById('region-select').value;
+                const comuna = document.getElementById('comuna-select').value;
+                const address = document.getElementById('address-input').value.trim();
 
-                try {
-                    const clientName = document.getElementById('client-name-input').value.trim();
-                    const clientPhone = document.getElementById('client-phone-input').value.trim();
-                    const region = document.getElementById('region-select').value;
-                    const comuna = document.getElementById('comuna-select').value;
-                    const address = document.getElementById('address-input').value.trim();
-    
-                    let missingField = '';
-                    if (!clientName) missingField = 'Nombre Completo';
-                    else if (!clientPhone) missingField = 'Teléfono';
-                    else if (!region) missingField = 'Región';
-                    else if (!comuna) missingField = 'Comuna';
-                    else if (!address) missingField = 'Dirección';
-    
-                    if (missingField) {
-                        showNotification(`Por favor, completa el campo: ${missingField}.`);
-                        return;
-                    }
-    
-                    button.disabled = true;
-                    buttonText.textContent = 'Cargando...';
-                    spinner.classList.remove('hidden');
+                let missingField = '';
+                if (!clientName) missingField = 'Nombre Completo';
+                else if (!clientPhone) missingField = 'Teléfono';
+                else if (!region) missingField = 'Región';
+                else if (!comuna) missingField = 'Comuna';
+                else if (!address) missingField = 'Dirección';
 
-                    orderState.clientName = clientName;
-                    orderState.clientPhone = clientPhone;
-                    orderState.shipping.region = region;
-                    orderState.shipping.comuna = comuna;
-                    orderState.shipping.address = address;
-    
-                    await showPaymentDetails(); 
-                    showSection('payment-section');
-
-                } catch (error) {
-                    console.error("Error al procesar para el pago:", error);
-                    showNotification(error.message || "No se pudo cargar la información del pago.");
-                } finally {
-                    button.disabled = false;
-                    buttonText.textContent = 'Continuar al Pago';
-                    spinner.classList.add('hidden');
+                if (missingField) {
+                    showNotification(`Por favor, completa el campo: ${missingField}.`);
+                    return;
                 }
+
+                // Guarda los datos
+                orderState.clientName = clientName;
+                orderState.clientPhone = clientPhone;
+                orderState.shipping.region = region;
+                orderState.shipping.comuna = comuna;
+                orderState.shipping.address = address;
+
+                // 1. Muestra inmediatamente la página de pago
+                showSection('payment-section');
+                
+                // 2. Carga los datos del QR en segundo plano
+                showPaymentDetails();
             });
 
             document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
