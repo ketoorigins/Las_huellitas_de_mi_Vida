@@ -562,13 +562,13 @@
                 return url;
             } catch (error) {
                 console.error(`Error al obtener la URL para ${imageName}:`, error);
+                if (error.code === 'storage/retry-limit-exceeded' || error.code === 'storage/unauthorized') {
+                     throw new Error(`Error de permisos/conexión. Asegúrate de haber 'Publicado' las reglas de Storage para permitir lectura pública.`);
+                }
                 if (error.code === 'storage/object-not-found') {
                     throw new Error(`El archivo QR "${imageName}" no se encontró en Firebase Storage. Revisa que el nombre sea exacto.`);
                 }
-                if (error.code === 'storage/unauthorized') {
-                    throw new Error(`Error de permisos. Ajusta las reglas de Firebase Storage para permitir lectura pública y presiona "Publicar".`);
-                }
-                throw new Error(`No se pudo cargar el QR. Revisa tu conexión a internet y la configuración de Firebase.`);
+                throw new Error(`No se pudo cargar el QR. Revisa tu conexión a internet.`);
             }
         }
         
