@@ -321,14 +321,14 @@
                             <!-- El QR o mensaje de error se cargará aquí -->
                         </div>
                     </div>
-                    <div class="text-left bg-white/5 p-4 rounded-lg">
+                    <div id="bank-details-container" class="text-left bg-white/5 p-4 rounded-lg">
                         <h3 class="text-xl font-bold mb-3 text-[#00FFFF]">Datos para Transferencia</h3>
-                        <p class="text-sm"><strong>Banco:</strong> [Tu Banco]</p>
-                        <p class="text-sm"><strong>Tipo de Cuenta:</strong> [Tu Tipo de Cuenta]</p>
-                        <p class="text-sm"><strong>Nº de Cuenta:</strong> [Tu Número de Cuenta]</p>
-                        <p class="text-sm"><strong>Nombre:</strong> [Tu Nombre Completo]</p>
-                        <p class="text-sm"><strong>RUT:</strong> [Tu RUT]</p>
-                        <p class="text-sm"><strong>Email:</strong> [Tu Email]</p>
+                        <p class="text-sm"><strong>Banco:</strong> <span id="bank-name">[Tu Banco]</span></p>
+                        <p class="text-sm"><strong>Tipo de Cuenta:</strong> <span id="account-type">[Tu Tipo de Cuenta]</span></p>
+                        <p class="text-sm"><strong>Nº de Cuenta:</strong> <span id="account-number">[Tu Número de Cuenta]</span></p>
+                        <p class="text-sm"><strong>Nombre:</strong> <span id="account-holder">[Tu Nombre Completo]</span></p>
+                        <p class="text-sm"><strong>RUT:</strong> <span id="rut">[Tu RUT]</span></p>
+                        <p class="text-sm"><strong>Email:</strong> <span id="email">[Tu Email]</span></p>
                     </div>
                 </div>
                 <div class="mt-8">
@@ -360,7 +360,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDR42aJIpDkXL5T2vgj-J2ceZFVZCqzCms",
@@ -554,7 +554,7 @@
                 grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar la galería.</p>`;
             }
         }
-        
+
         async function getFirebaseImageUrl(imageName) {
             try {
                 const imageRef = ref(storage, imageName);
@@ -562,16 +562,16 @@
                 return url;
             } catch (error) {
                 console.error(`Error al obtener la URL para ${imageName}:`, error);
-                if (error.code === 'storage/retry-limit-exceeded' || error.code === 'storage/unauthorized') {
-                     throw new Error(`Error de permisos/conexión. Asegúrate de haber 'Publicado' las reglas de Storage para permitir lectura pública.`);
-                }
                 if (error.code === 'storage/object-not-found') {
                     throw new Error(`El archivo QR "${imageName}" no se encontró en Firebase Storage. Revisa que el nombre sea exacto.`);
+                }
+                if (error.code === 'storage/unauthorized' || error.code === 'storage/retry-limit-exceeded') {
+                    throw new Error(`¡Error de Permisos en Firebase! Ve a Storage > Reglas, asegúrate de que 'allow read;' esté presente y haz clic en 'PUBLICAR'.`);
                 }
                 throw new Error(`No se pudo cargar el QR. Revisa tu conexión a internet.`);
             }
         }
-        
+
         async function sendDataToGoogleSheet() {
             const formData = new FormData();
             formData.append('Categoria', orderState.category);
@@ -586,6 +586,29 @@
             await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
         }
         
+        // --- NUEVA FUNCIÓN PARA CARGAR DATOS BANCARIOS ---
+        async function loadBankDetails() {
+            try {
+                const docRef = doc(db, "config", "paymentMethods");
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('bank-name').textContent = data.bankName || '[No definido]';
+                    document.getElementById('account-type').textContent = data.accountType || '[No definido]';
+                    document.getElementById('account-number').textContent = data.accountNumber || '[No definido]';
+                    document.getElementById('account-holder').textContent = data.accountHolder || '[No definido]';
+                    document.getElementById('rut').textContent = data.rut || '[No definido]';
+                    document.getElementById('email').textContent = data.email || '[No definido]';
+                } else {
+                    console.warn("El documento 'paymentMethods' no existe en la colección 'config'. Se usarán los datos de ejemplo.");
+                }
+            } catch (error) {
+                console.error("Error al cargar los datos bancarios:", error);
+                showNotification("No se pudieron cargar los datos de transferencia.", true);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
 
             const locations = {
@@ -803,7 +826,8 @@
             
             populateRegions();
             loadCategoriesFromFirestore();
-            loadGalleryImages(); 
+            loadGalleryImages();
+            loadBankDetails(); // <-- Cargar datos bancarios al iniciar
             showSection('home-section');
         });
 
