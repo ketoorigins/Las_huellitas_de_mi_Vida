@@ -14,18 +14,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Estilos base y de diseño inspirados en los requerimientos */
+        /* Estilos base y de diseño inspirados en la imagen */
         body {
             background: linear-gradient(135deg, #2b1634, #1f143a);
             font-family: 'Fredoka', sans-serif;
-            color: #F0F0F0;
             scroll-behavior: smooth;
         }
         h1, h2, h3, h4, h5, h6 {
             font-weight: 700;
         }
         .main-button {
-            background: linear-gradient(90deg, #4A00E0, #8E2DE2);
+            background: linear-gradient(90deg, #8E2DE2, #4A00E0);
             box-shadow: 0 0 15px rgba(142, 45, 226, 0.6);
             transition: all 0.3s ease-in-out;
         }
@@ -36,8 +35,6 @@
         .main-button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: 0 0 15px rgba(142, 45, 226, 0.6);
         }
         .secondary-button {
             background-color: rgba(255, 255, 255, 0.1);
@@ -106,11 +103,10 @@
         }
         .paw-bg-container img {
             position: absolute;
-            opacity: 0.2;
+            opacity: 0.2; /* Ajustado según requerimiento */
             filter: brightness(1.2);
-            pointer-events: none;
         }
-        /* Estilos para la galería de miniaturas */
+        /* Estilos para la nueva galería de miniaturas */
         .thumbnail-image {
             width: 50px;
             height: 50px;
@@ -118,11 +114,10 @@
             border-radius: 8px;
             cursor: pointer;
             border: 2px solid transparent;
-            transition: border-color 0.3s ease, transform 0.3s ease;
+            transition: border-color 0.3s ease;
         }
         .thumbnail-image.active {
-            border-color: #00FFFF;
-            transform: scale(1.1);
+            border-color: #00FFFF; /* Color de acento cian */
         }
     </style>
 </head>
@@ -130,18 +125,18 @@
 
     <!-- Huellas Decorativas de Fondo -->
     <div class="paw-bg-container">
-        <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" alt="huella decorativa" style="width: 15%; top: 10%; left: 5%; transform: rotate(-20deg);">
-        <img src="https://i.ibb.co/mFSBSN3X/huellas-2.png" alt="huella decorativa" style="width: 10%; top: 20%; right: 10%; transform: rotate(15deg);">
-        <img src="https://i.ibb.co/vx7Wb795/huellas.png" alt="huella decorativa" style="width: 8%; bottom: 15%; left: 20%; transform: rotate(30deg);">
-        <img src="https://i.ibb.co/ttbd6wP/huellas-4.png" alt="huella decorativa" style="width: 12%; bottom: 5%; right: 15%; transform: rotate(-10deg);">
-        <img src="https://i.ibb.co/MDZYf540/huellas-6.png" alt="huella decorativa" style="width: 9%; top: 55%; left: 10%; transform: rotate(5deg);">
-        <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" alt="huella decorativa" style="width: 7%; top: 70%; right: 5%; transform: rotate(25deg);">
+        <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" alt="huella" style="width: 15%; top: 10%; left: 5%; transform: rotate(-20deg);">
+        <img src="https://i.ibb.co/mFSBSN3X/huellas-2.png" alt="huella" style="width: 10%; top: 20%; right: 10%; transform: rotate(15deg);">
+        <img src="https://i.ibb.co/vx7Wb795/huellas.png" alt="huella" style="width: 8%; bottom: 15%; left: 20%; transform: rotate(30deg);">
+        <img src="https://i.ibb.co/ttbd6wP/huellas-4.png" alt="huella" style="width: 12%; bottom: 5%; right: 15%; transform: rotate(-10deg);">
+        <img src="https://i.ibb.co/MDZYf540/huellas-6.png" alt="huella" style="width: 9%; top: 55%; left: 10%; transform: rotate(5deg);">
+        <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" alt="huella" style="width: 7%; top: 70%; right: 5%; transform: rotate(25deg);">
     </div>
 
     <!-- Header Fijo -->
     <header class="fixed top-0 left-0 right-0 z-50">
         <nav class="container mx-auto px-6 py-4 bg-black/20 backdrop-blur-md flex items-center justify-center md:justify-start">
-            <img id="header-logo" src="https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png" alt="Logo Las Huellitas de mi Vida" class="h-10 w-10 mr-3 rounded-full">
+            <img id="header-logo" src="https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png" alt="Logo" class="h-10 w-10 mr-3 rounded-full">
             <h1 class="text-xl font-bold tracking-wider">Las Huellitas de mi Vida</h1>
         </nav>
     </header>
@@ -179,10 +174,12 @@
 
         <!-- PASO 3: Formulario Datos de la Mascota -->
         <section id="pet-info-section" class="hidden section-fade-in">
-             <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
+            <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
+                <!-- Contenedor para la imagen del producto seleccionado -->
                 <div class="flex justify-center mb-4">
                     <img id="product-image-preview" src="" alt="Producto seleccionado" class="rounded-lg max-h-40 shadow-lg">
                 </div>
+                <!-- NUEVO: Contenedor para las miniaturas -->
                 <div id="thumbnail-container" class="flex justify-center gap-2 mb-6">
                     <!-- Las miniaturas se generarán aquí con JavaScript -->
                 </div>
@@ -201,12 +198,12 @@
                         <button id="to-upload-section" class="main-button text-white font-bold py-2 px-6 rounded-full">Continuar</button>
                     </div>
                 </div>
-             </div>
+            </div>
         </section>
 
         <!-- PASO 4: Formulario Carga de Archivos -->
         <section id="upload-section" class="hidden section-fade-in">
-             <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
+            <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
                 <h2 class="text-3xl font-bold text-center mb-6">Ahora, sube tus recuerdos&nbsp;🐾</h2>
             
                 <div id="video-choice-container" class="text-center">
@@ -220,7 +217,7 @@
                 <div id="file-inputs-container" class="hidden space-y-6 mt-6">
                     <div id="photos-and-video-upload" class="hidden space-y-4">
                         <div>
-                            <label for="photo-input-multi" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga hasta 10 fotos</label>
+                            <label for="photo-input-multi" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga tus fotos</label>
                             <input type="file" id="photo-input-multi" multiple accept="image/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
                         </div>
                         <div>
@@ -228,8 +225,8 @@
                             <input type="file" id="video-input-multi" multiple accept="video/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
                         </div>
                     </div>
-                     <div id="photos-only-upload" class="hidden">
-                        <label for="photo-input-only" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga hasta 20 fotos</label>
+                    <div id="photos-only-upload" class="hidden">
+                        <label for="photo-input-only" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga tus fotos</label>
                         <p class="text-xs text-gray-400 mb-2">Con ellas crearemos un video emotivo para el QR de tu obra.</p>
                         <input type="file" id="photo-input-only" multiple accept="image/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
                     </div>
@@ -246,20 +243,20 @@
                         <input id="surprise-me-checkbox" type="checkbox" class="h-5 w-5 rounded bg-transparent border-yellow-400 text-yellow-500 focus:ring-yellow-600">
                         <label for="surprise-me-checkbox" class="font-bold text-yellow-300">¡Sorpréndeme!&nbsp;🐾</label>
                     </div>
-                     <p id="surprise-me-text" class="text-xs text-yellow-400 hidden">Al marcar esta opción, con mucho respeto, empatía y amor, buscaremos el texto adecuado para tu obra.</p>
+                    <p id="surprise-me-text" class="text-xs text-yellow-400 hidden">Al marcar esta opción, con mucho respeto, empatía y amor, buscaremos el texto adecuado para tu obra.</p>
 
                     <div class="flex justify-between items-center pt-4">
                         <button id="back-to-pet-info" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
                         <button id="to-summary-section" class="main-button text-white font-bold py-2 px-6 rounded-full flex items-center justify-center">
-                             <span id="to-summary-btn-text">Subir archivos y continuar</span>
-                             <svg id="to-summary-btn-spinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                             </svg>
+                            <span id="to-summary-btn-text">Subir archivos y continuar</span>
+                            <svg id="to-summary-btn-spinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
                         </button>
                     </div>
                 </div>
-             </div>
+            </div>
         </section>
 
         <!-- PASO 5: Resumen y Despacho -->
@@ -267,7 +264,6 @@
             <div class="max-w-xl mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
                 <h2 class="text-3xl font-bold text-center mb-6">Revisa tu Pedido</h2>
                 <div id="summary-content" class="space-y-4 mb-8 p-4 bg-white/5 rounded-lg">
-                    <!-- Contenido del resumen se genera aquí -->
                 </div>
                 <h3 class="text-2xl font-bold text-center mb-4">Información de Despacho</h3>
                 <div id="shipping-form" class="space-y-4">
@@ -292,7 +288,7 @@
                         <input type="text" id="address-input" class="form-input w-full p-3 rounded-lg text-white" placeholder="Calle, número, depto/casa">
                     </div>
                 </div>
-                 <div class="flex justify-between items-center pt-6">
+                <div class="flex justify-between items-center pt-6">
                     <button id="back-to-upload" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
                     <button id="to-payment-section" class="main-button text-white font-bold py-2 px-6 rounded-full">
                         Continuar al Pago
@@ -305,17 +301,15 @@
         <section id="payment-section" class="hidden section-fade-in">
             <div class="max-w-xl mx-auto bg-black/20 p-8 rounded-xl border border-white/10 text-center">
                 <h2 class="text-3xl font-bold mb-2">¡Estás a un paso de terminar!</h2>
-                <p class="text-gray-300 mb-6">Realiza tu pago a través de los siguientes medios. Una vez listo, vuelve y presiona "Finalizar Compra" para enviarnos tu comprobante.</p>
+                <p class="text-gray-300 mb-6">Realiza tu pago a través de los siguientes medios. Una vez listo, vuelve aquí y presiona "Finalizar Compra" para enviarnos tu comprobante.</p>
                 <div id="payment-details" class="grid md:grid-cols-2 gap-8 items-center">
                     <div class="flex flex-col items-center">
                         <h3 class="text-xl font-bold mb-2 text-[#00FFFF]">Paga con QR Mercado Pago</h3>
                         <div id="qr-code-container" class="bg-white p-2 rounded-lg h-48 w-48 flex items-center justify-center text-center">
-                            <!-- QR se carga aquí -->
                         </div>
                     </div>
                     <div id="transfer-details-container" class="text-left bg-white/5 p-4 rounded-lg">
                         <h3 class="text-xl font-bold mb-3 text-[#00FFFF]">Datos para Transferencia</h3>
-                        <!-- Datos de transferencia se cargan aquí -->
                     </div>
                 </div>
                 <div class="mt-8">
@@ -324,9 +318,13 @@
                 <div class="mt-8">
                     <button id="finish-purchase-btn" class="main-button inline-flex items-center justify-center text-white font-bold py-3 px-8 rounded-full text-lg w-full md:w-auto">
                         <span id="finish-purchase-btn-text">Finalizar Compra y Enviar Comprobante</span>
+                        <svg id="finish-purchase-btn-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
                     </button>
                 </div>
-                 <div class="mt-6">
+                <div class="mt-6">
                     <button id="back-to-summary" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
                 </div>
             </div>
@@ -334,47 +332,41 @@
 
     </main>
 
-    <!-- Notificación Toast -->
-    <div id="toast-notification" class="hidden fixed bottom-5 right-5 bg-red-500 text-white py-3 px-6 rounded-full shadow-lg text-center z-[100] opacity-0 transition-all duration-300">
+    <div id="toast-notification" class="hidden fixed bottom-5 right-5 bg-red-500 text-white py-3 px-6 rounded-full shadow-lg text-center z-[100] opacity-0 transition-opacity duration-300">
         <p id="toast-message"></p>
     </div>
     
     <script type="module">
-        // --- IMPORTS DE FIREBASE ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref, uploadString, uploadBytes } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-        // --- CONFIGURACIÓN DE FIREBASE ---
+        // IMPORTANT: Replace with your actual Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDR42aJIpDkXL5T2vgj-J2ceZFVZCqzCms",
             authDomain: "las-huellitas-de-mi-vida.firebaseapp.com",
             projectId: "las-huellitas-de-mi-vida",
-            storageBucket: "las-huellitas-de-mi-vida.appspot.com",
+            storageBucket: "las-huellitas-de-mi-vida.firebasestorage.app", // Corrected storage bucket
             messagingSenderId: "1095265611249",
             appId: "1:1095265611249:web:09930aaef56d0736bea850",
             measurementId: "G-0QB83X7TBC"
         };
 
-        // --- INICIALIZACIÓN DE SERVICIOS ---
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const storage = getStorage(app);
         
-        // --- ESTADO GLOBAL DE LA APLICACIÓN ---
         const orderState = {
             category: '', basePrice: 0, imageUrls: [], petName: '', petAge: '',
             clientName: '', clientPhone: '', orderId: '', shortText: '', longText: '',
             surpriseMe: false, shipping: { region: '', comuna: '', address: '', cost: 0, },
-            firebaseFolderUrl: '', hasVideo: null,
+            firebaseFolderUrl: ''
         };
 
         let paymentConfig = {}; 
         
-        // --- CONSTANTES ---
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxUFrThwhSwv6MyAG_hjGeeRcNPP8d80TLIYmZXo4U7JI1IDlvBt4QmBouveySlLNJbyA/exec'; 
         
-        // --- FUNCIONES UTILITARIAS ---
         const sections = document.querySelectorAll('main > section');
         
         function showSection(sectionId) {
@@ -390,8 +382,11 @@
             toast.classList.remove('hidden', 'bg-red-500', 'bg-green-500', 'opacity-0');
             toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
             setTimeout(() => {
+                toast.classList.remove('opacity-0');
+            }, 100);
+            setTimeout(() => {
                 toast.classList.add('opacity-0');
-                setTimeout(() => toast.classList.add('hidden'), 300);
+                setTimeout(() => toast.classList.add('hidden'), 500);
             }, 5000);
         }
         
@@ -409,7 +404,7 @@
                 return true;
             } catch (error) {
                 console.error(`Error loading ${collectionName}:`, error);
-                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar el contenido. Revisa la conexión con Firebase.</p>`;
+                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar el contenido.</p>`;
                 return false;
             }
         }
@@ -424,8 +419,8 @@
             return `${prefix}-${result}`;
         }
         
-        // --- LÓGICA DE NEGOCIO (SUBIDAS, ENVÍOS) ---
         async function uploadFilesToFirebase(orderId) {
+            console.log("--- INICIANDO SUBIDA ---");
             const photoInput = orderState.hasVideo ? document.getElementById('photo-input-multi') : document.getElementById('photo-input-only');
             const videoInput = orderState.hasVideo ? document.getElementById('video-input-multi') : null;
 
@@ -433,13 +428,15 @@
             if (videoInput && videoInput.files.length > 0) {
                 filesToUpload.push(...videoInput.files);
             }
+            console.log(`Archivos a subir: ${filesToUpload.length}`);
 
             const textFiles = [];
             if (!orderState.surpriseMe) {
                 if (orderState.shortText) textFiles.push({ name: 'texto_corto.txt', content: orderState.shortText });
                 if (orderState.longText) textFiles.push({ name: 'historia.txt', content: orderState.longText });
             }
-            
+             console.log(`Textos a subir: ${textFiles.length}`);
+
             const allPromises = [];
 
             filesToUpload.forEach(file => {
@@ -453,11 +450,12 @@
             });
             
             await Promise.all(allPromises);
+            console.log("--- SUBIDA COMPLETADA ---");
         }
         
         async function sendOrderToGoogleSheet() {
             const formData = new FormData();
-            formData.append('Timestamp', new Date().toISOString());
+            formData.append('Timestamp', new Date().toLocaleString("es-CL"));
             formData.append('ID de Pedido', orderState.orderId);
             formData.append('Categoria', orderState.category);
             formData.append('Nombre Mascota', orderState.petName);
@@ -490,14 +488,13 @@
                 comunas.sort().forEach(comuna => comunaSelect.add(new Option(comuna, comuna)));
             });
 
-            // --- FUNCIONES DE RENDERIZADO DINÁMICO ---
             function renderSummary() {
                 document.getElementById('summary-content').innerHTML = `
                     <p><strong>Categoría:</strong> ${orderState.category}</p>
                     <p><strong>Mascota:</strong> ${orderState.petName}, ${orderState.petAge} años</p>
                     <p><strong>ID de Pedido:</strong> ${orderState.orderId}</p>
                     <p><strong>Textos:</strong> ${orderState.surpriseMe ? '¡Sorpréndeme! Equipo elegirá los textos.' : 'Personalizados.'}</p>
-                    <p><strong>Archivos:</strong> <a href="${orderState.firebaseFolderUrl}" target="_blank" class="text-cyan-400 underline hover:text-cyan-300">Ver Carpeta de Archivos</a></p>
+                    <p><strong>Archivos:</strong> <a href="${orderState.firebaseFolderUrl}" target="_blank" class="text-cyan-400 underline">Ver Carpeta de Archivos</a></p>
                 `;
             }
 
@@ -533,7 +530,7 @@
                 `;
             }
 
-            // --- EVENT LISTENERS (MANEJO DE LA INTERFAZ) ---
+            // --- EVENT LISTENERS ---
             document.getElementById('start-project-btn').addEventListener('click', () => showSection('category-section'));
             document.getElementById('back-to-category').addEventListener('click', () => showSection('category-section'));
             
@@ -546,14 +543,11 @@
                 }
                 orderState.petName = petName;
                 orderState.petAge = petAge;
-                if (!orderState.orderId) { // Generar ID solo si no existe
-                    orderState.orderId = generateOrderId();
-                }
+                orderState.orderId = generateOrderId();
                 showSection('upload-section');
             });
 
             document.getElementById('back-to-pet-info').addEventListener('click', () => showSection('pet-info-section'));
-            
             document.getElementById('has-video-btn').addEventListener('click', () => {
                 orderState.hasVideo = true;
                 document.getElementById('video-choice-container').classList.add('hidden');
@@ -599,6 +593,7 @@
                 buttonText.textContent = 'Subiendo...';
 
                 try {
+                    console.log("Iniciando el proceso de subida...");
                     orderState.shortText = shortTextArea.value;
                     orderState.longText = longTextArea.value;
                     orderState.surpriseMe = surpriseCheckbox.checked;
@@ -607,14 +602,15 @@
                     
                     orderState.firebaseFolderUrl = `https://console.firebase.google.com/project/${firebaseConfig.projectId}/storage/${firebaseConfig.storageBucket}/files~2Fpedidos~2F${orderState.orderId}`;
                     
+                    console.log("Subida completada. Mostrando resumen.");
                     showNotification("Archivos subidos con éxito", false);
                     renderSummary();
                     showSection('summary-section');
                 } catch (error) {
-                    console.error("Error en la subida de archivos:", error);
+                    console.error("--- ERROR DEFINITIVO EN LA SUBIDA ---:", error);
                     let errorMessage = "Un error impidió subir los archivos. Por favor, inténtalo de nuevo.";
                     if (error.code === 'storage/unauthorized') {
-                        errorMessage = "ERROR DE PERMISOS: Firebase está bloqueando la subida. Revisa las Reglas de Storage.";
+                        errorMessage = "ERROR DE PERMISOS: Firebase está bloqueando la subida. Revisa las Reglas de Storage en tu proyecto.";
                     }
                     showNotification(errorMessage);
                 } finally {
@@ -653,8 +649,8 @@
 
                 try {
                     await sendOrderToGoogleSheet();
-                    showPaymentDetails();
                     showSection('payment-section');
+                    showPaymentDetails();
                 } catch (error) {
                     console.error("Error al registrar el pedido en Google Sheets:", error);
                     showNotification("No se pudo registrar tu pedido. Inténtalo de nuevo.");
@@ -664,31 +660,22 @@
             document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
             
             document.getElementById('finish-purchase-btn').addEventListener('click', () => {
-                const whatsappNumber = '56946902340'; // Reemplazar con tu número
+                const whatsappNumber = '56946902340'; // Replace with your number
                 const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. (ID: ${orderState.orderId}) 🐾`);
                 const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
                 window.open(whatsappUrl, '_blank');
             });
             
-            // --- INICIALIZACIÓN DE LA APLICACIÓN ---
-            try {
-                const docRef = doc(db, "config", "paymentMethods");
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    paymentConfig = docSnap.data();
-                } else {
-                    console.warn("Documento de métodos de pago no encontrado en Firestore.");
-                }
-            } catch(e) {
-                console.error("Error al cargar configuración de pago:", e);
-                showNotification("No se pudo cargar la info de pago.");
-            }
-
+            // --- INICIALIZACIÓN ---
+            const docRef = doc(db, "config", "paymentMethods");
+            getDoc(docRef).then(docSnap => {
+                if (docSnap.exists()) paymentConfig = docSnap.data();
+            });
             populateRegions();
-            await loadCollection("gallery", "gallery-grid", (data) => `<div class="rounded-lg overflow-hidden shadow-lg aspect-square"><img src="${data.imageUrl}" alt="Obra de arte de mascota" class="w-full h-full object-cover"></div>`);
+            await loadCollection("gallery", "gallery-grid", (data) => `<div class="rounded-lg overflow-hidden shadow-lg aspect-square"><img src="${data.imageUrl}" alt="Obra de arte" class="w-full h-full object-cover"></div>`);
             const categoriesLoaded = await loadCollection("categories", "category-grid", (data) => `
                 <div class="category-card rounded-xl cursor-pointer flex flex-col text-center" 
-                     data-category='${JSON.stringify(data)}'>
+                    data-category='${JSON.stringify(data)}'>
                     <div class="p-6 flex flex-col flex-grow items-center">
                         <div class="text-6xl mb-4">${data.icon || '🐾'}</div>
                         <h3 class="text-xl font-bold mb-1">${data.name}</h3>
