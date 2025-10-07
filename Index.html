@@ -359,6 +359,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, uploadString } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDR42aJIpDkXL5T2vgj-J2ceZFVZCqzCms",
@@ -372,6 +373,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
         // --- LÓGICA DE LA APLICACIÓN ---
         
@@ -392,7 +394,8 @@
                 comuna: '',
                 address: '',
                 cost: 0,
-            }
+            },
+            firebaseFolderUrl: '' // Almacenará el enlace a la carpeta de Firebase
         };
 
         let paymentConfig = {}; 
@@ -574,35 +577,64 @@
             }
             return `${prefix}-${result}`;
         }
-        
-        // --- NUEVA LÓGICA DE SUBIDA A APPS SCRIPT ---
-        function getFilesAsBase64() {
+
+        async function uploadFilesToFirebase(orderId) {
+            const buttonText = document.getElementById('to-summary-btn-text');
             const photoInput = orderState.hasVideo ? document.getElementById('photo-input-multi') : document.getElementById('photo-input-only');
             const videoInput = orderState.hasVideo ? document.getElementById('video-input-multi') : null;
 
-            const filePromises = [];
-            const allFiles = [...photoInput.files];
+            const filesToUpload = [...photoInput.files];
             if (videoInput) {
-                allFiles.push(...videoInput.files);
+                filesToUpload.push(...videoInput.files);
             }
 
-            allFiles.forEach(file => {
-                const promise = new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        const base64String = event.target.result.split(',')[1];
-                        resolve({
-                            fileName: file.name,
-                            mimeType: file.type,
-                            data: base64String
-                        });
-                    };
-                    reader.onerror = (error) => reject(error);
-                    reader.readAsDataURL(file);
-                });
-                filePromises.push(promise);
+            const uploadPromises = [];
+
+            // Subir archivos de imagen y video
+            for (let i = 0; i < filesToUpload.length; i++) {
+                const file = filesToUpload[i];
+                const filePath = `pedidos/${orderId}/${file.name}`;
+                const fileRef = ref(storage, filePath);
+                
+                buttonText.textContent = `Subiendo ${i + 1} de ${filesToUpload.length}...`;
+                uploadPromises.push(uploadBytes(fileRef, file));
+            }
+            
+            // Subir archivos de texto
+            if (!orderState.surpriseMe) {
+                if (orderState.shortText) {
+                    const textRef = ref(storage, `pedidos/${orderId}/texto_corto.txt`);
+                    uploadPromises.push(uploadString(textRef, orderState.shortText));
+                }
+                if (orderState.longText) {
+                    const textRef = ref(storage, `pedidos/${orderId}/historia.txt`);
+                    uploadPromises.push(uploadString(textRef, orderState.longText));
+                }
+            }
+
+            await Promise.all(uploadPromises);
+        }
+        
+        async function sendOrderToGoogleSheet() {
+            const formData = new FormData();
+            formData.append('Timestamp', new Date().toISOString());
+            formData.append('ID de Pedido', orderState.orderId);
+            formData.append('Categoria', orderState.category);
+            formData.append('Nombre Mascota', orderState.petName);
+            formData.append('Edad Mascota', orderState.petAge);
+            formData.append('Nombre Cliente', orderState.clientName || '');
+            formData.append('Dirección', `${orderState.shipping.address}, ${orderState.shipping.comuna}, ${orderState.shipping.region}`);
+            formData.append('Telefono', orderState.clientPhone || '');
+            formData.append('Costo Envio', orderState.shipping.cost);
+            formData.append('Total Pagado', orderState.basePrice + orderState.shipping.cost);
+            formData.append('Texto Corto', orderState.surpriseMe ? '¡Sorpréndeme!' : orderState.shortText);
+            formData.append('Historia', orderState.surpriseMe ? '¡Sorpréndeme!' : orderState.longText);
+            formData.append('Enlace a Archivos', orderState.firebaseFolderUrl);
+
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: formData
             });
-            return Promise.all(filePromises);
         }
         
         document.addEventListener('DOMContentLoaded', async () => {
@@ -644,6 +676,7 @@
                     <p><strong>Mascota:</strong> ${orderState.petName}, ${orderState.petAge} años</p>
                     <p><strong>ID de Pedido:</strong> ${orderState.orderId}</p>
                     <p><strong>Textos:</strong> ${orderState.surpriseMe ? '¡Sorpréndeme! Equipo elegirá los textos.' : 'Personalizados por el cliente.'}</p>
+                    <p><strong>Archivos:</strong> <a href="${orderState.firebaseFolderUrl}" target="_blank" class="text-cyan-400 underline">Ver Archivos del Pedido</a></p>
                 `;
                 document.getElementById('summary-content').innerHTML = content;
             }
@@ -771,54 +804,36 @@
                 const button = e.currentTarget;
                 const buttonText = document.getElementById('to-summary-btn-text');
                 const spinner = document.getElementById('to-summary-btn-spinner');
-                
-                if (GOOGLE_SCRIPT_URL === 'PEGA_AQUI_TU_NUEVA_URL_DE_APPS_SCRIPT') {
-                    showNotification('Error de configuración: La URL de subida no está definida.');
+
+                const photoInput = orderState.hasVideo ? document.getElementById('photo-input-multi') : document.getElementById('photo-input-only');
+                if (photoInput.files.length === 0) {
+                    showNotification('Por favor, selecciona al menos una foto.');
                     return;
                 }
                 
                 button.disabled = true;
-                buttonText.textContent = 'Procesando archivos...';
                 spinner.classList.remove('hidden');
 
                 try {
-                    const files = await getFilesAsBase64();
-                    
-                    if(files.length === 0) {
-                        showNotification("Por favor, selecciona al menos un archivo.");
-                        throw new Error("No files selected"); // Detiene la ejecución
-                    }
-                    
                     orderState.shortText = shortTextArea.value;
                     orderState.longText = longTextArea.value;
                     orderState.surpriseMe = surpriseCheckbox.checked;
 
-                    const payload = {
-                        ...orderState,
-                        files: files,
-                    };
-
-                    const response = await fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify(payload),
-                    });
-
-                    if (!response.ok) throw new Error(`Error del servidor: ${response.statusText}`);
-
-                    const result = await response.json();
-
-                    if (result.status === "success") {
-                        showNotification("Archivos subidos con éxito", false);
-                        renderSummary();
-                        showSection('summary-section');
-                    } else {
-                        throw new Error(result.message || 'Error desconocido en el script.');
-                    }
+                    await uploadFilesToFirebase(orderState.orderId);
+                    
+                    orderState.firebaseFolderUrl = `https://console.firebase.google.com/project/${firebaseConfig.projectId}/storage/${firebaseConfig.storageBucket}/files~2Fpedidos~2F${orderState.orderId}`;
+                    
+                    showNotification("Archivos subidos con éxito", false);
+                    renderSummary();
+                    showSection('summary-section');
 
                 } catch (error) {
-                    console.error("Error al procesar y subir archivos:", error);
-                    showNotification(error.message === "No files selected" ? error.message : "Hubo un error al subir tus archivos. Intenta de nuevo.");
+                    console.error("Error al subir los archivos:", error);
+                    if (error.code === 'storage/unauthorized') {
+                        showNotification("ERROR DE PERMISOS. Ve a Firebase > Storage > Reglas y asegúrate de que estén publicadas correctamente.");
+                    } else {
+                        showNotification("Hubo un error al subir tus archivos. Inténtalo de nuevo.");
+                    }
                 } finally {
                     button.disabled = false;
                     buttonText.textContent = 'Continuar al Resumen';
@@ -828,7 +843,7 @@
 
             document.getElementById('back-to-upload').addEventListener('click', () => showSection('upload-section'));
             
-            document.getElementById('to-payment-section').addEventListener('click', () => {
+            document.getElementById('to-payment-section').addEventListener('click', async () => {
                 const clientName = document.getElementById('client-name-input').value.trim();
                 const clientPhone = document.getElementById('client-phone-input').value.trim();
                 const region = document.getElementById('region-select').value;
@@ -853,45 +868,24 @@
                 orderState.shipping.comuna = comuna;
                 orderState.shipping.address = address;
 
-                showSection('payment-section');
-                showPaymentDetails();
+                // Enviar datos a Google Sheet aquí, ANTES de ir al pago
+                try {
+                    await sendOrderToGoogleSheet();
+                    showSection('payment-section');
+                    showPaymentDetails();
+                } catch (error) {
+                    console.error("Error al registrar el pedido en Google Sheets:", error);
+                    showNotification("No se pudo registrar tu pedido. Inténtalo de nuevo.");
+                }
             });
 
             document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
             
-            document.getElementById('finish-purchase-btn').addEventListener('click', async (e) => {
-                const button = e.currentTarget;
-                const buttonText = document.getElementById('finish-purchase-btn-text');
-                const spinner = document.getElementById('finish-purchase-btn-spinner');
-
-                button.disabled = true;
-                buttonText.textContent = 'Registrando...';
-                spinner.classList.remove('hidden');
-
-                const newTab = window.open('', '_blank');
-                if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
-                    showNotification('Por favor, permite las ventanas emergentes para este sitio.');
-                    button.disabled = false;
-                    buttonText.textContent = 'Finalizar Compra y Enviar Comprobante';
-                    spinner.classList.add('hidden');
-                    return;
-                }
-                newTab.document.write('<p>Registrando tu pedido, por favor espera...</p>');
-
-                try {
-                    const whatsappNumber = '56946902340';
-                    const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. (ID: ${orderState.orderId}) 🐾`);
-                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
-                    newTab.location.href = whatsappUrl;
-                } catch (error) {
-                    console.error('Error al finalizar la compra:', error);
-                    showNotification('Tu pedido no se pudo registrar. Por favor, contáctanos.');
-                    newTab.close();
-                } finally {
-                    button.disabled = false;
-                    buttonText.textContent = 'Finalizar Compra y Enviar Comprobante';
-                    spinner.classList.add('hidden');
-                }
+            document.getElementById('finish-purchase-btn').addEventListener('click', (e) => {
+                const whatsappNumber = '56946902340';
+                const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. (ID: ${orderState.orderId}) 🐾`);
+                const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
+                window.open(whatsappUrl, '_blank');
             });
             
             // --- INICIALIZACIÓN DE LA APP ---
