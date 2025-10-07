@@ -14,14 +14,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Estilos base y de diseño inspirados en la imagen */
+        /* Estilos base y de diseño inspirados en los requerimientos */
         body {
             background: linear-gradient(135deg, #2b1634, #1f143a);
             font-family: 'Fredoka', sans-serif;
+            color: #F0F0F0;
             scroll-behavior: smooth;
         }
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+        }
         .main-button {
-            background: linear-gradient(90deg, #8E2DE2, #4A00E0);
+            background: linear-gradient(90deg, #4A00E0, #8E2DE2);
             box-shadow: 0 0 15px rgba(142, 45, 226, 0.6);
             transition: all 0.3s ease-in-out;
         }
@@ -32,6 +36,8 @@
         .main-button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 0 15px rgba(142, 45, 226, 0.6);
         }
         .secondary-button {
             background-color: rgba(255, 255, 255, 0.1);
@@ -100,10 +106,11 @@
         }
         .paw-bg-container img {
             position: absolute;
-            opacity: 0.2; /* Ajustado según requerimiento */
+            opacity: 0.2;
             filter: brightness(1.2);
+            pointer-events: none;
         }
-        /* Estilos para la nueva galería de miniaturas */
+        /* Estilos para la galería de miniaturas */
         .thumbnail-image {
             width: 50px;
             height: 50px;
@@ -111,44 +118,30 @@
             border-radius: 8px;
             cursor: pointer;
             border: 2px solid transparent;
-            transition: border-color 0.3s ease;
+            transition: border-color 0.3s ease, transform 0.3s ease;
         }
         .thumbnail-image.active {
-            border-color: #00FFFF; /* Color de acento cian */
+            border-color: #00FFFF;
+            transform: scale(1.1);
         }
     </style>
 </head>
 <body class="text-[#F0F0F0] antialiased overflow-x-hidden">
 
-    <!-- Mensaje de Error de Configuración de Firebase -->
-    <div id="firebase-error-overlay" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center text-center p-4">
-        <div class="bg-red-900 border border-red-500 p-8 rounded-lg max-w-lg">
-            <h2 class="text-2xl font-bold text-yellow-300 mb-4">¡Error de Configuración!</h2>
-            <p class="text-white">Parece que la aplicación no está conectada a Firebase. Por favor, sigue estos pasos:</p>
-            <ol class="text-left text-white list-decimal list-inside my-4 space-y-2">
-                <li>Ve a tu proyecto en la <a href="https://console.firebase.google.com/" target="_blank" class="underline text-cyan-400">Consola de Firebase</a>.</li>
-                <li>Haz clic en el ícono de engranaje (⚙️) y ve a "Configuración del proyecto".</li>
-                <li>En la pestaña "General", en la sección "Tus apps", copia el objeto <strong>firebaseConfig</strong>.</li>
-                <li>Pega ese objeto en el archivo <strong>index.html</strong>, reemplazando los valores de ejemplo.</li>
-            </ol>
-            <p class="text-gray-300 text-sm">El código no funcionará hasta que se complete este paso.</p>
-        </div>
-    </div>
-
     <!-- Huellas Decorativas de Fondo -->
     <div class="paw-bg-container">
-        <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" alt="huella" style="width: 15%; top: 10%; left: 5%; transform: rotate(-20deg);">
-        <img src="https://i.ibb.co/mFSBSN3X/huellas-2.png" alt="huella" style="width: 10%; top: 20%; right: 10%; transform: rotate(15deg);">
-        <img src="https://i.ibb.co/vx7Wb795/huellas.png" alt="huella" style="width: 8%; bottom: 15%; left: 20%; transform: rotate(30deg);">
-        <img src="https://i.ibb.co/ttbd6wP/huellas-4.png" alt="huella" style="width: 12%; bottom: 5%; right: 15%; transform: rotate(-10deg);">
-        <img src="https://i.ibb.co/MDZYf540/huellas-6.png" alt="huella" style="width: 9%; top: 55%; left: 10%; transform: rotate(5deg);">
-        <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" alt="huella" style="width: 7%; top: 70%; right: 5%; transform: rotate(25deg);">
+        <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" alt="huella decorativa" style="width: 15%; top: 10%; left: 5%; transform: rotate(-20deg);">
+        <img src="https://i.ibb.co/mFSBSN3X/huellas-2.png" alt="huella decorativa" style="width: 10%; top: 20%; right: 10%; transform: rotate(15deg);">
+        <img src="https://i.ibb.co/vx7Wb795/huellas.png" alt="huella decorativa" style="width: 8%; bottom: 15%; left: 20%; transform: rotate(30deg);">
+        <img src="https://i.ibb.co/ttbd6wP/huellas-4.png" alt="huella decorativa" style="width: 12%; bottom: 5%; right: 15%; transform: rotate(-10deg);">
+        <img src="https://i.ibb.co/MDZYf540/huellas-6.png" alt="huella decorativa" style="width: 9%; top: 55%; left: 10%; transform: rotate(5deg);">
+        <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" alt="huella decorativa" style="width: 7%; top: 70%; right: 5%; transform: rotate(25deg);">
     </div>
 
     <!-- Header Fijo -->
     <header class="fixed top-0 left-0 right-0 z-50">
         <nav class="container mx-auto px-6 py-4 bg-black/20 backdrop-blur-md flex items-center justify-center md:justify-start">
-            <img id="header-logo" src="https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png" alt="Logo" class="h-10 w-10 mr-3 rounded-full">
+            <img id="header-logo" src="https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png" alt="Logo Las Huellitas de mi Vida" class="h-10 w-10 mr-3 rounded-full">
             <h1 class="text-xl font-bold tracking-wider">Las Huellitas de mi Vida</h1>
         </nav>
     </header>
@@ -158,7 +151,7 @@
 
         <!-- PASO 1: Página Principal (Hero) -->
         <section id="home-section" class="text-center section-fade-in">
-            <h2 class="text-4xl md:text-5xl font-bold mt-8 mb-4" style="font-weight: 700;">Cada huella cuenta una historia&nbsp;🐾</h2>
+            <h2 class="text-4xl md:text-5xl font-bold mt-8 mb-4">Cada huella cuenta una historia&nbsp;🐾</h2>
             <p class="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">Transformemos tus recuerdos más preciados en una obra de arte inolvidable.</p>
             <div class="my-8 flex justify-center">
                 <img id="hero-image" src="https://i.ibb.co/0jRX3VX2/PORTADA-HUELLitas-3.png" alt="Collage de mascotas" class="max-w-md w-full rounded-2xl shadow-2xl">
@@ -169,16 +162,16 @@
 
             <!-- SECCIÓN DE GALERÍA -->
             <div id="gallery-section" class="mt-24">
-                 <h2 class="text-4xl font-bold mt-8 mb-8" style="font-weight: 700;">Nuestras Obras Recientes&nbsp;🐾</h2>
-                 <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-                     <!-- Las imágenes de la galería se cargarán aquí -->
-                 </div>
+                <h2 class="text-4xl font-bold mt-8 mb-8">Nuestras Obras Recientes&nbsp;🐾</h2>
+                <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+                    <!-- Las imágenes de la galería se cargarán aquí -->
+                </div>
             </div>
         </section>
 
         <!-- PASO 2: Selección de Categoría -->
         <section id="category-section" class="hidden text-center section-fade-in">
-            <h2 class="text-4xl font-bold mt-8 mb-8" style="font-weight: 700;">¿Qué historia vamos a contar hoy?&nbsp;🐾</h2>
+            <h2 class="text-4xl font-bold mt-8 mb-8">¿Qué historia vamos a contar hoy?&nbsp;🐾</h2>
             <div id="category-grid" class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                 <!-- Las categorías se cargarán aquí desde Firebase -->
             </div>
@@ -187,100 +180,96 @@
         <!-- PASO 3: Formulario Datos de la Mascota -->
         <section id="pet-info-section" class="hidden section-fade-in">
              <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
-                 <!-- Contenedor para la imagen del producto seleccionado -->
-                 <div class="flex justify-center mb-4">
-                     <img id="product-image-preview" src="" alt="Producto seleccionado" class="rounded-lg max-h-40 shadow-lg">
-                 </div>
-                 <!-- NUEVO: Contenedor para las miniaturas -->
-                 <div id="thumbnail-container" class="flex justify-center gap-2 mb-6">
-                     <!-- Las miniaturas se generarán aquí con JavaScript -->
-                 </div>
-                 <h2 id="pet-info-title" class="text-3xl font-bold text-center mb-6" style="font-weight: 700;">Datos de tu Mascota</h2>
-                 <div class="space-y-6">
-                     <div>
-                         <label for="pet-name" class="block text-sm font-medium text-[#00FFFF] mb-1">Nombre de tu mascota</label>
-                         <input type="text" id="pet-name" class="form-input w-full p-3 rounded-lg text-white" placeholder="Ej: Tatán" autocomplete="off">
-                     </div>
-                     <div>
-                         <label for="pet-age" class="block text-sm font-medium text-[#00FFFF] mb-1">Edad (en años humanos)</label>
-                         <input type="number" id="pet-age" class="form-input w-full p-3 rounded-lg text-white" placeholder="Ej: 2" autocomplete="off">
-                     </div>
-                     <div class="flex justify-between items-center pt-4">
-                         <button id="back-to-category" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
-                         <button id="to-upload-section" class="main-button text-white font-bold py-2 px-6 rounded-full">Continuar</button>
-                     </div>
-                 </div>
+                <div class="flex justify-center mb-4">
+                    <img id="product-image-preview" src="" alt="Producto seleccionado" class="rounded-lg max-h-40 shadow-lg">
+                </div>
+                <div id="thumbnail-container" class="flex justify-center gap-2 mb-6">
+                    <!-- Las miniaturas se generarán aquí con JavaScript -->
+                </div>
+                <h2 id="pet-info-title" class="text-3xl font-bold text-center mb-6">Datos de tu Mascota</h2>
+                <div class="space-y-6">
+                    <div>
+                        <label for="pet-name" class="block text-sm font-medium text-[#00FFFF] mb-1">Nombre de tu mascota</label>
+                        <input type="text" id="pet-name" class="form-input w-full p-3 rounded-lg text-white" placeholder="Ej: Tatán" autocomplete="off">
+                    </div>
+                    <div>
+                        <label for="pet-age" class="block text-sm font-medium text-[#00FFFF] mb-1">Edad (en años humanos)</label>
+                        <input type="number" id="pet-age" class="form-input w-full p-3 rounded-lg text-white" placeholder="Ej: 2" autocomplete="off">
+                    </div>
+                    <div class="flex justify-between items-center pt-4">
+                        <button id="back-to-category" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
+                        <button id="to-upload-section" class="main-button text-white font-bold py-2 px-6 rounded-full">Continuar</button>
+                    </div>
+                </div>
              </div>
         </section>
 
-        <!-- PASO 4: Formulario Carga de Archivos (VUELVE EL ORIGINAL) -->
+        <!-- PASO 4: Formulario Carga de Archivos -->
         <section id="upload-section" class="hidden section-fade-in">
              <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
-                 <h2 class="text-3xl font-bold text-center mb-6" style="font-weight: 700;">Ahora, sube tus recuerdos&nbsp;🐾</h2>
-                
-                 <div id="video-choice-container" class="text-center">
-                     <p class="text-[#00FFFF] mb-4">¿Incluirás videos en tu homenaje?</p>
-                     <div class="flex justify-center gap-4">
-                         <button id="has-video-btn" class="main-button font-bold py-3 px-6 rounded-full">Sí, tengo videos&nbsp;🎬</button>
-                         <button id="no-video-btn" class="secondary-button font-bold py-3 px-6 rounded-full">No, usaré solo fotos&nbsp;🖼️</button>
-                     </div>
-                 </div>
+                <h2 class="text-3xl font-bold text-center mb-6">Ahora, sube tus recuerdos&nbsp;🐾</h2>
+            
+                <div id="video-choice-container" class="text-center">
+                    <p class="text-[#00FFFF] mb-4">¿Incluirás videos en tu homenaje?</p>
+                    <div class="flex justify-center gap-4">
+                        <button id="has-video-btn" class="main-button font-bold py-3 px-6 rounded-full">Sí, tengo videos&nbsp;🎬</button>
+                        <button id="no-video-btn" class="secondary-button font-bold py-3 px-6 rounded-full">No, usaré solo fotos&nbsp;🖼️</button>
+                    </div>
+                </div>
 
-                 <div id="file-inputs-container" class="hidden space-y-6 mt-6">
-                     <div id="photos-and-video-upload" class="hidden space-y-4">
-                         <div>
-                             <label for="photo-input-multi" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga hasta 10 fotos</label>
-                             <input type="file" id="photo-input-multi" multiple accept="image/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
-                         </div>
-                         <div>
-                             <label for="video-input-multi" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga tus videos</label>
-                             <input type="file" id="video-input-multi" multiple accept="video/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
-                         </div>
-                     </div>
-                      <div id="photos-only-upload" class="hidden">
-                         <label for="photo-input-only" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga hasta 20 fotos</label>
-                         <p class="text-xs text-gray-400 mb-2">Con ellas crearemos un video emotivo para el QR de tu obra.</p>
-                         <input type="file" id="photo-input-only" multiple accept="image/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
-                     </div>
+                <div id="file-inputs-container" class="hidden space-y-6 mt-6">
+                    <div id="photos-and-video-upload" class="hidden space-y-4">
+                        <div>
+                            <label for="photo-input-multi" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga hasta 10 fotos</label>
+                            <input type="file" id="photo-input-multi" multiple accept="image/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                        </div>
+                        <div>
+                            <label for="video-input-multi" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga tus videos</label>
+                            <input type="file" id="video-input-multi" multiple accept="video/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                        </div>
+                    </div>
+                     <div id="photos-only-upload" class="hidden">
+                        <label for="photo-input-only" class="block text-sm font-medium text-[#00FFFF] mb-2">Carga hasta 20 fotos</label>
+                        <p class="text-xs text-gray-400 mb-2">Con ellas crearemos un video emotivo para el QR de tu obra.</p>
+                        <input type="file" id="photo-input-only" multiple accept="image/*" class="form-input w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                    </div>
 
-                     <div>
-                         <label for="short-text" class="block text-sm font-medium text-[#00FFFF] mb-1">Texto Corto (Opcional)</label>
-                         <textarea id="short-text" rows="3" class="form-textarea w-full p-3 rounded-lg text-white" placeholder="Una frase o fecha especial..."></textarea>
-                         <p id="short-text-counter" class="text-xs text-right text-gray-400 mt-1">0 / 150</p>
-                     </div>
-                     <div>
-                         <label for="long-text" class="block text-sm font-medium text-[#00FFFF] mb-1">Tu Historia (Opcional)</label>
-                         <textarea id="long-text" rows="5" class="form-textarea w-full p-3 rounded-lg text-white" placeholder="Cuéntanos un poco sobre tu amiguito, sus gustos, alguna anéctoda..."></textarea>
-                         <p id="long-text-counter" class="text-xs text-right text-gray-400 mt-1">0 / 400</p>
-                     </div>
-                     <div class="flex items-center space-x-3 p-3 bg-yellow-900/20 rounded-lg">
-                         <input id="surprise-me-checkbox" type="checkbox" class="h-5 w-5 rounded bg-transparent border-yellow-400 text-yellow-500 focus:ring-yellow-600">
-                         <label for="surprise-me-checkbox" class="font-bold text-yellow-300">¡Sorpréndeme!&nbsp;🐾</label>
-                     </div>
-                      <p id="surprise-me-text" class="text-xs text-yellow-400 hidden">Al marcar esta opción, con mucho respeto, empatía y amor, buscaremos el texto adecuado para tu obra.</p>
+                    <div>
+                        <label for="short-text" class="block text-sm font-medium text-[#00FFFF] mb-1">Texto Corto (Opcional)</label>
+                        <textarea id="short-text" rows="3" class="form-textarea w-full p-3 rounded-lg text-white" placeholder="Una frase o fecha especial..."></textarea>
+                    </div>
+                    <div>
+                        <label for="long-text" class="block text-sm font-medium text-[#00FFFF] mb-1">Tu Historia (Opcional)</label>
+                        <textarea id="long-text" rows="5" class="form-textarea w-full p-3 rounded-lg text-white" placeholder="Cuéntanos un poco sobre tu amiguito, sus gustos, alguna anécdota..."></textarea>
+                    </div>
+                    <div class="flex items-center space-x-3 p-3 bg-yellow-900/20 rounded-lg">
+                        <input id="surprise-me-checkbox" type="checkbox" class="h-5 w-5 rounded bg-transparent border-yellow-400 text-yellow-500 focus:ring-yellow-600">
+                        <label for="surprise-me-checkbox" class="font-bold text-yellow-300">¡Sorpréndeme!&nbsp;🐾</label>
+                    </div>
+                     <p id="surprise-me-text" class="text-xs text-yellow-400 hidden">Al marcar esta opción, con mucho respeto, empatía y amor, buscaremos el texto adecuado para tu obra.</p>
 
-                     <div class="flex justify-between items-center pt-4">
-                         <button id="back-to-pet-info" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
-                         <button id="to-summary-section" class="main-button text-white font-bold py-2 px-6 rounded-full flex items-center justify-center">
-                            <span id="to-summary-btn-text">Continuar al Resumen</span>
-                            <svg id="to-summary-btn-spinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                         </button>
-                     </div>
-                 </div>
+                    <div class="flex justify-between items-center pt-4">
+                        <button id="back-to-pet-info" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
+                        <button id="to-summary-section" class="main-button text-white font-bold py-2 px-6 rounded-full flex items-center justify-center">
+                             <span id="to-summary-btn-text">Subir archivos y continuar</span>
+                             <svg id="to-summary-btn-spinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                             </svg>
+                        </button>
+                    </div>
+                </div>
              </div>
         </section>
 
         <!-- PASO 5: Resumen y Despacho -->
         <section id="summary-section" class="hidden section-fade-in">
             <div class="max-w-xl mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
-                <h2 class="text-3xl font-bold text-center mb-6" style="font-weight: 700;">Revisa tu Pedido</h2>
+                <h2 class="text-3xl font-bold text-center mb-6">Revisa tu Pedido</h2>
                 <div id="summary-content" class="space-y-4 mb-8 p-4 bg-white/5 rounded-lg">
-                    <!-- El resumen se inyectará aquí con JS -->
+                    <!-- Contenido del resumen se genera aquí -->
                 </div>
-                <h3 class="text-2xl font-bold text-center mb-4" style="font-weight: 700;">Información de Despacho</h3>
+                <h3 class="text-2xl font-bold text-center mb-4">Información de Despacho</h3>
                 <div id="shipping-form" class="space-y-4">
                     <div>
                         <label for="client-name-input" class="block text-sm font-medium text-[#00FFFF] mb-1">Tu Nombre Completo</label>
@@ -315,19 +304,18 @@
         <!-- PASO 6: Pago Y CONFIRMACIÓN FINAL -->
         <section id="payment-section" class="hidden section-fade-in">
             <div class="max-w-xl mx-auto bg-black/20 p-8 rounded-xl border border-white/10 text-center">
-                <h2 class="text-3xl font-bold mb-2" style="font-weight: 700;">¡Estás a un paso de terminar!</h2>
-                <p class="text-gray-300 mb-6">Realiza tu pago a través de los siguientes medios. Una vez listo, vuelve aquí y presiona "Finalizar Compra" para enviarnos tu comprobante.</p>
+                <h2 class="text-3xl font-bold mb-2">¡Estás a un paso de terminar!</h2>
+                <p class="text-gray-300 mb-6">Realiza tu pago a través de los siguientes medios. Una vez listo, vuelve y presiona "Finalizar Compra" para enviarnos tu comprobante.</p>
                 <div id="payment-details" class="grid md:grid-cols-2 gap-8 items-center">
-                    <!-- Contenido de pago se cargará aquí dinámicamente -->
                     <div class="flex flex-col items-center">
                         <h3 class="text-xl font-bold mb-2 text-[#00FFFF]">Paga con QR Mercado Pago</h3>
                         <div id="qr-code-container" class="bg-white p-2 rounded-lg h-48 w-48 flex items-center justify-center text-center">
-                             <p class="text-xs text-gray-800">Cargando QR...</p>
+                            <!-- QR se carga aquí -->
                         </div>
                     </div>
                     <div id="transfer-details-container" class="text-left bg-white/5 p-4 rounded-lg">
                         <h3 class="text-xl font-bold mb-3 text-[#00FFFF]">Datos para Transferencia</h3>
-                        <!-- Datos se cargarán aquí -->
+                        <!-- Datos de transferencia se cargan aquí -->
                     </div>
                 </div>
                 <div class="mt-8">
@@ -336,10 +324,6 @@
                 <div class="mt-8">
                     <button id="finish-purchase-btn" class="main-button inline-flex items-center justify-center text-white font-bold py-3 px-8 rounded-full text-lg w-full md:w-auto">
                         <span id="finish-purchase-btn-text">Finalizar Compra y Enviar Comprobante</span>
-                        <svg id="finish-purchase-btn-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
                     </button>
                 </div>
                  <div class="mt-6">
@@ -351,16 +335,17 @@
     </main>
 
     <!-- Notificación Toast -->
-    <div id="toast-notification" class="hidden fixed bottom-5 right-5 bg-red-500 text-white py-3 px-6 rounded-full shadow-lg text-center z-[100] opacity-0 transition-opacity duration-300">
+    <div id="toast-notification" class="hidden fixed bottom-5 right-5 bg-red-500 text-white py-3 px-6 rounded-full shadow-lg text-center z-[100] opacity-0 transition-all duration-300">
         <p id="toast-message"></p>
     </div>
     
-    <!-- Firebase SDK (versiones actualizadas) -->
     <script type="module">
+        // --- IMPORTS DE FIREBASE ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, uploadString } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+        import { getStorage, ref, uploadString, uploadBytes } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
+        // --- CONFIGURACIÓN DE FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyDR42aJIpDkXL5T2vgj-J2ceZFVZCqzCms",
             authDomain: "las-huellitas-de-mi-vida.firebaseapp.com",
@@ -371,200 +356,61 @@
             measurementId: "G-0QB83X7TBC"
         };
 
+        // --- INICIALIZACIÓN DE SERVICIOS ---
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const storage = getStorage(app);
-
-        // --- LÓGICA DE LA APLICACIÓN ---
         
+        // --- ESTADO GLOBAL DE LA APLICACIÓN ---
         const orderState = {
-            category: '',
-            basePrice: 0,
-            imageUrls: [], 
-            petName: '',
-            petAge: '',
-            clientName: '',
-            clientPhone: '',
-            orderId: '', 
-            shortText: '',
-            longText: '',
-            surpriseMe: false,
-            shipping: {
-                region: '',
-                comuna: '',
-                address: '',
-                cost: 0,
-            },
-            firebaseFolderUrl: '' // Almacenará el enlace a la carpeta de Firebase
+            category: '', basePrice: 0, imageUrls: [], petName: '', petAge: '',
+            clientName: '', clientPhone: '', orderId: '', shortText: '', longText: '',
+            surpriseMe: false, shipping: { region: '', comuna: '', address: '', cost: 0, },
+            firebaseFolderUrl: '', hasVideo: null,
         };
 
         let paymentConfig = {}; 
         
+        // --- CONSTANTES ---
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxUFrThwhSwv6MyAG_hjGeeRcNPP8d80TLIYmZXo4U7JI1IDlvBt4QmBouveySlLNJbyA/exec'; 
         
+        // --- FUNCIONES UTILITARIAS ---
         const sections = document.querySelectorAll('main > section');
         
         function showSection(sectionId) {
             sections.forEach(section => section.classList.add('hidden'));
-            const activeSection = document.getElementById(sectionId);
-            if (activeSection) {
-                activeSection.classList.remove('hidden');
-                window.scrollTo(0, 0);
-            }
+            document.getElementById(sectionId)?.classList.remove('hidden');
+            window.scrollTo(0, 0);
         }
 
         function showNotification(message, isError = true) {
             const toast = document.getElementById('toast-notification');
             const toastMessage = document.getElementById('toast-message');
-
             toastMessage.textContent = message;
-            toast.classList.remove('hidden');
-            
-            toast.classList.remove('bg-red-500', 'bg-green-500');
+            toast.classList.remove('hidden', 'bg-red-500', 'bg-green-500', 'opacity-0');
             toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
-
-            void toast.offsetWidth; 
-
-            toast.classList.remove('opacity-0');
-
             setTimeout(() => {
                 toast.classList.add('opacity-0');
-                setTimeout(() => toast.classList.add('hidden'), 5000);
+                setTimeout(() => toast.classList.add('hidden'), 300);
             }, 5000);
         }
         
-        function renderProductGallery(urls) {
-            const previewImage = document.getElementById('product-image-preview');
-            const thumbnailContainer = document.getElementById('thumbnail-container');
-            thumbnailContainer.innerHTML = ''; 
-
-            if (!urls || urls.length === 0) {
-                previewImage.src = 'https://placehold.co/400x300/333/FFF?text=Sin+Imagen';
-                return;
-            }
-
-            previewImage.src = urls[0];
-
-            if (urls.length > 1) {
-                urls.forEach((url, index) => {
-                    const thumb = document.createElement('img');
-                    thumb.src = url;
-                    thumb.classList.add('thumbnail-image');
-                    if (index === 0) {
-                        thumb.classList.add('active');
-                    }
-
-                    thumb.addEventListener('click', () => {
-                        previewImage.src = url;
-                        document.querySelectorAll('.thumbnail-image').forEach(t => t.classList.remove('active'));
-                        thumb.classList.add('active');
-                    });
-
-                    thumbnailContainer.appendChild(thumb);
-                });
-            }
-        }
-
-        function getImageUrlsFromCategory(category) {
-            if (category.imageUrls && Array.isArray(category.imageUrls) && category.imageUrls.length > 0) return category.imageUrls;
-            return [];
-        }
-
-        async function loadCategoriesFromFirestore() {
-            const grid = document.getElementById('category-grid');
-            grid.innerHTML = '<p class="text-center col-span-3">Cargando proyectos...</p>';
+        async function loadCollection(collectionName, targetElementId, renderer) {
+            const grid = document.getElementById(targetElementId);
+            grid.innerHTML = `<p class="text-center col-span-full">Cargando...</p>`;
             try {
-                const querySnapshot = await getDocs(collection(db, "categories"));
-                grid.innerHTML = '';
+                const querySnapshot = await getDocs(collection(db, collectionName));
                 if (querySnapshot.empty) {
-                     grid.innerHTML = '<p class="text-yellow-400 text-center col-span-3">No hay proyectos disponibles.</p>';
-                     return;
-                }
-                querySnapshot.forEach((doc) => {
-                    const category = doc.data();
-                    const imageUrls = getImageUrlsFromCategory(category); 
-                    const cardHTML = `
-                        <div class="category-card rounded-xl cursor-pointer flex flex-col text-center" 
-                             data-category="${category.name}" 
-                             data-price="${category.price}" 
-                             data-image-urls='${JSON.stringify(imageUrls)}'>
-                            <div class="p-6 flex flex-col flex-grow items-center">
-                                <div class="text-6xl mb-4">${category.icon || '🐾'}</div>
-                                <h3 class="text-xl font-bold mb-1" style="font-weight: 700;">${category.name}</h3>
-                                <p class="text-gray-400 text-xs mb-2">${category.size}</p>
-                                <p class="text-gray-300 text-sm flex-grow mb-4">${category.description}</p>
-                                <p class="text-2xl font-bold mt-auto text-green-400">$${(category.price || 0).toLocaleString('es-CL')}</p>
-                            </div>
-                        </div>`;
-                    grid.innerHTML += cardHTML;
-                });
-                
-                document.querySelectorAll('.category-card').forEach(card => {
-                    card.addEventListener('click', () => {
-                        try {
-                            orderState.category = card.dataset.category;
-                            orderState.basePrice = parseInt(card.dataset.price);
-                            orderState.imageUrls = JSON.parse(card.dataset.imageUrls); 
-                            renderProductGallery(orderState.imageUrls); 
-                            document.getElementById('pet-info-title').textContent = `Proyecto: ${orderState.category}`;
-                            showSection('pet-info-section');
-                        } catch (e) {
-                            console.error("Error al procesar la categoría:", e);
-                            showNotification("No se pudo cargar el producto. Inténtalo de nuevo.");
-                        }
-                    });
-                });
-
-            } catch (error) {
-                console.error("Error cargando categorías: ", error);
-                const errorBox = document.createElement('div');
-                errorBox.className = "text-red-500 text-center col-span-3 p-4 rounded-lg bg-red-900/50";
-                errorBox.innerHTML = `<strong class="font-bold">Error de Permisos</strong><br>
-                    <p>No se pudieron cargar los proyectos. Para solucionarlo, ve a tu 
-                    <a href="https://console.firebase.google.com/" target="_blank" class="underline text-cyan-300">consola de Firebase</a>, 
-                    entra a <strong>Firestore Database</strong>, ve a la pestaña <strong>Reglas</strong> y 
-                    asegúrate de que esté configurada para permitir la lectura.</p>`;
-                grid.innerHTML = '';
-                grid.appendChild(errorBox);
-            }
-        }
-
-        async function loadGalleryImages() {
-            const grid = document.getElementById('gallery-grid');
-            try {
-                const querySnapshot = await getDocs(collection(db, "gallery"));
-                if (querySnapshot.empty) {
-                    grid.innerHTML = '<p class="text-yellow-400 text-center col-span-full">Aún no hay imágenes en la galería.</p>';
+                    grid.innerHTML = `<p class="text-yellow-400 text-center col-span-full">No hay contenido disponible.</p>`;
                     return;
                 }
                 grid.innerHTML = ''; 
-                querySnapshot.forEach((doc) => {
-                    const imageData = doc.data();
-                    const imgHTML = `
-                        <div class="rounded-lg overflow-hidden shadow-lg aspect-square">
-                            <img src="${imageData.imageUrl}" alt="Obra de arte para mascota" class="w-full h-full object-cover cursor-pointer hover:scale-110 transition-transform duration-300">
-                        </div>`;
-                    grid.innerHTML += imgHTML;
-                });
+                querySnapshot.forEach((doc) => grid.innerHTML += renderer(doc.data(), doc.id));
+                return true;
             } catch (error) {
-                console.error("Error cargando galería: ", error);
-                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar la galería.</p>`;
-            }
-        }
-        
-        async function loadPaymentMethods() {
-            try {
-                const docRef = doc(db, "config", "paymentMethods");
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    paymentConfig = docSnap.data();
-                } else {
-                    console.error("No se encontró el documento de configuración de pagos (config/paymentMethods) en Firestore.");
-                }
-            } catch (error) {
-                console.error("Error al cargar los métodos de pago:", error);
-                showNotification("Error al cargar la información de pago.");
+                console.error(`Error loading ${collectionName}:`, error);
+                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar el contenido. Revisa la conexión con Firebase.</p>`;
+                return false;
             }
         }
 
@@ -577,42 +423,36 @@
             }
             return `${prefix}-${result}`;
         }
-
+        
+        // --- LÓGICA DE NEGOCIO (SUBIDAS, ENVÍOS) ---
         async function uploadFilesToFirebase(orderId) {
-            const buttonText = document.getElementById('to-summary-btn-text');
             const photoInput = orderState.hasVideo ? document.getElementById('photo-input-multi') : document.getElementById('photo-input-only');
             const videoInput = orderState.hasVideo ? document.getElementById('video-input-multi') : null;
 
             const filesToUpload = [...photoInput.files];
-            if (videoInput) {
+            if (videoInput && videoInput.files.length > 0) {
                 filesToUpload.push(...videoInput.files);
             }
 
-            const uploadPromises = [];
-
-            // Subir archivos de imagen y video
-            for (let i = 0; i < filesToUpload.length; i++) {
-                const file = filesToUpload[i];
-                const filePath = `pedidos/${orderId}/${file.name}`;
-                const fileRef = ref(storage, filePath);
-                
-                buttonText.textContent = `Subiendo ${i + 1} de ${filesToUpload.length}...`;
-                uploadPromises.push(uploadBytes(fileRef, file));
+            const textFiles = [];
+            if (!orderState.surpriseMe) {
+                if (orderState.shortText) textFiles.push({ name: 'texto_corto.txt', content: orderState.shortText });
+                if (orderState.longText) textFiles.push({ name: 'historia.txt', content: orderState.longText });
             }
             
-            // Subir archivos de texto
-            if (!orderState.surpriseMe) {
-                if (orderState.shortText) {
-                    const textRef = ref(storage, `pedidos/${orderId}/texto_corto.txt`);
-                    uploadPromises.push(uploadString(textRef, orderState.shortText));
-                }
-                if (orderState.longText) {
-                    const textRef = ref(storage, `pedidos/${orderId}/historia.txt`);
-                    uploadPromises.push(uploadString(textRef, orderState.longText));
-                }
-            }
+            const allPromises = [];
 
-            await Promise.all(uploadPromises);
+            filesToUpload.forEach(file => {
+                const fileRef = ref(storage, `pedidos/${orderId}/${file.name}`);
+                allPromises.push(uploadBytes(fileRef, file));
+            });
+
+            textFiles.forEach(textFile => {
+                const textRef = ref(storage, `pedidos/${orderId}/${textFile.name}`);
+                allPromises.push(uploadString(textRef, textFile.content));
+            });
+            
+            await Promise.all(allPromises);
         }
         
         async function sendOrderToGoogleSheet() {
@@ -631,31 +471,11 @@
             formData.append('Historia', orderState.surpriseMe ? '¡Sorpréndeme!' : orderState.longText);
             formData.append('Enlace a Archivos', orderState.firebaseFolderUrl);
 
-            await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                body: formData
-            });
+            await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
         }
         
         document.addEventListener('DOMContentLoaded', async () => {
-
-            const locations = {
-                "Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"],
-                "Tarapacá": ["Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"],
-                "Antofagasta": ["Antofagasta", "Mejillones", "Sierra Gorda", "Taltal", "Calama", "Ollagüe", "San Pedro de Atacama", "Tocopilla", "María Elena"],
-                "Atacama": ["Copiapó", "Caldera", "Tierra Amarilla", "Chañaral", "Diego de Almagro", "Vallenar", "Alto del Carmen", "Freirina", "Huasco"],
-                "Coquimbo": ["La Serena", "Coquimbo", "Andacollo", "La Higuera", "Paiguano", "Vicuña", "Illapel", "Canela", "Los Vilos", "Salamanca", "Ovalle", "Combarbalá", "Monte Patria", "Punitaqui", "Río Hurtado"],
-                "Valparaíso": ["Valparaíso", "Casablanca", "Concón", "Juan Fernández", "Puchuncaví", "Quintero", "Viña del Mar", "Isla de Pascua", "Los Andes", "Calle Larga", "Rinconada", "San Esteban", "La Ligua", "Cabildo", "Papudo", "Petorca", "Zapallar", "Quillota", "Calera", "Hijuelas", "La Cruz", "Nogales", "San Antonio", "Algarrobo", "Cartagena", "El Quisco", "El Tabo", "Santo Domingo", "San Felipe", "Catemu", "Llaillay", "Panquehue", "Putaendo", "Santa María", "Quilpué", "Limache", "Olmué", "Villa Alemana"],
-                "Metropolitana de Santiago": ["Santiago", "Cerrillos", "Cerro Navia", "Conchalí", "El Bosque", "Estación Central", "Huechuraba", "Independencia", "La Cisterna", "La Florida", "La Granja", "La Pintana", "La Reina", "Las Condes", "Lo Barnechea", "Lo Espejo", "Lo Prado", "Macul", "Maipú", "Ñuñoa", "Pedro Aguirre Cerda", "Peñalolén", "Providencia", "Pudahuel", "Quilicura", "Quinta Normal", "Recoleta", "Renca", "San Joaquín", "San Miguel", "San Ramón", "Vitacura", "Puente Alto", "Pirque", "San José de Maipo", "Colina", "Lampa", "Tiltil", "San Bernardo", "Buin", "Calera de Tango", "Paine", "Melipilla", "Alhué", "Curacaví", "María Pinto", "San Pedro", "Talagante", "El Monte", "Isla de Maipo", "Padre Hurtado", "Peñaflor"],
-                "O'Higgins": ["Rancagua", "Codegua", "Coinco", "Coltauco", "Doñihue", "Graneros", "Las Cabras", "Machalí", "Malloa", "Mostazal", "Olivar", "Peumo", "Pichidegua", "Quinta de Tilcoco", "Rengo", "Requínoa", "San Vicente", "Pichilemu", "La Estrella", "Litueche", "Marchihue", "Navidad", "Paredones", "San Fernando", "Chépica", "Chimbarongo", "Lolol", "Nancagua", "Palmilla", "Peralillo", "Placilla", "Pumanque", "Santa Cruz"],
-                "Maule": ["Talca", "Constitución", "Curepto", "Empedrado", "Maule", "Pelarco", "Pencahue", "Río Claro", "San Clemente", "San Rafael", "Cauquenes", "Chanco", "Pelluhue", "Curicó", "Hualañé", "Licantén", "Molina", "Rauco", "Romeral", "Sagrada Familia", "Teno", "Vichuquén", "Linares", "Colbún", "Longaví", "Parral", "Retiro", "San Javier", "Villa Alegre", "Yerbas Buenas"],
-                "Ñuble": ["Chillán", "Bulnes", "Chillán Viejo", "El Carmen", "Pemuco", "Pinto", "Quillón", "San Ignacio", "Yungay", "Quirihue", "Cobquecura", "Coelemu", "Ninhue", "Portezuelo", "Ránquil", "Treguaco", "San Carlos", "Coihueco", "Ñiquén", "San Fabián", "San Nicolás"],
-                "Biobío": ["Concepción", "Coronel", "Chiguayante", "Florida", "Hualqui", "Lota", "Penco", "San Pedro de la Paz", "Santa Juana", "Talcahuano", "Tomé", "Hualpén", "Lebu", "Arauco", "Cañete", "Contulmo", "Curanilahue", "Los Álamos", "Tirúa", "Los Ángeles", "Antuco", "Cabrero", "Laja", "Mulchén", "Nacimiento", "Negrete", "Quilaco", "Quilleco", "San Rosendo", "Santa Bárbara", "Tucapel", "Yumbel", "Alto Biobío"],
-                "Araucanía": ["Temuco", "Carahue", "Cunco", "Curarrehue", "Freire", "Galvarino", "Gorbea", "Lautaro", "Loncoche", "Melipeuco", "Nueva Imperial", "Padre las Casas", "Perquenco", "Pitrufquén", "Pucón", "Saavedra", "Teodoro Schmidt", "Toltén", "Vilcún", "Villarrica", "Cholchol", "Angol", "Collipulli", "Curacautín", "Ercilla", "Lonquimay", "Los Sauces", "Lumaco", "Purén", "Renaico", "Traiguén", "Victoria"],
-                "Los Ríos": ["Valdivia", "Corral", "Lanco", "Los Lagos", "Máfil", "Mariquina", "Paillaco", "Panguipulli", "La Unión", "Futrono", "Lago Ranco", "Río Bueno"],
-                "Los Lagos": ["Puerto Montt", "Calbuco", "Cochamó", "Fresia", "Frutillar", "Los Muermos", "Llanquihue", "Maullín", "Puerto Varas", "Castro", "Ancud", "Chonchi", "Curaco de Vélez", "Dalcahue", "Puqueldón", "Queilén", "Quellón", "Quemchi", "Quinchao", "Osorno", "Puerto Octay", "Purranque", "Puyehue", "Río Negro", "San Juan de la Costa", "San Pablo", "Chaitén", "Futaleufú", "Hualaihué", "Palena"],
-                "Aysén": ["Coyhaique", "Lago Verde", "Aysén", "Cisnes", "Guaitecas", "Cochrane", "O'Higgins", "Tortel", "Chile Chico", "Río Ibáñez"],
-                "Magallanes": ["Punta Arenas", "Laguna Blanca", "Río Verde", "San Gregorio", "Cabo de Hornos (Ex Navarino)", "Antártica", "Porvenir", "Primavera", "Timaukel", "Natales", "Torres del Paine"]
+            const locations = { "Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"], "Tarapacá": ["Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"], "Antofagasta": ["Antofagasta", "Mejillones", "Sierra Gorda", "Taltal", "Calama", "Ollagüe", "San Pedro de Atacama", "Tocopilla", "María Elena"], "Atacama": ["Copiapó", "Caldera", "Tierra Amarilla", "Chañaral", "Diego de Almagro", "Vallenar", "Alto del Carmen", "Freirina", "Huasco"], "Coquimbo": ["La Serena", "Coquimbo", "Andacollo", "La Higuera", "Paiguano", "Vicuña", "Illapel", "Canela", "Los Vilos", "Salamanca", "Ovalle", "Combarbalá", "Monte Patria", "Punitaqui", "Río Hurtado"], "Valparaíso": ["Valparaíso", "Casablanca", "Concón", "Juan Fernández", "Puchuncaví", "Quintero", "Viña del Mar", "Isla de Pascua", "Los Andes", "Calle Larga", "Rinconada", "San Esteban", "La Ligua", "Cabildo", "Papudo", "Petorca", "Zapallar", "Quillota", "Calera", "Hijuelas", "La Cruz", "Nogales", "San Antonio", "Algarrobo", "Cartagena", "El Quisco", "El Tabo", "Santo Domingo", "San Felipe", "Catemu", "Llaillay", "Panquehue", "Putaendo", "Santa María", "Quilpué", "Limache", "Olmué", "Villa Alemana"], "Metropolitana de Santiago": ["Santiago", "Cerrillos", "Cerro Navia", "Conchalí", "El Bosque", "Estación Central", "Huechuraba", "Independencia", "La Cisterna", "La Florida", "La Granja", "La Pintana", "La Reina", "Las Condes", "Lo Barnechea", "Lo Espejo", "Lo Prado", "Macul", "Maipú", "Ñuñoa", "Pedro Aguirre Cerda", "Peñalolén", "Providencia", "Pudahuel", "Quilicura", "Quinta Normal", "Recoleta", "Renca", "San Joaquín", "San Miguel", "San Ramón", "Vitacura", "Puente Alto", "Pirque", "San José de Maipo", "Colina", "Lampa", "Tiltil", "San Bernardo", "Buin", "Calera de Tango", "Paine", "Melipilla", "Alhué", "Curacaví", "María Pinto", "San Pedro", "Talagante", "El Monte", "Isla de Maipo", "Padre Hurtado", "Peñaflor"], "O'Higgins": ["Rancagua", "Codegua", "Coinco", "Coltauco", "Doñihue", "Graneros", "Las Cabras", "Machalí", "Malloa", "Mostazal", "Olivar", "Peumo", "Pichidegua", "Quinta de Tilcoco", "Rengo", "Requínoa", "San Vicente", "Pichilemu", "La Estrella", "Litueche", "Marchihue", "Navidad", "Paredones", "San Fernando", "Chépica", "Chimbarongo", "Lolol", "Nancagua", "Palmilla", "Peralillo", "Placilla", "Pumanque", "Santa Cruz"], "Maule": ["Talca", "Constitución", "Curepto", "Empedrado", "Maule", "Pelarco", "Pencahue", "Río Claro", "San Clemente", "San Rafael", "Cauquenes", "Chanco", "Pelluhue", "Curicó", "Hualañé", "Licantén", "Molina", "Rauco", "Romeral", "Sagrada Familia", "Teno", "Vichuquén", "Linares", "Colbún", "Longaví", "Parral", "Retiro", "San Javier", "Villa Alegre", "Yerbas Buenas"], "Ñuble": ["Chillán", "Bulnes", "Chillán Viejo", "El Carmen", "Pemuco", "Pinto", "Quillón", "San Ignacio", "Yungay", "Quirihue", "Cobquecura", "Coelemu", "Ninhue", "Portezuelo", "Ránquil", "Treguaco", "San Carlos", "Coihueco", "Ñiquén", "San Fabián", "San Nicolás"], "Biobío": ["Concepción", "Coronel", "Chiguayante", "Florida", "Hualqui", "Lota", "Penco", "San Pedro de la Paz", "Santa Juana", "Talcahuano", "Tomé", "Hualpén", "Lebu", "Arauco", "Cañete", "Contulmo", "Curanilahue", "Los Álamos", "Tirúa", "Los Ángeles", "Antuco", "Cabrero", "Laja", "Mulchén", "Nacimiento", "Negrete", "Quilaco", "Quilleco", "San Rosendo", "Santa Bárbara", "Tucapel", "Yumbel", "Alto Biobío"], "Araucanía": ["Temuco", "Carahue", "Cunco", "Curarrehue", "Freire", "Galvarino", "Gorbea", "Lautaro", "Loncoche", "Melipeuco", "Nueva Imperial", "Padre las Casas", "Perquenco", "Pitrufquén", "Pucón", "Saavedra", "Teodoro Schmidt", "Toltén", "Vilcún", "Villarrica", "Cholchol", "Angol", "Collipulli", "Curacautín", "Ercilla", "Lonquimay", "Los Sauces", "Lumaco", "Purén", "Renaico", "Traiguén", "Victoria"], "Los Ríos": ["Valdivia", "Corral", "Lanco", "Los Lagos", "Máfil", "Mariquina", "Paillaco", "Panguipulli", "La Unión", "Futrono", "Lago Ranco", "Río Bueno"], "Los Lagos": ["Puerto Montt", "Calbuco", "Cochamó", "Fresia", "Frutillar", "Los Muermos", "Llanquihue", "Maullín", "Puerto Varas", "Castro", "Ancud", "Chonchi", "Curaco de Vélez", "Dalcahue", "Puqueldón", "Queilén", "Quellón", "Quemchi", "Quinchao", "Osorno", "Puerto Octay", "Purranque", "Puyehue", "Río Negro", "San Juan de la Costa", "San Pablo", "Chaitén", "Futaleufú", "Hualaihué", "Palena"], "Aysén": ["Coyhaique", "Lago Verde", "Aysén", "Cisnes", "Guaitecas", "Cochrane", "O'Higgins", "Tortel", "Chile Chico", "Río Ibáñez"], "Magallanes": ["Punta Arenas", "Laguna Blanca", "Río Verde", "San Gregorio", "Cabo de Hornos (Ex Navarino)", "Antártica", "Porvenir", "Primavera", "Timaukel", "Natales", "Torres del Paine"]
             };
             const regionSelect = document.getElementById('region-select');
             const comunaSelect = document.getElementById('comuna-select');
@@ -670,63 +490,37 @@
                 comunas.sort().forEach(comuna => comunaSelect.add(new Option(comuna, comuna)));
             });
 
+            // --- FUNCIONES DE RENDERIZADO DINÁMICO ---
             function renderSummary() {
-                const content = `
+                document.getElementById('summary-content').innerHTML = `
                     <p><strong>Categoría:</strong> ${orderState.category}</p>
                     <p><strong>Mascota:</strong> ${orderState.petName}, ${orderState.petAge} años</p>
                     <p><strong>ID de Pedido:</strong> ${orderState.orderId}</p>
-                    <p><strong>Textos:</strong> ${orderState.surpriseMe ? '¡Sorpréndeme! Equipo elegirá los textos.' : 'Personalizados por el cliente.'}</p>
-                    <p><strong>Archivos:</strong> <a href="${orderState.firebaseFolderUrl}" target="_blank" class="text-cyan-400 underline">Ver Archivos del Pedido</a></p>
+                    <p><strong>Textos:</strong> ${orderState.surpriseMe ? '¡Sorpréndeme! Equipo elegirá los textos.' : 'Personalizados.'}</p>
+                    <p><strong>Archivos:</strong> <a href="${orderState.firebaseFolderUrl}" target="_blank" class="text-cyan-400 underline hover:text-cyan-300">Ver Carpeta de Archivos</a></p>
                 `;
-                document.getElementById('summary-content').innerHTML = content;
             }
 
             function showPaymentDetails() {
                 const qrContainer = document.getElementById('qr-code-container');
                 const transferDetailsContainer = document.getElementById('transfer-details-container');
-
                 const comuna = orderState.shipping.comuna;
                 const comunasAledanas = ['Machalí', 'Graneros', 'Olivar', 'Doñihue', 'Requínoa', 'Codegua', 'Mostazal', 'Coinco', 'Coltauco', 'Rengo'];
-                
-                let qrUrlKey = 'qrUrlRegiones'; 
+                let qrUrlKey = 'qrUrlRegiones';
                 orderState.shipping.cost = 8000;
-
-                if (comuna === 'Rancagua') {
-                    qrUrlKey = 'qrUrlRancagua';
-                    orderState.shipping.cost = 0;
-                } else if (comunasAledanas.includes(comuna)) {
-                    qrUrlKey = 'qrUrlAfueras';
-                    orderState.shipping.cost = 5000;
-                }
+                if (comuna === 'Rancagua') { qrUrlKey = 'qrUrlRancagua'; orderState.shipping.cost = 0; }
+                else if (comunasAledanas.includes(comuna)) { qrUrlKey = 'qrUrlAfueras'; orderState.shipping.cost = 5000; }
                 
-                const total = orderState.basePrice + orderState.shipping.cost;
-                document.getElementById('total-amount').textContent = `$${total.toLocaleString('es-CL')}`;
+                document.getElementById('total-amount').textContent = `$${(orderState.basePrice + orderState.shipping.cost).toLocaleString('es-CL')}`;
                 
-                qrContainer.innerHTML = ''; 
+                qrContainer.innerHTML = '';
                 transferDetailsContainer.innerHTML = '<h3 class="text-xl font-bold mb-3 text-[#00FFFF]">Datos para Transferencia</h3>';
-
-                if (Object.keys(paymentConfig).length === 0) {
-                    qrContainer.innerHTML = `<p class="text-xs text-red-500 p-2">Error: No se pudo cargar la información de pago.</p>`;
-                    transferDetailsContainer.innerHTML += `<p class="text-xs text-red-500">No disponible.</p>`;
-                    return;
-                }
 
                 const qrUrl = paymentConfig[qrUrlKey];
                 if (qrUrl) {
-                    const qrLink = document.createElement('a');
-                    qrLink.href = qrUrl;
-                    qrLink.target = '_blank';
-                    qrLink.title = 'Abrir QR en una nueva pestaña';
-
-                    const qrImgElement = document.createElement('img');
-                    qrImgElement.src = qrUrl;
-                    qrImgElement.alt = 'Código QR de Mercado Pago';
-                    qrImgElement.className = 'h-full w-full object-contain';
-                    
-                    qrLink.appendChild(qrImgElement);
-                    qrContainer.appendChild(qrLink);
+                    qrContainer.innerHTML = `<a href="${qrUrl}" target="_blank" title="Abrir QR en nueva pestaña"><img src="${qrUrl}" alt="Código QR de Mercado Pago" class="h-full w-full object-contain"></a>`;
                 } else {
-                    qrContainer.innerHTML = `<p class="text-xs text-red-500 p-2">QR no disponible para esta ubicación.</p>`;
+                    qrContainer.innerHTML = `<p class="text-xs text-red-500 p-2">QR no disponible.</p>`;
                 }
 
                 transferDetailsContainer.innerHTML += `
@@ -739,7 +533,7 @@
                 `;
             }
 
-            // --- NAVEGACIÓN Y EVENTOS ---
+            // --- EVENT LISTENERS (MANEJO DE LA INTERFAZ) ---
             document.getElementById('start-project-btn').addEventListener('click', () => showSection('category-section'));
             document.getElementById('back-to-category').addEventListener('click', () => showSection('category-section'));
             
@@ -752,12 +546,14 @@
                 }
                 orderState.petName = petName;
                 orderState.petAge = petAge;
-                
-                orderState.orderId = generateOrderId();
+                if (!orderState.orderId) { // Generar ID solo si no existe
+                    orderState.orderId = generateOrderId();
+                }
                 showSection('upload-section');
             });
 
             document.getElementById('back-to-pet-info').addEventListener('click', () => showSection('pet-info-section'));
+            
             document.getElementById('has-video-btn').addEventListener('click', () => {
                 orderState.hasVideo = true;
                 document.getElementById('video-choice-container').classList.add('hidden');
@@ -777,34 +573,21 @@
             const shortTextArea = document.getElementById('short-text');
             const longTextArea = document.getElementById('long-text');
             surpriseCheckbox.addEventListener('change', (e) => {
-                orderState.surpriseMe = e.target.checked;
-                document.getElementById('surprise-me-text').classList.toggle('hidden', !e.target.checked);
-                shortTextArea.disabled = e.target.checked;
-                longTextArea.disabled = e.target.checked;
-                if (e.target.checked) {
+                const isChecked = e.target.checked;
+                orderState.surpriseMe = isChecked;
+                document.getElementById('surprise-me-text').classList.toggle('hidden', !isChecked);
+                shortTextArea.disabled = isChecked;
+                longTextArea.disabled = isChecked;
+                if (isChecked) {
                     shortTextArea.value = '';
                     longTextArea.value = '';
                 }
-                updateCharCounter('short-text-counter', shortTextArea);
-                updateCharCounter('long-text-counter', longTextArea);
             });
 
-            function updateCharCounter(counterId, textarea) {
-                const counter = document.getElementById(counterId);
-                const limit = counter.textContent.split('/')[1].trim();
-                const length = textarea.value.length;
-                counter.textContent = `${length} / ${limit}`;
-                counter.classList.toggle('text-red-500', length > limit);
-                counter.classList.toggle('text-gray-400', length <= limit);
-            }
-            shortTextArea.addEventListener('input', () => updateCharCounter('short-text-counter', shortTextArea));
-            longTextArea.addEventListener('input', () => updateCharCounter('long-text-counter', longTextArea));
-            
             document.getElementById('to-summary-section').addEventListener('click', async (e) => {
                 const button = e.currentTarget;
                 const buttonText = document.getElementById('to-summary-btn-text');
                 const spinner = document.getElementById('to-summary-btn-spinner');
-
                 const photoInput = orderState.hasVideo ? document.getElementById('photo-input-multi') : document.getElementById('photo-input-only');
                 if (photoInput.files.length === 0) {
                     showNotification('Por favor, selecciona al menos una foto.');
@@ -813,6 +596,7 @@
                 
                 button.disabled = true;
                 spinner.classList.remove('hidden');
+                buttonText.textContent = 'Subiendo...';
 
                 try {
                     orderState.shortText = shortTextArea.value;
@@ -826,17 +610,16 @@
                     showNotification("Archivos subidos con éxito", false);
                     renderSummary();
                     showSection('summary-section');
-
                 } catch (error) {
-                    console.error("Error al subir los archivos:", error);
+                    console.error("Error en la subida de archivos:", error);
+                    let errorMessage = "Un error impidió subir los archivos. Por favor, inténtalo de nuevo.";
                     if (error.code === 'storage/unauthorized') {
-                        showNotification("ERROR DE PERMISOS. Ve a Firebase > Storage > Reglas y asegúrate de que estén publicadas correctamente.");
-                    } else {
-                        showNotification("Hubo un error al subir tus archivos. Inténtalo de nuevo.");
+                        errorMessage = "ERROR DE PERMISOS: Firebase está bloqueando la subida. Revisa las Reglas de Storage.";
                     }
+                    showNotification(errorMessage);
                 } finally {
                     button.disabled = false;
-                    buttonText.textContent = 'Continuar al Resumen';
+                    buttonText.textContent = 'Subir archivos y continuar';
                     spinner.classList.add('hidden');
                 }
             });
@@ -851,7 +634,7 @@
                 const address = document.getElementById('address-input').value.trim();
 
                 let missingField = '';
-                if (!clientName) missingField = 'Nombre Completo';
+                if (!clientName) missingField = 'Nombre';
                 else if (!clientPhone) missingField = 'Teléfono';
                 else if (!region) missingField = 'Región';
                 else if (!comuna) missingField = 'Comuna';
@@ -868,11 +651,10 @@
                 orderState.shipping.comuna = comuna;
                 orderState.shipping.address = address;
 
-                // Enviar datos a Google Sheet aquí, ANTES de ir al pago
                 try {
                     await sendOrderToGoogleSheet();
-                    showSection('payment-section');
                     showPaymentDetails();
+                    showSection('payment-section');
                 } catch (error) {
                     console.error("Error al registrar el pedido en Google Sheets:", error);
                     showNotification("No se pudo registrar tu pedido. Inténtalo de nuevo.");
@@ -881,18 +663,71 @@
 
             document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
             
-            document.getElementById('finish-purchase-btn').addEventListener('click', (e) => {
-                const whatsappNumber = '56946902340';
+            document.getElementById('finish-purchase-btn').addEventListener('click', () => {
+                const whatsappNumber = '56946902340'; // Reemplazar con tu número
                 const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. (ID: ${orderState.orderId}) 🐾`);
                 const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
                 window.open(whatsappUrl, '_blank');
             });
             
-            // --- INICIALIZACIÓN DE LA APP ---
-            await loadPaymentMethods(); 
+            // --- INICIALIZACIÓN DE LA APLICACIÓN ---
+            try {
+                const docRef = doc(db, "config", "paymentMethods");
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    paymentConfig = docSnap.data();
+                } else {
+                    console.warn("Documento de métodos de pago no encontrado en Firestore.");
+                }
+            } catch(e) {
+                console.error("Error al cargar configuración de pago:", e);
+                showNotification("No se pudo cargar la info de pago.");
+            }
+
             populateRegions();
-            loadCategoriesFromFirestore();
-            loadGalleryImages(); 
+            await loadCollection("gallery", "gallery-grid", (data) => `<div class="rounded-lg overflow-hidden shadow-lg aspect-square"><img src="${data.imageUrl}" alt="Obra de arte de mascota" class="w-full h-full object-cover"></div>`);
+            const categoriesLoaded = await loadCollection("categories", "category-grid", (data) => `
+                <div class="category-card rounded-xl cursor-pointer flex flex-col text-center" 
+                     data-category='${JSON.stringify(data)}'>
+                    <div class="p-6 flex flex-col flex-grow items-center">
+                        <div class="text-6xl mb-4">${data.icon || '🐾'}</div>
+                        <h3 class="text-xl font-bold mb-1">${data.name}</h3>
+                        <p class="text-gray-400 text-xs mb-2">${data.size}</p>
+                        <p class="text-gray-300 text-sm flex-grow mb-4">${data.description}</p>
+                        <p class="text-2xl font-bold mt-auto text-green-400">$${(data.price || 0).toLocaleString('es-CL')}</p>
+                    </div>
+                </div>`);
+            if (categoriesLoaded) {
+                document.querySelectorAll('.category-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        const data = JSON.parse(e.currentTarget.dataset.category);
+                        orderState.category = data.name;
+                        orderState.basePrice = data.price;
+                        orderState.imageUrls = data.imageUrls || [];
+                        const preview = document.getElementById('product-image-preview');
+                        const thumbs = document.getElementById('thumbnail-container');
+                        thumbs.innerHTML = '';
+                        if (orderState.imageUrls.length > 0) {
+                            preview.src = orderState.imageUrls[0];
+                            orderState.imageUrls.forEach((url, index) => {
+                                const thumb = document.createElement('img');
+                                thumb.src = url;
+                                thumb.className = 'thumbnail-image' + (index === 0 ? ' active' : '');
+                                thumb.onclick = () => {
+                                    preview.src = url;
+                                    document.querySelectorAll('.thumbnail-image').forEach(t => t.classList.remove('active'));
+                                    thumb.classList.add('active');
+                                };
+                                thumbs.appendChild(thumb);
+                            });
+                        } else {
+                            preview.src = 'https://placehold.co/400x300/333/FFF?text=Sin+Imagen';
+                        }
+                        document.getElementById('pet-info-title').textContent = `Proyecto: ${orderState.category}`;
+                        showSection('pet-info-section');
+                    });
+                });
+            }
             showSection('home-section');
         });
 
