@@ -119,6 +119,14 @@
         .thumbnail-image.active {
             border-color: #00FFFF; /* Color de acento cian */
         }
+        /* NUEVO: Efecto de zoom para la galería */
+        .gallery-image {
+            transition: transform 0.3s ease-in-out;
+        }
+        .gallery-image:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
     </style>
 </head>
 <body class="text-[#F0F0F0] antialiased overflow-x-hidden">
@@ -135,9 +143,9 @@
 
     <!-- Header Fijo -->
     <header class="fixed top-0 left-0 right-0 z-50">
-        <nav class="container mx-auto px-6 py-4 bg-black/20 backdrop-blur-md flex items-center justify-center md:justify-start">
-            <img id="header-logo" src="https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png" alt="Logo" class="h-10 w-10 mr-3 rounded-full">
-            <h1 class="text-xl font-bold tracking-wider">Las Huellitas de mi Vida</h1>
+        <nav class="container mx-auto px-6 py-4 bg-black/20 backdrop-blur-md flex items-center justify-center">
+            <img id="header-logo" src="https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png" alt="Logo" class="h-10 w-10 mr-4 rounded-full">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-wider">Las Huellitas de mi Vida</h1>
         </nav>
     </header>
 
@@ -146,8 +154,8 @@
 
         <!-- PASO 1: Página Principal (Hero) -->
         <section id="home-section" class="text-center section-fade-in">
-            <h2 class="text-4xl md:text-5xl font-bold mt-8 mb-4">Cada huella cuenta una historia&nbsp;🐾</h2>
-            <p class="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">Transformemos tus recuerdos más preciados en una obra de arte inolvidable.</p>
+            <h2 class="text-3xl md:text-4xl font-bold mt-8 mb-4">Cada huella cuenta una historia&nbsp;🐾</h2>
+            <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Transformemos tus recuerdos más preciados en una obra de arte inolvidable.</p>
             <div class="my-8 flex justify-center">
                 <img id="hero-image" src="https://i.ibb.co/0jRX3VX2/PORTADA-HUELLitas-3.png" alt="Collage de mascotas" class="max-w-md w-full rounded-2xl shadow-2xl">
             </div>
@@ -157,7 +165,7 @@
 
             <!-- SECCIÓN DE GALERÍA -->
             <div id="gallery-section" class="mt-24">
-                <h2 class="text-4xl font-bold mt-8 mb-8">Nuestras Obras Recientes&nbsp;🐾</h2>
+                <h2 class="text-4xl font-bold mt-8 mb-8">Nuestros Diseños&nbsp;🐾</h2>
                 <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
                     <!-- Las imágenes de la galería se cargarán aquí -->
                 </div>
@@ -206,6 +214,12 @@
             <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
                 <h2 class="text-3xl font-bold text-center mb-6">Ahora, sube tus recuerdos&nbsp;🐾</h2>
             
+                <!-- NUEVO AVISO WIFI -->
+                <div class="bg-cyan-900/50 border border-cyan-700 text-cyan-200 px-4 py-3 rounded-lg relative mb-6 text-center" role="alert">
+                    <strong class="font-bold">📶 Consejo:</strong>
+                    <span class="block sm:inline">Para una subida más rápida, te recomendamos usar una conexión WiFi.</span>
+                </div>
+
                 <div id="video-choice-container" class="text-center">
                     <p class="text-[#00FFFF] mb-4">¿Incluirás videos en tu homenaje?</p>
                     <div class="flex justify-center gap-4">
@@ -244,6 +258,11 @@
                         <label for="surprise-me-checkbox" class="font-bold text-yellow-300">¡Sorpréndeme!&nbsp;🐾</label>
                     </div>
                     <p id="surprise-me-text" class="text-xs text-yellow-400 hidden">Al marcar esta opción, con mucho respeto, empatía y amor, buscaremos el texto adecuado para tu obra.</p>
+
+                    <!-- NUEVO: Barra de Progreso -->
+                    <div id="upload-progress-container" class="hidden w-full bg-gray-700 rounded-full mt-4">
+                        <div id="upload-progress-bar" class="bg-green-500 text-sm font-medium text-white text-center p-1 leading-none rounded-full" style="width: 0%">0%</div>
+                    </div>
 
                     <div class="flex justify-between items-center pt-4">
                         <button id="back-to-pet-info" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
@@ -339,7 +358,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { getStorage, ref, uploadString, uploadBytes } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+        import { getStorage, ref, uploadString, uploadBytes, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         // IMPORTANT: Replace with your actual Firebase configuration
         const firebaseConfig = {
@@ -365,7 +384,7 @@
 
         let paymentConfig = {}; 
         
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkVHyYouOTFEzUhmKyuU_Yw0D0xrp9szRJ-aCnINaB4hpkurFWbYILOGNmSNBoolClSQ/exec'; 
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypFN1kU3dDTu7Q2lcEQx50ZxtJ9HEdfBWaxRL27QBMIjXM4ZBSHZKb6MgPMKY4mE6l/exec'; 
         
         const sections = document.querySelectorAll('main > section');
         
@@ -420,6 +439,12 @@
         }
         
         async function uploadFilesToFirebase(orderId) {
+            const progressContainer = document.getElementById('upload-progress-container');
+            const progressBar = document.getElementById('upload-progress-bar');
+            progressContainer.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+
             console.log("--- INICIANDO SUBIDA ---");
             const photoInput = orderState.hasVideo ? document.getElementById('photo-input-multi') : document.getElementById('photo-input-only');
             const videoInput = orderState.hasVideo ? document.getElementById('video-input-multi') : null;
@@ -428,28 +453,56 @@
             if (videoInput && videoInput.files.length > 0) {
                 filesToUpload.push(...videoInput.files);
             }
-            console.log(`Archivos a subir: ${filesToUpload.length}`);
-
+            
             const textFiles = [];
             if (!orderState.surpriseMe) {
                 if (orderState.shortText) textFiles.push({ name: 'texto_corto.txt', content: orderState.shortText });
                 if (orderState.longText) textFiles.push({ name: 'historia.txt', content: orderState.longText });
             }
-             console.log(`Textos a subir: ${textFiles.length}`);
-
-            const allPromises = [];
-
-            filesToUpload.forEach(file => {
-                const fileRef = ref(storage, `pedidos/${orderId}/${file.name}`);
-                allPromises.push(uploadBytes(fileRef, file));
-            });
-
-            textFiles.forEach(textFile => {
-                const textRef = ref(storage, `pedidos/${orderId}/${textFile.name}`);
-                allPromises.push(uploadString(textRef, textFile.content));
-            });
             
-            await Promise.all(allPromises);
+            // Subir primero los archivos de texto (son rápidos)
+            const textPromises = textFiles.map(textFile => {
+                const textRef = ref(storage, `pedidos/${orderId}/${textFile.name}`);
+                return uploadString(textRef, textFile.content);
+            });
+            await Promise.all(textPromises);
+
+            if (filesToUpload.length === 0) {
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+                return; // No hay más archivos para subir
+            }
+
+            const totalBytes = filesToUpload.reduce((acc, file) => acc + file.size, 0);
+            let totalBytesTransferred = 0;
+            const individualProgress = new Array(filesToUpload.length).fill(0);
+
+            const uploadPromises = filesToUpload.map((file, index) => {
+                return new Promise((resolve, reject) => {
+                    const fileRef = ref(storage, `pedidos/${orderId}/${file.name}`);
+                    const uploadTask = uploadBytesResumable(fileRef, file);
+
+                    uploadTask.on('state_changed',
+                        (snapshot) => {
+                            individualProgress[index] = snapshot.bytesTransferred;
+                            totalBytesTransferred = individualProgress.reduce((acc, bytes) => acc + bytes, 0);
+                            const progress = totalBytes > 0 ? Math.round((totalBytesTransferred / totalBytes) * 100) : 0;
+                            
+                            progressBar.style.width = `${progress}%`;
+                            progressBar.textContent = `${progress}%`;
+                        },
+                        (error) => {
+                            console.error("Fallo la subida de un archivo:", error);
+                            reject(error);
+                        },
+                        () => {
+                            resolve(); // Resuelve la promesa cuando la subida de este archivo termina
+                        }
+                    );
+                });
+            });
+
+            await Promise.all(uploadPromises);
             console.log("--- SUBIDA COMPLETADA ---");
         }
         
@@ -469,11 +522,18 @@
             formData.append('Historia', orderState.surpriseMe ? '¡Sorpréndeme!' : orderState.longText);
             formData.append('Enlace a Archivos', orderState.firebaseFolderUrl);
 
-            await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
+                const result = await response.json();
+                console.log('Google Sheet Response:', result);
+            } catch (error) {
+                console.error('Error sending to Google Sheet:', error);
+                showNotification("Hubo un error al registrar el pedido. Por favor, contacta a soporte.");
+            }
         }
         
         document.addEventListener('DOMContentLoaded', async () => {
-            const locations = { "Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"], "Tarapacá": ["Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"], "Antofagasta": ["Antofagasta", "Mejillones", "Sierra Gorda", "Taltal", "Calama", "Ollagüe", "San Pedro de Atacama", "Tocopilla", "María Elena"], "Atacama": ["Copiapó", "Caldera", "Tierra Amarilla", "Chañaral", "Diego de Almagro", "Vallenar", "Alto del Carmen", "Freirina", "Huasco"], "Coquimbo": ["La Serena", "Coquimbo", "Andacollo", "La Higuera", "Paiguano", "Vicuña", "Illapel", "Canela", "Los Vilos", "Salamanca", "Ovalle", "Combarbalá", "Monte Patria", "Punitaqui", "Río Hurtado"], "Valparaíso": ["Valparaíso", "Casablanca", "Concón", "Juan Fernández", "Puchuncaví", "Quintero", "Viña del Mar", "Isla de Pascua", "Los Andes", "Calle Larga", "Rinconada", "San Esteban", "La Ligua", "Cabildo", "Papudo", "Petorca", "Zapallar", "Quillota", "Calera", "Hijuelas", "La Cruz", "Nogales", "San Antonio", "Algarrobo", "Cartagena", "El Quisco", "El Tabo", "Santo Domingo", "San Felipe", "Catemu", "Llaillay", "Panquehue", "Putaendo", "Santa María", "Quilpué", "Limache", "Olmué", "Villa Alemana"], "Metropolitana de Santiago": ["Santiago", "Cerrillos", "Cerro Navia", "Conchalí", "El Bosque", "Estación Central", "Huechuraba", "Independencia", "La Cisterna", "La Florida", "La Granja", "La Pintana", "La Reina", "Las Condes", "Lo Barnechea", "Lo Espejo", "Lo Prado", "Macul", "Maipú", "Ñuñoa", "Pedro Aguirre Cerda", "Peñalén", "Providencia", "Pudahuel", "Quilicura", "Quinta Normal", "Recoleta", "Renca", "San Joaquín", "San Miguel", "San Ramón", "Vitacura", "Puente Alto", "Pirque", "San José de Maipo", "Colina", "Lampa", "Tiltil", "San Bernardo", "Buin", "Calera de Tango", "Paine", "Melipilla", "Alhué", "Curacaví", "María Pinto", "San Pedro", "Talagante", "El Monte", "Isla de Maipo", "Padre Hurtado", "Peñaflor"], "O'Higgins": ["Rancagua", "Codegua", "Coinco", "Coltauco", "Doñihue", "Graneros", "Las Cabras", "Machalí", "Malloa", "Mostazal", "Olivar", "Peumo", "Pichidegua", "Quinta de Tilcoco", "Rengo", "Requínoa", "San Vicente", "Pichilemu", "La Estrella", "Litueche", "Marchihue", "Navidad", "Paredones", "San Fernando", "Chépica", "Chimbarongo", "Lolol", "Nancagua", "Palmilla", "Peralillo", "Placilla", "Pumanque", "Santa Cruz"], "Maule": ["Talca", "Constitución", "Curepto", "Empedrado", "Maule", "Pelarco", "Pencahue", "Río Claro", "San Clemente", "San Rafael", "Cauquenes", "Chanco", "Pelluhue", "Curicó", "Hualañé", "Licantén", "Molina", "Rauco", "Romeral", "Sagrada Familia", "Teno", "Vichuquén", "Linares", "Colbún", "Longaví", "Parral", "Retiro", "San Javier", "Villa Alegre", "Yerbas Buenas"], "Ñuble": ["Chillán", "Bulnes", "Chillán Viejo", "El Carmen", "Pemuco", "Pinto", "Quillón", "San Ignacio", "Yungay", "Quirihue", "Cobquecura", "Coelemu", "Ninhue", "Portezuelo", "Ránquil", "Treguaco", "San Carlos", "Coihueco", "Ñiquén", "San Fabián", "San Nicolás"], "Biobío": ["Concepción", "Coronel", "Chiguayante", "Florida", "Hualqui", "Lota", "Penco", "San Pedro de la Paz", "Santa Juana", "Talcahuano", "Tomé", "Hualpén", "Lebu", "Arauco", "Cañete", "Contulmo", "Curanilahue", "Los Álamos", "Tirúa", "Los Ángeles", "Antuco", "Cabrero", "Laja", "Mulchén", "Nacimiento", "Negrete", "Quilaco", "Quilleco", "San Rosendo", "Santa Bárbara", "Tucapel", "Yumbel", "Alto Biobío"], "Araucanía": ["Temuco", "Carahue", "Cunco", "Curarrehue", "Freire", "Galvarino", "Gorbea", "Lautaro", "Loncoche", "Melipeuco", "Nueva Imperial", "Padre las Casas", "Perquenco", "Pitrufquén", "Pucón", "Saavedra", "Teodoro Schmidt", "Toltén", "Vilcún", "Villarrica", "Cholchol", "Angol", "Collipulli", "Curacautín", "Ercilla", "Lonquimay", "Los Sauces", "Lumaco", "Purén", "Renaico", "Traiguén", "Victoria"], "Los Ríos": ["Valdivia", "Corral", "Lanco", "Los Lagos", "Máfil", "Mariquina", "Paillaco", "Panguipulli", "La Unión", "Futrono", "Lago Ranco", "Río Bueno"], "Los Lagos": ["Puerto Montt", "Calbuco", "Cochamó", "Fresia", "Frutillar", "Los Muermos", "Llanquihue", "Maullín", "Puerto Varas", "Castro", "Ancud", "Chonchi", "Curaco de Vélez", "Dalcahue", "Puqueldón", "Queilén", "Quellón", "Quemchi", "Quinchao", "Osorno", "Puerto Octay", "Purranque", "Puyehue", "Río Negro", "San Juan de la Costa", "San Pablo", "Chaitén", "Futaleufú", "Hualaihué", "Palena"], "Aysén": ["Coyhaique", "Lago Verde", "Aysén", "Cisnes", "Guaitecas", "Cochrane", "O'Higgins", "Tortel", "Chile Chico", "Río Ibáñez"], "Magallanes": ["Punta Arenas", "Laguna Blanca", "Río Verde", "San Gregorio", "Cabo de Hornos (Ex Navarino)", "Antártica", "Porvenir", "Primavera", "Timaukel", "Natales", "Torres del Paine"]
+            const locations = { "Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"], "Tarapacá": ["Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"], "Antofagasta": ["Antofagasta", "Mejillones", "Sierra Gorda", "Taltal", "Calama", "Ollagüe", "San Pedro de Atacama", "Tocopilla", "María Elena"], "Atacama": ["Copiapó", "Caldera", "Tierra Amarilla", "Chañaral", "Diego de Almagro", "Vallenar", "Alto del Carmen", "Freirina", "Huasco"], "Coquimbo": ["La Serena", "Coquimbo", "Andacollo", "La Higuera", "Paiguano", "Vicuña", "Illapel", "Canela", "Los Vilos", "Salamanca", "Ovalle", "Combarbalá", "Monte Patria", "Punitaqui", "Río Hurtado"], "Valparaíso": ["Valparaíso", "Casablanca", "Concón", "Juan Fernández", "Puchuncaví", "Quintero", "Viña del Mar", "Isla de Pascua", "Los Andes", "Calle Larga", "Rinconada", "San Esteban", "La Ligua", "Cabildo", "Papudo", "Petorca", "Zapallar", "Quillota", "Calera", "Hijuelas", "La Cruz", "Nogales", "San Antonio", "Algarrobo", "Cartagena", "El Quisco", "El Tabo", "Santo Domingo", "San Felipe", "Catemu", "Llaillay", "Panquehue", "Putaendo", "Santa María", "Quilpué", "Limache", "Olmué", "Villa Alemana"], "Metropolitana de Santiago": ["Santiago", "Cerrillos", "Cerro Navia", "Conchalí", "El Bosque", "Estación Central", "Huechuraba", "Independencia", "La Cisterna", "La Florida", "La Granja", "La Pintana", "La Reina", "Las Condes", "Lo Barnechea", "Lo Espejo", "Lo Prado", "Macul", "Maipú", "Ñuñoa", "Pedro Aguirre Cerda", "Peñalolén", "Providencia", "Pudahuel", "Quilicura", "Quinta Normal", "Recoleta", "Renca", "San Joaquín", "San Miguel", "San Ramón", "Vitacura", "Puente Alto", "Pirque", "San José de Maipo", "Colina", "Lampa", "Tiltil", "San Bernardo", "Buin", "Calera de Tango", "Paine", "Melipilla", "Alhué", "Curacaví", "María Pinto", "San Pedro", "Talagante", "El Monte", "Isla de Maipo", "Padre Hurtado", "Peñaflor"], "O'Higgins": ["Rancagua", "Codegua", "Coinco", "Coltauco", "Doñihue", "Graneros", "Las Cabras", "Machalí", "Malloa", "Mostazal", "Olivar", "Peumo", "Pichidegua", "Quinta de Tilcoco", "Rengo", "Requínoa", "San Vicente", "Pichilemu", "La Estrella", "Litueche", "Marchihue", "Navidad", "Paredones", "San Fernando", "Chépica", "Chimbarongo", "Lolol", "Nancagua", "Palmilla", "Peralillo", "Placilla", "Pumanque", "Santa Cruz"], "Maule": ["Talca", "Constitución", "Curepto", "Empedrado", "Maule", "Pelarco", "Pencahue", "Río Claro", "San Clemente", "San Rafael", "Cauquenes", "Chanco", "Pelluhue", "Curicó", "Hualañé", "Licantén", "Molina", "Rauco", "Romeral", "Sagrada Familia", "Teno", "Vichuquén", "Linares", "Colbún", "Longaví", "Parral", "Retiro", "San Javier", "Villa Alegre", "Yerbas Buenas"], "Ñuble": ["Chillán", "Bulnes", "Chillán Viejo", "El Carmen", "Pemuco", "Pinto", "Quillón", "San Ignacio", "Yungay", "Quirihue", "Cobquecura", "Coelemu", "Ninhue", "Portezuelo", "Ránquil", "Treguaco", "San Carlos", "Coihueco", "Ñiquén", "San Fabián", "San Nicolás"], "Biobío": ["Concepción", "Coronel", "Chiguayante", "Florida", "Hualqui", "Lota", "Penco", "San Pedro de la Paz", "Santa Juana", "Talcahuano", "Tomé", "Hualpén", "Lebu", "Arauco", "Cañete", "Contulmo", "Curanilahue", "Los Álamos", "Tirúa", "Los Ángeles", "Antuco", "Cabrero", "Laja", "Mulchén", "Nacimiento", "Negrete", "Quilaco", "Quilleco", "San Rosendo", "Santa Bárbara", "Tucapel", "Yumbel", "Alto Biobío"], "Araucanía": ["Temuco", "Carahue", "Cunco", "Curarrehue", "Freire", "Galvarino", "Gorbea", "Lautaro", "Loncoche", "Melipeuco", "Nueva Imperial", "Padre las Casas", "Perquenco", "Pitrufquén", "Pucón", "Saavedra", "Teodoro Schmidt", "Toltén", "Vilcún", "Villarrica", "Cholchol", "Angol", "Collipulli", "Curacautín", "Ercilla", "Lonquimay", "Los Sauces", "Lumaco", "Purén", "Renaico", "Traiguén", "Victoria"], "Los Ríos": ["Valdivia", "Corral", "Lanco", "Los Lagos", "Máfil", "Mariquina", "Paillaco", "Panguipulli", "La Unión", "Futrono", "Lago Ranco", "Río Bueno"], "Los Lagos": ["Puerto Montt", "Calbuco", "Cochamó", "Fresia", "Frutillar", "Los Muermos", "Llanquihue", "Maullín", "Puerto Varas", "Castro", "Ancud", "Chonchi", "Curaco de Vélez", "Dalcahue", "Puqueldón", "Queilén", "Quellón", "Quemchi", "Quinchao", "Osorno", "Puerto Octay", "Purranque", "Puyehue", "Río Negro", "San Juan de la Costa", "San Pablo", "Chaitén", "Futaleufú", "Hualaihué", "Palena"], "Aysén": ["Coyhaique", "Lago Verde", "Aysén", "Cisnes", "Guaitecas", "Cochrane", "O'Higgins", "Tortel", "Chile Chico", "Río Ibáñez"], "Magallanes": ["Punta Arenas", "Laguna Blanca", "Río Verde", "San Gregorio", "Cabo de Hornos (Ex Navarino)", "Antártica", "Porvenir", "Primavera", "Timaukel", "Natales", "Torres del Paine"]
             };
             const regionSelect = document.getElementById('region-select');
             const comunaSelect = document.getElementById('comuna-select');
@@ -494,7 +554,7 @@
                     <p><strong>Mascota:</strong> ${orderState.petName}, ${orderState.petAge} años</p>
                     <p><strong>ID de Pedido:</strong> ${orderState.orderId}</p>
                     <p><strong>Textos:</strong> ${orderState.surpriseMe ? '¡Sorpréndeme! Equipo elegirá los textos.' : 'Personalizados.'}</p>
-                    <p><strong>Archivos:</strong> <a href="${orderState.firebaseFolderUrl}" target="_blank" class="text-cyan-400 underline">Ver Carpeta de Archivos</a></p>
+                    <p><strong>Archivos:</strong> <span class="text-green-400">Recibidos correctamente ✔️</span></p>
                 `;
             }
 
@@ -617,6 +677,7 @@
                     button.disabled = false;
                     buttonText.textContent = 'Subir archivos y continuar';
                     spinner.classList.add('hidden');
+                    document.getElementById('upload-progress-container').classList.add('hidden'); // Ocultar al finalizar
                 }
             });
 
@@ -647,10 +708,12 @@
                 orderState.shipping.comuna = comuna;
                 orderState.shipping.address = address;
 
+                // Move showPaymentDetails here to calculate cost BEFORE sending to sheets
+                showPaymentDetails();
+                
                 try {
                     await sendOrderToGoogleSheet();
                     showSection('payment-section');
-                    showPaymentDetails();
                 } catch (error) {
                     console.error("Error al registrar el pedido en Google Sheets:", error);
                     showNotification("No se pudo registrar tu pedido. Inténtalo de nuevo.");
@@ -660,7 +723,7 @@
             document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
             
             document.getElementById('finish-purchase-btn').addEventListener('click', () => {
-                const whatsappNumber = '56946902340';
+                const whatsappNumber = '56946902340'; // Reemplazar con el número real
                 const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. (ID: ${orderState.orderId}) 🐾`);
                 const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
                 window.open(whatsappUrl, '_blank');
@@ -672,10 +735,10 @@
                 if (docSnap.exists()) paymentConfig = docSnap.data();
             });
             populateRegions();
-            await loadCollection("gallery", "gallery-grid", (data) => `<div class="rounded-lg overflow-hidden shadow-lg aspect-square"><img src="${data.imageUrl}" alt="Obra de arte" class="w-full h-full object-cover"></div>`);
-            const categoriesLoaded = await loadCollection("categories", "category-grid", (data, id) => `
+            await loadCollection("gallery", "gallery-grid", (data) => `<div class="gallery-image rounded-lg overflow-hidden shadow-lg aspect-square"><img src="${data.imageUrl}" alt="Obra de arte" class="w-full h-full object-cover"></div>`);
+            const categoriesLoaded = await loadCollection("categories", "category-grid", (data) => `
                 <div class="category-card rounded-xl cursor-pointer flex flex-col text-center" 
-                     data-category='${JSON.stringify(data)}'>
+                    data-category='${JSON.stringify(data)}'>
                     <div class="p-6 flex flex-col flex-grow items-center">
                         <div class="text-6xl mb-4">${data.icon || '🐾'}</div>
                         <h3 class="text-xl font-bold mb-1">${data.name}</h3>
@@ -721,4 +784,9 @@
     </script>
 </body>
 </html>
+
+
+
+
+
 
