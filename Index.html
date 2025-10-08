@@ -119,13 +119,17 @@
         .thumbnail-image.active {
             border-color: #00FFFF; /* Color de acento cian */
         }
-        /* NUEVO: Efecto de zoom para la galería */
+        /* Efecto de zoom para la galería principal */
         .gallery-image {
             transition: transform 0.3s ease-in-out;
         }
         .gallery-image:hover {
             transform: scale(1.05);
             z-index: 10;
+        }
+        /* Estilos para el Modal de Imagen */
+        #image-modal {
+            transition: opacity 0.3s ease;
         }
     </style>
 </head>
@@ -185,7 +189,7 @@
             <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
                 <!-- Contenedor para la imagen del producto seleccionado -->
                 <div class="flex justify-center mb-4">
-                    <img id="product-image-preview" src="" alt="Producto seleccionado" class="rounded-lg max-h-40 shadow-lg">
+                    <img id="product-image-preview" src="" alt="Producto seleccionado" class="rounded-lg max-h-40 shadow-lg cursor-pointer transition-transform duration-200 hover:scale-105">
                 </div>
                 <!-- NUEVO: Contenedor para las miniaturas -->
                 <div id="thumbnail-container" class="flex justify-center gap-2 mb-6">
@@ -214,7 +218,6 @@
             <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
                 <h2 class="text-3xl font-bold text-center mb-6">Ahora, sube tus recuerdos&nbsp;🐾</h2>
             
-                <!-- NUEVO AVISO WIFI -->
                 <div class="bg-cyan-900/50 border border-cyan-700 text-cyan-200 px-4 py-3 rounded-lg relative mb-6 text-center" role="alert">
                     <strong class="font-bold">📶 Consejo:</strong>
                     <span class="block sm:inline">Para una subida más rápida, te recomendamos usar una conexión WiFi.</span>
@@ -259,7 +262,6 @@
                     </div>
                     <p id="surprise-me-text" class="text-xs text-yellow-400 hidden">Al marcar esta opción, con mucho respeto, empatía y amor, buscaremos el texto adecuado para tu obra.</p>
 
-                    <!-- NUEVO: Barra de Progreso -->
                     <div id="upload-progress-container" class="hidden w-full bg-gray-700 rounded-full mt-4">
                         <div id="upload-progress-bar" class="bg-green-500 text-sm font-medium text-white text-center p-1 leading-none rounded-full" style="width: 0%">0%</div>
                     </div>
@@ -355,6 +357,14 @@
 
     </main>
 
+    <!-- NUEVO: Modal para ver imagen en grande -->
+    <div id="image-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div class="relative bg-black p-2 rounded-lg max-w-4xl max-h-[90vh]">
+            <img id="modal-image-content" src="" alt="Vista ampliada" class="object-contain w-full h-full max-h-[85vh]">
+            <button id="modal-close-btn" class="absolute -top-4 -right-4 h-10 w-10 bg-white text-black rounded-full text-2xl font-bold flex items-center justify-center leading-none">&times;</button>
+        </div>
+    </div>
+
     <div id="toast-notification" class="hidden fixed bottom-5 right-5 bg-red-500 text-white py-3 px-6 rounded-full shadow-lg text-center z-[100] opacity-0 transition-opacity duration-300">
         <p id="toast-message"></p>
     </div>
@@ -364,12 +374,11 @@
         import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref, uploadString, uploadBytes, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-        // IMPORTANT: Replace with your actual Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDR42aJIpDkXL5T2vgj-J2ceZFVZCqzCms",
             authDomain: "las-huellitas-de-mi-vida.firebaseapp.com",
             projectId: "las-huellitas-de-mi-vida",
-            storageBucket: "las-huellitas-de-mi-vida.firebasestorage.app", // Corrected storage bucket
+            storageBucket: "las-huellitas-de-mi-vida.firebasestorage.app",
             messagingSenderId: "1095265611249",
             appId: "1:1095265611249:web:09930aaef56d0736bea850",
             measurementId: "G-0QB83X7TBC"
@@ -449,7 +458,6 @@
             progressBar.style.width = '0%';
             progressBar.textContent = '0%';
 
-            console.log("--- INICIANDO SUBIDA ---");
             const photoInput = orderState.hasVideo ? document.getElementById('photo-input-multi') : document.getElementById('photo-input-only');
             const videoInput = orderState.hasVideo ? document.getElementById('video-input-multi') : null;
 
@@ -464,7 +472,6 @@
                 if (orderState.longText) textFiles.push({ name: 'historia.txt', content: orderState.longText });
             }
             
-            // Subir primero los archivos de texto (son rápidos)
             const textPromises = textFiles.map(textFile => {
                 const textRef = ref(storage, `pedidos/${orderId}/${textFile.name}`);
                 return uploadString(textRef, textFile.content);
@@ -474,7 +481,7 @@
             if (filesToUpload.length === 0) {
                 progressBar.style.width = '100%';
                 progressBar.textContent = '100%';
-                return; // No hay más archivos para subir
+                return;
             }
 
             const totalBytes = filesToUpload.reduce((acc, file) => acc + file.size, 0);
@@ -500,14 +507,13 @@
                             reject(error);
                         },
                         () => {
-                            resolve(); // Resuelve la promesa cuando la subida de este archivo termina
+                            resolve();
                         }
                     );
                 });
             });
 
             await Promise.all(uploadPromises);
-            console.log("--- SUBIDA COMPLETADA ---");
         }
         
         async function sendOrderToGoogleSheet() {
@@ -527,12 +533,11 @@
             formData.append('Enlace a Archivos', orderState.firebaseFolderUrl);
 
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
-                const result = await response.json();
-                console.log('Google Sheet Response:', result);
+                await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
             } catch (error) {
                 console.error('Error sending to Google Sheet:', error);
                 showNotification("Hubo un error al registrar el pedido. Por favor, contacta a soporte.");
+                throw new Error("Failed to send to Google Sheet");
             }
         }
         
@@ -657,7 +662,6 @@
                 buttonText.textContent = 'Subiendo...';
 
                 try {
-                    console.log("Iniciando el proceso de subida...");
                     orderState.shortText = shortTextArea.value;
                     orderState.longText = longTextArea.value;
                     orderState.surpriseMe = surpriseCheckbox.checked;
@@ -666,7 +670,6 @@
                     
                     orderState.firebaseFolderUrl = `https://console.firebase.google.com/project/${firebaseConfig.projectId}/storage/${firebaseConfig.storageBucket}/files~2Fpedidos~2F${orderState.orderId}`;
                     
-                    console.log("Subida completada. Mostrando resumen.");
                     showNotification("Archivos subidos con éxito", false);
                     renderSummary();
                     showSection('summary-section');
@@ -681,7 +684,7 @@
                     button.disabled = false;
                     buttonText.textContent = 'Subir archivos y continuar';
                     spinner.classList.add('hidden');
-                    document.getElementById('upload-progress-container').classList.add('hidden'); // Ocultar al finalizar
+                    document.getElementById('upload-progress-container').classList.add('hidden');
                 }
             });
 
@@ -726,7 +729,6 @@
                     await sendOrderToGoogleSheet();
                     showSection('payment-section');
                 } catch (error) {
-                    console.error("Error al registrar el pedido en Google Sheets:", error);
                     showNotification("No se pudo registrar tu pedido. Inténtalo de nuevo.");
                 } finally {
                     button.disabled = false;
@@ -738,22 +740,75 @@
             document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
             
             document.getElementById('finish-purchase-btn').addEventListener('click', () => {
-                const whatsappNumber = '56946902340'; // Reemplazar con el número real
+                const whatsappNumber = '56946902340';
                 const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. (ID: ${orderState.orderId}) 🐾`);
                 const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
                 window.open(whatsappUrl, '_blank');
+            });
+
+            // --- Modal de Imagen ---
+            const imageModal = document.getElementById('image-modal');
+            const modalImageContent = document.getElementById('modal-image-content');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const productImagePreview = document.getElementById('product-image-preview');
+
+            productImagePreview.addEventListener('click', () => {
+                if (productImagePreview.src && !productImagePreview.src.includes('placehold.co')) {
+                    modalImageContent.src = productImagePreview.src;
+                    imageModal.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+                }
+            });
+
+            function closeModal() {
+                imageModal.classList.add('opacity-0', 'pointer-events-none');
+                // Opcional: esperar a que termine la transición para ocultarlo realmente
+                 setTimeout(() => {
+                    imageModal.classList.add('hidden');
+                    modalImageContent.src = ''; // Limpiar para la próxima vez
+                }, 300);
+            }
+
+            modalCloseBtn.addEventListener('click', closeModal);
+            imageModal.addEventListener('click', (e) => {
+                // Si se hace clic en el fondo oscuro (el modal mismo)
+                if (e.target === imageModal) {
+                    closeModal();
+                }
             });
             
             // --- INICIALIZACIÓN ---
             const docRef = doc(db, "config", "paymentMethods");
             getDoc(docRef).then(docSnap => {
-                if (docSnap.exists()) paymentConfig = docSnap.data();
+                if (docSnap.exists()) {
+                    paymentConfig = docSnap.data();
+                } else {
+                    console.warn("Documento de métodos de pago no encontrado!");
+                }
             });
+
             populateRegions();
-            await loadCollection("gallery", "gallery-grid", (data) => `<div class="gallery-image rounded-lg overflow-hidden shadow-lg aspect-square"><img src="${data.imageUrl}" alt="Obra de arte" class="w-full h-full object-cover"></div>`);
-            const categoriesLoaded = await loadCollection("categories", "category-grid", (data) => `
+            
+            // Carga la galería principal desde el nuevo documento único
+            const galleryDocRef = doc(db, "gallery", "paginaPrincipal");
+            getDoc(galleryDocRef).then(docSnap => {
+                if (docSnap.exists() && docSnap.data().imageUrls) {
+                    const galleryGrid = document.getElementById('gallery-grid');
+                    galleryGrid.innerHTML = '';
+                    docSnap.data().imageUrls.forEach(url => {
+                        galleryGrid.innerHTML += `
+                            <div class="gallery-item gallery-image rounded-lg overflow-hidden shadow-lg aspect-square">
+                                <img src="${url}" alt="Diseño de Huellitas" class="w-full h-full object-cover">
+                            </div>
+                        `;
+                    });
+                } else {
+                     document.getElementById('gallery-grid').innerHTML = `<p class="text-yellow-400 text-center col-span-full">No se encontraron imágenes en la galería principal.</p>`;
+                }
+            });
+
+            const categoriesLoaded = await loadCollection("categories", "category-grid", (data, id) => `
                 <div class="category-card rounded-xl cursor-pointer flex flex-col text-center" 
-                    data-category='${JSON.stringify(data)}'>
+                    data-category='${JSON.stringify({...data, id})}'>
                     <div class="p-6 flex flex-col flex-grow items-center">
                         <div class="text-6xl mb-4">${data.icon || '🐾'}</div>
                         <h3 class="text-xl font-bold mb-1">${data.name}</h3>
@@ -799,10 +854,4 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
 
