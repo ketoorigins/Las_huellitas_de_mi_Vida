@@ -312,7 +312,7 @@
                         <label for="surprise-me-checkbox" class="font-bold text-yellow-300">¡Sorpréndeme!&nbsp;🐾</label>
                     </div>
                     <p id="surprise-me-text" class="text-xs text-yellow-400 hidden">Al marcar esta opción, con mucho respeto, empatía y amor, buscaremos el texto adecuado para tu obra.</p>
-
+                    
                     <div class="flex justify-between items-center pt-4">
                         <button id="back-to-pet-info" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
                         <button id="to-summary-section" class="main-button text-white font-bold py-2 px-6 rounded-full flex items-center justify-center">
@@ -323,7 +323,7 @@
                             </svg>
                         </button>
                     </div>
-                    
+
                     <!-- Barra de progreso movida a su nueva ubicación -->
                     <div id="progress-container" class="hidden w-full bg-gray-700 rounded-full h-4 mt-4 relative">
                         <div id="progress-bar" class="bg-gradient-to-r from-green-400 to-cyan-500 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
@@ -526,7 +526,7 @@
         };
         
         // --- CONSTANTES ---
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkVHyYouOTFEzUhmKyuU_Yw0D0xrp9szRJ-aCnINaB4hpkurFWbYILOGNmSNBoolClSQ/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxVyyTWapbUC05wU6oE9tueTqzaHk7xwTTnm_bsHPfHOXoUE0BF3L6CZo8-1iqmN1F3/exec';
         const peekingDog = document.getElementById('peeking-dog');
         const peekingCat = document.getElementById('peeking-cat');
         const peekingFamily = document.getElementById('peeking-family');
@@ -582,7 +582,7 @@
          */
         function generateOrderId() {
             const prefix = "HUELLITAS";
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ012356789";
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             let result = "";
             for (let i = 0; i < 6; i++) {
                 result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -781,6 +781,9 @@
          * Envía los datos del pedido a un script de Google Sheets.
          */
         async function sendOrderToGoogleSheet() {
+            if (GOOGLE_SCRIPT_URL === 'PEGA_AQUI_TU_NUEVA_URL_DEL_SCRIPT' || !GOOGLE_SCRIPT_URL) {
+                throw new Error("La URL del script de Google no ha sido configurada.");
+            }
             const formData = new FormData();
             formData.append('timestamp', new Date().toLocaleString("es-CL"));
             formData.append('orderId', orderState.orderId);
@@ -796,9 +799,22 @@
             formData.append('longText', orderState.surpriseMe ? '¡Sorpréndeme!' : orderState.longText);
             formData.append('filesLink', orderState.firebaseFolderUrl);
             
-            // Se usa 'no-cors' porque el script de Google no devuelve las cabeceras CORS necesarias,
-            // pero la solicitud POST se completa igualmente en el servidor.
-            await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData, mode: 'no-cors' });
+            // AHORA USAMOS UN FETCH NORMAL, SIN 'no-cors', PARA PODER RECIBIR LA RESPUESTA
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error de red al contactar Google Sheets: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            if (result.status !== 'success') {
+                throw new Error(`Error reportado por Google Sheets: ${result.message}`);
+            }
+            console.log("Respuesta de Google Sheets:", result.message);
         }
 
         // --- INICIALIZACIÓN DE LA APLICACIÓN ---
@@ -999,14 +1015,15 @@
                 try {
                     // Guarda el estado del pedido en la sesión del navegador ANTES de ir a pagar.
                     sessionStorage.setItem('huellitasOrderState', JSON.stringify(orderState));
-
+                    
+                    await sendOrderToGoogleSheet();
+                    
                     renderPaymentSummary(); 
                     showPaymentDetails();
-                    await sendOrderToGoogleSheet();
                     showSection('payment-section');
                 } catch (error) {
                     console.error("Error al registrar el pedido en Google Sheets:", error);
-                    showNotification("No se pudo registrar tu pedido. Inténtalo de nuevo.");
+                    showNotification(`No se pudo registrar tu pedido. Error: ${error.message}`);
                 } finally {
                     button.disabled = false;
                     spinner.classList.add('hidden');
