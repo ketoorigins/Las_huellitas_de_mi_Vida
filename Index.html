@@ -14,10 +14,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Estilos base y de diseño inspirados en la imagen */
+        /* Estilos base y de diseño especificados en el Prompt Maestro */
         body {
             background: linear-gradient(135deg, #2b1634, #1f143a);
             font-family: 'Fredoka', sans-serif;
+            color: #F0F0F0;
             scroll-behavior: smooth;
         }
         h1, h2, h3, h4, h5, h6 {
@@ -86,7 +87,6 @@
             -webkit-backdrop-filter: blur(12px);
             backdrop-filter: blur(12px);
         }
-        /* Animación para aparición de secciones */
         .section-fade-in {
             animation: fadeIn 0.8s ease-in-out;
         }
@@ -94,7 +94,6 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Huellas decorativas de fondo */
         .paw-bg-container {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -103,10 +102,9 @@
         }
         .paw-bg-container img {
             position: absolute;
-            opacity: 0.2; /* Ajustado según requerimiento */
+            opacity: 0.2;
             filter: brightness(1.2);
         }
-        /* Estilos para la nueva galería de miniaturas */
         .thumbnail-image {
             width: 50px;
             height: 50px;
@@ -117,23 +115,45 @@
             transition: border-color 0.3s ease;
         }
         .thumbnail-image.active {
-            border-color: #00FFFF; /* Color de acento cian */
+            border-color: #00FFFF;
         }
-        /* Efecto de zoom para la galería principal */
-        .gallery-image {
+        .gallery-image-hover {
             transition: transform 0.3s ease-in-out;
         }
-        .gallery-image:hover {
+        .gallery-image-hover:hover {
             transform: scale(1.05);
-            z-index: 10;
         }
-        /* Estilos para el Modal de Imagen */
-        #image-modal {
+        .modal-overlay {
             transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease;
+        }
+        .gradient-divider {
+            height: 2px;
+            border: 0;
+            background: linear-gradient(90deg, transparent, #8E2DE2, #4A00E0, transparent);
+        }
+        .mercadopago-button {
+            transition: all 0.3s ease-in-out !important;
+            box-shadow: 0 4px 15px rgba(0, 129, 255, 0.4) !important;
+            transform: scale(1.1); /* Hacemos el botón un 10% más grande */
+        }
+        .mercadopago-button:hover {
+            box-shadow: 0 6px 25px rgba(0, 129, 255, 0.6) !important;
+            transform: scale(1.15); /* Un poco más grande al pasar el mouse */
         }
     </style>
 </head>
-<body class="text-[#F0F0F0] antialiased overflow-x-hidden">
+<body class="antialiased overflow-x-hidden">
+
+    <!-- Cachorro asomándose -->
+    <img id="peeking-dog" src="https://i.ibb.co/DfH4TPB8/Dise-o-sin-t-tulo-7.png" alt="Cachorro asomándose" class="hidden fixed bottom-0 left-0 w-40 md:w-56 z-40">
+    <!-- Gato asomándose -->
+    <img id="peeking-cat" src="https://i.ibb.co/spPvfb9H/Dise-o-sin-t-tulo-6.png" alt="Gato asomándose" class="hidden fixed bottom-0 right-0 w-40 md:w-56 z-40">
+    <!-- Familia de mascotas asomándose -->
+    <img id="peeking-family" src="https://i.ibb.co/7dRW4ZMY/Dise-o-sin-t-tulo-9.png" alt="Familia de mascotas asomándose" class="hidden fixed bottom-0 left-0 w-40 md:w-56 z-40">
+
 
     <!-- Huellas Decorativas de Fondo -->
     <div class="paw-bg-container">
@@ -146,22 +166,53 @@
     </div>
 
     <!-- Header Fijo -->
-    <header class="fixed top-0 left-0 right-0 z-50">
-        <nav class="container mx-auto px-6 py-4 bg-black/20 backdrop-blur-md flex items-center justify-center">
-            <img id="header-logo" src="https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png" alt="Logo" class="h-10 w-10 mr-4 rounded-full">
-            <h1 class="text-2xl md:text-3xl font-bold tracking-wider">Las Huellitas de mi Vida</h1>
-        </nav>
+    <header class="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md h-20">
+        <!-- Contenedor de grilla que ocupa el 100% del ancho del viewport -->
+        <div class="w-full h-full px-6 grid grid-cols-3 items-center">
+            
+            <!-- Columna Izquierda: Huellas alineadas al inicio -->
+            <div class="hidden md:flex items-center gap-x-4 justify-self-start">
+                <img src="https://i.ibb.co/MDZYf540/huellas-6.png" alt="huella" class="h-7 transform rotate-45">
+                <img src="https://i.ibb.co/ttbd6wP/huellas-4.png" alt="huella" class="h-7 transform rotate-25">
+                <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" alt="huella" class="h-7 transform -rotate-12">
+                <img src="https://i.ibb.co/mFSBSN3X/huellas-2.png" alt="huella" class="h-7 transform rotate-15">
+                <img src="https://i.ibb.co/vx7Wb795/huellas.png" alt="huella" class="h-7 transform -rotate-25">
+            </div>
+
+            <!-- Columna Central: Logo y Título -->
+            <div class="flex items-center justify-self-center">
+                <img id="header-logo" src="https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png" alt="Logo" class="h-10 w-10 mr-4 rounded-full flex-shrink-0">
+                <h1 class="text-2xl md:text-3xl font-bold tracking-wider text-center whitespace-nowrap">Las Huellitas de mi Vida</h1>
+            </div>
+
+            <!-- Columna Derecha: Huellas alineadas al final -->
+            <div class="hidden md:flex items-center gap-x-4 justify-self-end">
+                 <img src="https://i.ibb.co/vx7Wb795/huellas.png" alt="huella" class="h-7 transform -rotate-15">
+                 <img src="https://i.ibb.co/ttbd6wP/huellas-4.png" alt="huella" class="h-7 transform rotate-12">
+                 <img src="https://i.ibb.co/MDZYf540/huellas-6.png" alt="huella" class="h-7 transform rotate-30">
+                 <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" alt="huella" class="h-7 transform -rotate-25">
+                 <img src="https://i.ibb.co/mFSBSN3X/huellas-2.png" alt="huella" class="h-7 transform rotate-45">
+            </div>
+        </div>
     </header>
+
+    <!-- Modal para ver imagen en grande -->
+    <div id="image-modal" class="modal-overlay hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 opacity-0">
+        <div class="modal-content relative max-w-3xl max-h-[90vh] transform scale-95">
+            <img id="modal-img" src="" alt="Vista ampliada" class="w-full h-full object-contain rounded-lg">
+            <button id="close-modal" class="absolute -top-4 -right-4 h-10 w-10 bg-white text-black rounded-full text-2xl font-bold">&times;</button>
+        </div>
+    </div>
 
     <!-- Contenedor Principal de la App -->
     <main id="app-container" class="container mx-auto px-6 pt-28 pb-12 min-h-screen flex flex-col justify-center">
 
         <!-- PASO 1: Página Principal (Hero) -->
         <section id="home-section" class="text-center section-fade-in">
-            <h2 class="text-3xl md:text-4xl font-bold mt-8 mb-4">Cada huella cuenta una historia&nbsp;🐾</h2>
+            <h2 class="text-4xl md:text-5xl font-bold mt-8 mb-4">Cada huella cuenta una historia&nbsp;🐾</h2>
             <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Transformemos tus recuerdos más preciados en una obra de arte inolvidable.</p>
             <div class="my-8 flex justify-center">
-                <img id="hero-image" src="https://i.ibb.co/0jRX3VX2/PORTADA-HUELLitas-3.png" alt="Collage de mascotas" class="max-w-md w-full rounded-2xl shadow-2xl">
+                <img id="hero-image" src="https://i.ibb.co/0jRX3VX2/PORTADA-HUELLitas-3.png" alt="Collage de mascotas" class="max-w-2xl w-full rounded-2xl shadow-2xl">
             </div>
             <button id="start-project-btn" class="main-button text-white font-bold py-3 px-8 rounded-full text-lg">
                 Elige tu Proyecto&nbsp;🐾
@@ -169,7 +220,10 @@
 
             <!-- SECCIÓN DE GALERÍA -->
             <div id="gallery-section" class="mt-24">
-                <h2 class="text-4xl font-bold mt-8 mb-8">Nuestros Diseños&nbsp;🐾</h2>
+                <div class="flex justify-center mb-8">
+                    <img src="https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png" alt="Logo Decorativo" class="w-full max-w-5xl aspect-square rounded-full">
+                </div>
+                <h2 class="text-4xl font-bold mb-8">Nuestros Diseños&nbsp;🐾</h2>
                 <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
                     <!-- Las imágenes de la galería se cargarán aquí -->
                 </div>
@@ -187,11 +241,9 @@
         <!-- PASO 3: Formulario Datos de la Mascota -->
         <section id="pet-info-section" class="hidden section-fade-in">
             <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
-                <!-- Contenedor para la imagen del producto seleccionado -->
                 <div class="flex justify-center mb-4">
-                    <img id="product-image-preview" src="" alt="Producto seleccionado" class="rounded-lg max-h-40 shadow-lg cursor-pointer transition-transform duration-200 hover:scale-105">
+                    <img id="product-image-preview" src="" alt="Producto seleccionado" class="rounded-lg max-h-40 shadow-lg cursor-pointer transition-transform duration-300 hover:scale-105">
                 </div>
-                <!-- NUEVO: Contenedor para las miniaturas -->
                 <div id="thumbnail-container" class="flex justify-center gap-2 mb-6">
                     <!-- Las miniaturas se generarán aquí con JavaScript -->
                 </div>
@@ -217,10 +269,9 @@
         <section id="upload-section" class="hidden section-fade-in">
             <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
                 <h2 class="text-3xl font-bold text-center mb-6">Ahora, sube tus recuerdos&nbsp;🐾</h2>
-            
-                <div class="bg-cyan-900/50 border border-cyan-700 text-cyan-200 px-4 py-3 rounded-lg relative mb-6 text-center" role="alert">
-                    <strong class="font-bold">📶 Consejo:</strong>
-                    <span class="block sm:inline">Para una subida más rápida, te recomendamos usar una conexión WiFi.</span>
+                
+                <div class="p-4 mb-6 bg-cyan-900/50 border border-cyan-500 rounded-lg text-center">
+                    <p class="text-cyan-200 text-sm">📶 Para una subida más rápida, te recomendamos conectarte a una red Wi-Fi.</p>
                 </div>
 
                 <div id="video-choice-container" class="text-center">
@@ -262,20 +313,23 @@
                     </div>
                     <p id="surprise-me-text" class="text-xs text-yellow-400 hidden">Al marcar esta opción, con mucho respeto, empatía y amor, buscaremos el texto adecuado para tu obra.</p>
 
-                    <div id="upload-progress-container" class="hidden w-full bg-gray-700 rounded-full mt-4">
-                        <div id="upload-progress-bar" class="bg-green-500 text-sm font-medium text-white text-center p-1 leading-none rounded-full" style="width: 0%">0%</div>
-                    </div>
-
                     <div class="flex justify-between items-center pt-4">
                         <button id="back-to-pet-info" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
                         <button id="to-summary-section" class="main-button text-white font-bold py-2 px-6 rounded-full flex items-center justify-center">
-                            <span id="to-summary-btn-text">Subir archivos y continuar</span>
+                            <span id="to-summary-btn-text">Subir y continuar</span>
                             <svg id="to-summary-btn-spinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                         </button>
                     </div>
+                    
+                    <!-- Barra de progreso movida a su nueva ubicación -->
+                    <div id="progress-container" class="hidden w-full bg-gray-700 rounded-full h-4 mt-4 relative">
+                        <div id="progress-bar" class="bg-gradient-to-r from-green-400 to-cyan-500 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        <span id="progress-text" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white"></span>
+                    </div>
+
                 </div>
             </div>
         </section>
@@ -285,6 +339,7 @@
             <div class="max-w-xl mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
                 <h2 class="text-3xl font-bold text-center mb-6">Revisa tu Pedido</h2>
                 <div id="summary-content" class="space-y-4 mb-8 p-4 bg-white/5 rounded-lg">
+                    <!-- El resumen del pedido se inyectará aquí -->
                 </div>
                 <h3 class="text-2xl font-bold text-center mb-4">Información de Despacho</h3>
                 <div id="shipping-form" class="space-y-4">
@@ -325,55 +380,111 @@
         <!-- PASO 6: Pago Y CONFIRMACIÓN FINAL -->
         <section id="payment-section" class="hidden section-fade-in">
             <div class="max-w-xl mx-auto bg-black/20 p-8 rounded-xl border border-white/10 text-center">
-                <h2 class="text-3xl font-bold mb-2">¡Estás a un paso de terminar!</h2>
-                <p class="text-gray-300 mb-6">Realiza tu pago a través de los siguientes medios. Una vez listo, vuelve aquí y presiona "Finalizar Compra" para enviarnos tu comprobante.</p>
-                <div id="payment-details" class="grid md:grid-cols-2 gap-8 items-center">
-                    <div class="flex flex-col items-center">
-                        <h3 class="text-xl font-bold mb-2 text-[#00FFFF]">Paga con QR Mercado Pago</h3>
-                        <div id="qr-code-container" class="bg-white p-2 rounded-lg h-48 w-48 flex items-center justify-center text-center">
+                <h2 class="text-3xl font-bold mb-2">Paso Final: Pago Seguro 🔒</h2>
+                <p class="text-gray-300 mb-6">Estás a punto de inmortalizar tu recuerdo. Realiza el pago de forma segura a través de Mercado Pago.</p>
+                
+                <hr class="gradient-divider my-8">
+
+                <!-- Resumen de la Obra -->
+                <div id="payment-summary" class="text-left my-6 p-4 bg-white/5 rounded-lg space-y-2">
+                    <!-- El resumen se inyectará aquí dinámicamente -->
+                </div>
+
+                <div class="my-6">
+                    <p class="text-lg text-gray-400 uppercase tracking-wider">Monto Total a Pagar</p>
+                    <p id="total-amount" class="text-5xl font-bold text-green-400 my-2"></p>
+                </div>
+
+                <div class="my-8 p-6 bg-white/5 rounded-lg max-w-md mx-auto">
+                     <img src="https://i.ibb.co/BKnVhZC4/Dise-o-sin-t-tulo-11.png" alt="Paga con Mercado Pago" class="w-72 mx-auto mb-4">
+                    
+                    <!-- Contenedor para los botones de Mercado Pago -->
+                    <div id="payment-buttons-container" class="mt-4 flex justify-center min-h-[50px]">
+                        <!-- Botón para Rancagua (119.990) -->
+                        <div id="mp-button-rancagua" class="hidden">
+                            <script src="https://www.mercadopago.cl/integrations/v1/web-payment-checkout.js"
+                            data-preference-id="1380939166-aecc0d0a-9957-4fe5-b9c8-157f0b482c14" data-source="button">
+                            </script>
+                        </div>
+                        <!-- Botón para Aledaños (124.990) -->
+                        <div id="mp-button-aledanos" class="hidden">
+                            <script src="https://www.mercadopago.cl/integrations/v1/web-payment-checkout.js"
+                            data-preference-id="1380939166-a7ab1f73-ac49-4a42-b0ad-380c53e64d90" data-source="button">
+                            </script>
+                        </div>
+                        <!-- Botón para Otras Regiones (127.990) -->
+                        <div id="mp-button-regiones" class="hidden">
+                            <script src="https://www.mercadopago.cl/integrations/v1/web-payment-checkout.js"
+                            data-preference-id="1380939166-e34674ab-a39b-46a8-8d08-9568552f3dba" data-source="button">
+                            </script>
                         </div>
                     </div>
-                    <div id="transfer-details-container" class="text-left bg-white/5 p-4 rounded-lg">
-                        <h3 class="text-xl font-bold mb-3 text-[#00FFFF]">Datos para Transferencia</h3>
-                    </div>
                 </div>
+
+                <hr class="gradient-divider my-8">
+
                 <div class="mt-8">
-                    <p class="text-2xl font-bold">MONTO TOTAL: <span id="total-amount" class="text-green-400"></span></p>
+                    <button id="back-to-summary" class="secondary-button font-bold py-3 px-8 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300">Volver y revisar</button>
                 </div>
-                <div class="mt-8">
-                    <button id="finish-purchase-btn" class="main-button inline-flex items-center justify-center text-white font-bold py-3 px-8 rounded-full text-lg w-full md:w-auto">
-                        <span id="finish-purchase-btn-text">Finalizar Compra y Enviar Comprobante</span>
-                        <svg id="finish-purchase-btn-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </button>
+            </div>
+        </section>
+
+        <!-- PASO 7: PÁGINA DE CONFIRMACIÓN (Gracias) -->
+        <section id="thank-you-section" class="hidden section-fade-in text-center">
+            <div class="max-w-xl mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
+                <h2 class="text-4xl font-bold mb-4">¡Pedido Recibido con Éxito! 🎉</h2>
+                <p class="text-lg text-gray-300 mb-6">Hemos confirmado tu pago y tu pedido ya está en nuestras manos. ¡Gracias por confiar en nosotros para inmortalizar tu recuerdo!</p>
+                
+                <div class="my-8 p-6 bg-white/5 rounded-lg border border-dashed border-gray-500">
+                    <p class="text-gray-400 uppercase tracking-wider">Tu Código de Pedido es:</p>
+                    <p id="final-order-id" class="text-4xl font-bold text-green-400 my-2 tracking-widest"></p>
+                    <p class="text-xs text-gray-500 mt-2">Guarda este código, es tu llave para el seguimiento.</p>
                 </div>
-                <div class="mt-6">
-                    <button id="back-to-summary" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
+
+                <p class="text-lg text-gray-300 mb-6">El último paso es contactarnos por WhatsApp para afinar los detalles finales de tu obra de arte.</p>
+                
+                <a id="whatsapp-contact-btn" href="#" target="_blank" class="main-button inline-block text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg hover:shadow-2xl">
+                    Contactar por WhatsApp 🐾
+                </a>
+
+                <div class="mt-12">
+                     <button id="start-new-order-btn" class="secondary-button text-sm font-bold py-2 px-6 rounded-full">Crear un nuevo pedido</button>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- NUEVO: Modal para ver imagen en grande -->
-    <div id="image-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 pointer-events-none">
-        <div class="relative bg-black p-2 rounded-lg max-w-4xl max-h-[90vh]">
-            <img id="modal-image-content" src="" alt="Vista ampliada" class="object-contain w-full h-full max-h-[85vh]">
-            <button id="modal-close-btn" class="absolute -top-4 -right-4 h-10 w-10 bg-white text-black rounded-full text-2xl font-bold flex items-center justify-center leading-none">&times;</button>
+    <footer class="text-center py-16 mt-24 border-t border-white/10">
+        <div class="container mx-auto px-6 max-w-5xl">
+            <div class="grid md:grid-cols-2 gap-12 text-center md:text-left">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4 text-[#00FFFF]">Nuestra Misión 🐾</h3>
+                    <p class="text-gray-300">Inmortalizar el amor incondicional entre las mascotas y sus dueños a través de obras de arte únicas y personalizadas, creadas con la más profunda empatía y dedicación para honrar cada huella que dejan en nuestras vidas.</p>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold mb-4 text-[#00FFFF]">Nuestra Visión 🐾</h3>
+                    <p class="text-gray-300">Ser el referente principal en la creación de homenajes artísticos para mascotas, reconocidos por nuestra capacidad de transformar recuerdos en tesoros eternos que brinden consuelo, alegría y celebren el vínculo sagrado que compartimos con ellos.</p>
+                </div>
+            </div>
+            <div class="mt-12 text-sm text-gray-500">
+                <p>&copy; 2025 Las Huellitas de mi Vida. Todos los derechos reservados.</p>
+            </div>
         </div>
-    </div>
+    </footer>
 
+    <!-- Notificación Toast -->
     <div id="toast-notification" class="hidden fixed bottom-5 right-5 bg-red-500 text-white py-3 px-6 rounded-full shadow-lg text-center z-[100] opacity-0 transition-opacity duration-300">
         <p id="toast-message"></p>
     </div>
     
     <script type="module">
+        // --- IMPORTS DE FIREBASE ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { getStorage, ref, uploadString, uploadBytes, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+        import { getStorage, ref, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
+        // --- CONFIGURACIÓN DE FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyDR42aJIpDkXL5T2vgj-J2ceZFVZCqzCms",
             authDomain: "las-huellitas-de-mi-vida.firebaseapp.com",
@@ -384,166 +495,341 @@
             measurementId: "G-0QB83X7TBC"
         };
 
+        // Inicialización de los servicios de Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const storage = getStorage(app);
         
+        // --- ESTADO GLOBAL DE LA APLICACIÓN ---
+        // Este objeto almacena toda la información del pedido a medida que el usuario avanza.
         const orderState = {
-            category: '', basePrice: 0, imageUrls: [], petName: '', petAge: '',
-            clientName: '', clientPhone: '', orderId: '', shortText: '', longText: '',
-            surpriseMe: false, shipping: { region: '', comuna: '', address: '', cost: 0, },
-            firebaseFolderUrl: ''
+            category: '',
+            categoryIcon: '', // Para el resumen final
+            categorySize: '', // Para el resumen final
+            basePrice: 0,
+            imageUrls: [],
+            petName: '',
+            petAge: '',
+            clientName: '',
+            clientPhone: '',
+            orderId: '',
+            shortText: '',
+            longText: '',
+            surpriseMe: false,
+            shipping: {
+                region: '',
+                comuna: '',
+                address: '',
+                cost: 0,
+            },
+            firebaseFolderUrl: '' // URL a la carpeta de archivos en Firebase Storage
         };
-
-        let paymentConfig = {}; 
         
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypFN1kU3dDTu7Q2lcEQx50ZxtJ9HEdfBWaxRL27QBMIjXM4ZBSHZKb6MgPMKY4mE6l/exec'; 
+        // --- CONSTANTES ---
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkVHyYouOTFEzUhmKyuU_Yw0D0xrp9szRJ-aCnINaB4hpkurFWbYILOGNmSNBoolClSQ/exec';
+        const peekingDog = document.getElementById('peeking-dog');
+        const peekingCat = document.getElementById('peeking-cat');
+        const peekingFamily = document.getElementById('peeking-family');
         
-        const sections = document.querySelectorAll('main > section');
+        // --- FUNCIONES UTILITARIAS ---
         
+        /**
+         * Muestra una sección específica de la página y oculta las demás.
+         * @param {string} sectionId - El ID de la sección a mostrar.
+         */
         function showSection(sectionId) {
-            sections.forEach(section => section.classList.add('hidden'));
+            document.querySelectorAll('main > section').forEach(section => section.classList.add('hidden'));
             document.getElementById(sectionId)?.classList.remove('hidden');
-            window.scrollTo(0, 0);
+            window.scrollTo(0, 0); // Vuelve al inicio de la página
+
+            // Lógica para mostrar/ocultar animales decorativos
+            peekingDog.classList.add('hidden');
+            peekingCat.classList.add('hidden');
+            peekingFamily.classList.add('hidden');
+
+            if (sectionId === 'pet-info-section') {
+                if (orderState.category === 'Homenaje a su Vida') {
+                    peekingDog.classList.remove('hidden');
+                } else if (orderState.category === 'Celebrando la Vida de tu querida mascota.') {
+                    peekingCat.classList.remove('hidden');
+                } else if (orderState.category === 'Celebrando la Nueva Familia') {
+                    peekingFamily.classList.remove('hidden');
+                }
+            }
         }
 
+        /**
+         * Muestra una notificación emergente (toast).
+         * @param {string} message - El mensaje a mostrar.
+         * @param {boolean} isError - Si es true, la notificación será roja (error), si no, verde (éxito).
+         */
         function showNotification(message, isError = true) {
             const toast = document.getElementById('toast-notification');
             const toastMessage = document.getElementById('toast-message');
             toastMessage.textContent = message;
-            toast.classList.remove('hidden', 'bg-red-500', 'bg-green-500', 'opacity-0');
-            toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
-            setTimeout(() => {
-                toast.classList.remove('opacity-0');
-            }, 100);
+            toast.className = `fixed bottom-5 right-5 text-white py-3 px-6 rounded-full shadow-lg text-center z-[100] transition-opacity duration-300 ${isError ? 'bg-red-500' : 'bg-green-500'}`;
+            
+            setTimeout(() => { toast.classList.remove('opacity-0'); }, 10);
             setTimeout(() => {
                 toast.classList.add('opacity-0');
                 setTimeout(() => toast.classList.add('hidden'), 500);
             }, 5000);
         }
-        
-        async function loadCollection(collectionName, targetElementId, renderer) {
-            const grid = document.getElementById(targetElementId);
-            grid.innerHTML = `<p class="text-center col-span-full">Cargando...</p>`;
-            try {
-                const querySnapshot = await getDocs(collection(db, collectionName));
-                if (querySnapshot.empty) {
-                    grid.innerHTML = `<p class="text-yellow-400 text-center col-span-full">No hay contenido disponible.</p>`;
-                    return;
-                }
-                grid.innerHTML = ''; 
-                querySnapshot.forEach((doc) => grid.innerHTML += renderer(doc.data(), doc.id));
-                return true;
-            } catch (error) {
-                console.error(`Error loading ${collectionName}:`, error);
-                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar el contenido.</p>`;
-                return false;
-            }
-        }
 
+        /**
+         * Genera un ID de pedido único.
+         * @returns {string} El ID generado, ej: "HUELLITAS-A1B2C3".
+         */
         function generateOrderId() {
             const prefix = "HUELLITAS";
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ012356789";
             let result = "";
             for (let i = 0; i < 6; i++) {
                 result += chars.charAt(Math.floor(Math.random() * chars.length));
             }
             return `${prefix}-${result}`;
         }
-        
-        async function uploadFilesToFirebase(orderId) {
-            const progressContainer = document.getElementById('upload-progress-container');
-            const progressBar = document.getElementById('upload-progress-bar');
-            progressContainer.classList.remove('hidden');
-            progressBar.style.width = '0%';
-            progressBar.textContent = '0%';
 
+        // --- FUNCIONES DE CARGA DE DATOS (FIREBASE) ---
+
+        /**
+         * Carga las imágenes de la galería principal desde Firestore.
+         */
+        async function loadGallery() {
+            const grid = document.getElementById("gallery-grid");
+            grid.innerHTML = `<p class="text-center col-span-full">Cargando galería...</p>`;
+            try {
+                const docRef = doc(db, "gallery", "paginaPrincipal");
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists() && docSnap.data().imageUrls) {
+                    grid.innerHTML = '';
+                    docSnap.data().imageUrls.forEach(url => {
+                        grid.innerHTML += `
+                            <div class="rounded-lg overflow-hidden shadow-lg aspect-square">
+                                <img src="${url}" alt="Obra de arte" class="w-full h-full object-cover gallery-image-hover">
+                            </div>`;
+                    });
+                } else {
+                    grid.innerHTML = `<p class="text-yellow-400 text-center col-span-full">No se encontraron imágenes en la galería.</p>`;
+                }
+            } catch (error) {
+                console.error("Error al cargar la galería:", error);
+                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar la galería.</p>`;
+            }
+        }
+        
+        /**
+         * Carga las categorías de productos desde Firestore y configura los eventos de click.
+         */
+        async function loadCategories() {
+            const grid = document.getElementById("category-grid");
+            grid.innerHTML = `<p class="text-center col-span-full">Cargando proyectos...</p>`;
+            try {
+                const querySnapshot = await getDocs(collection(db, "categories"));
+                if (querySnapshot.empty) {
+                    grid.innerHTML = `<p class="text-yellow-400 text-center col-span-full">No hay categorías disponibles.</p>`;
+                    return;
+                }
+                grid.innerHTML = '';
+                const categories = [];
+                querySnapshot.forEach(doc => categories.push(doc.data()));
+                
+                // Ordenar categorías por el campo 'order'
+                categories.sort((a, b) => (a.order || 99) - (b.order || 99));
+
+                categories.forEach(data => {
+                    grid.innerHTML += `
+                        <div class="category-card rounded-xl cursor-pointer flex flex-col text-center p-4" data-category='${JSON.stringify(data)}'>
+                            <div class="flex flex-col flex-grow items-center">
+                                <div class="text-6xl mb-4">${data.icon || '🐾'}</div>
+                                <h3 class="text-xl font-bold mb-1">${data.name}</h3>
+                                <p class="text-gray-400 text-xs mb-2">${data.size}</p>
+                                <p class="text-gray-300 text-sm flex-grow">${data.description}</p>
+                            </div>
+                        </div>`;
+                });
+
+                document.querySelectorAll('.category-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        const data = JSON.parse(e.currentTarget.dataset.category);
+                        orderState.category = data.name;
+                        orderState.categoryIcon = data.icon || '🐾';
+                        orderState.categorySize = data.size || 'No especificado';
+                        orderState.basePrice = Number(data.price || 119990); // Precio base por defecto
+                        orderState.imageUrls = data.imageUrls || [];
+                        
+                        const preview = document.getElementById('product-image-preview');
+                        const thumbs = document.getElementById('thumbnail-container');
+                        thumbs.innerHTML = '';
+                        
+                        if (orderState.imageUrls.length > 0) {
+                            preview.src = orderState.imageUrls[0];
+                            orderState.imageUrls.forEach((url, index) => {
+                                const thumb = document.createElement('img');
+                                thumb.src = url;
+                                thumb.className = 'thumbnail-image' + (index === 0 ? ' active' : '');
+                                thumb.onclick = () => {
+                                    preview.src = url;
+                                    document.querySelectorAll('.thumbnail-image').forEach(t => t.classList.remove('active'));
+                                    thumb.classList.add('active');
+                                };
+                                thumbs.appendChild(thumb);
+                            });
+                        } else {
+                            preview.src = 'https://placehold.co/400x300/333/FFF?text=Sin+Imagen';
+                        }
+                        
+                        document.getElementById('pet-info-title').textContent = `Proyecto: ${orderState.category}`;
+                        showSection('pet-info-section');
+                    });
+                });
+
+            } catch (error) {
+                console.error("Error al cargar categorías:", error);
+                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar el contenido.</p>`;
+            }
+        }
+
+        // --- LÓGICA DE NEGOCIO Y SUBIDA DE ARCHIVOS ---
+
+        /**
+         * Renderiza el resumen del producto en la página de pago.
+         */
+        function renderPaymentSummary() {
+            const summaryContainer = document.getElementById('payment-summary');
+            const materials = "Terminaciones en vidrio opaco, fotografías impresas en papel fotográfico premium mate, lápices pastel seco, acrílicos, acuarelas, rotuladores de tinta, fijadores y barnices.";
+            
+            summaryContainer.innerHTML = `
+                <h4 class="text-xl font-bold text-center mb-4 text-[#00FFFF]">Detalles de tu Obra</h4>
+                <p><strong>Proyecto:</strong> ${orderState.categoryIcon} ${orderState.category}</p>
+                <p><strong>Tamaño:</strong> ${orderState.categorySize}</p>
+                <p><strong>Materiales:</strong> ${materials}</p>
+            `;
+        }
+
+        /**
+         * Sube los archivos seleccionados por el usuario a Firebase Storage.
+         * @param {string} orderId - El ID del pedido para crear la carpeta en Storage.
+         * @returns {Promise<void>} Una promesa que se resuelve cuando todos los archivos han sido subidos.
+         */
+        async function uploadFilesToFirebase(orderId) {
             const photoInput = orderState.hasVideo ? document.getElementById('photo-input-multi') : document.getElementById('photo-input-only');
             const videoInput = orderState.hasVideo ? document.getElementById('video-input-multi') : null;
 
-            const filesToUpload = [...photoInput.files];
+            // Juntar todos los archivos (fotos y videos) en un solo array.
+            let filesToUpload = [...photoInput.files];
             if (videoInput && videoInput.files.length > 0) {
                 filesToUpload.push(...videoInput.files);
             }
             
-            const textFiles = [];
-            if (!orderState.surpriseMe) {
-                if (orderState.shortText) textFiles.push({ name: 'texto_corto.txt', content: orderState.shortText });
-                if (orderState.longText) textFiles.push({ name: 'historia.txt', content: orderState.longText });
+            // Si el usuario no eligió "Sorpréndeme" y escribió textos, crea un archivo .txt con esa información.
+            const textContent = `ID Pedido: ${orderState.orderId}\nNombre Mascota: ${orderState.petName}\n\nTexto Corto:\n${orderState.shortText}\n\nHistoria:\n${orderState.longText}`;
+            if (!orderState.surpriseMe && (orderState.shortText || orderState.longText)) {
+                const textBlob = new Blob([textContent], { type: 'text/plain' });
+                const textFile = new File([textBlob], "datos_cliente.txt", {type: "text/plain"});
+                filesToUpload.push(textFile);
             }
             
-            const textPromises = textFiles.map(textFile => {
-                const textRef = ref(storage, `pedidos/${orderId}/${textFile.name}`);
-                return uploadString(textRef, textFile.content);
-            });
-            await Promise.all(textPromises);
+            const totalSize = filesToUpload.reduce((acc, file) => acc + file.size, 0);
+            const individualProgress = {}; // Objeto para rastrear el progreso de cada archivo
+            const progressBar = document.getElementById('progress-bar');
+            const progressContainer = document.getElementById('progress-container');
+            const progressText = document.getElementById('progress-text'); // NEW: Get the text element
+            progressContainer.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            progressText.textContent = '0%'; // NEW: Initialize text
 
-            if (filesToUpload.length === 0) {
-                progressBar.style.width = '100%';
-                progressBar.textContent = '100%';
-                return;
-            }
-
-            const totalBytes = filesToUpload.reduce((acc, file) => acc + file.size, 0);
-            let totalBytesTransferred = 0;
-            const individualProgress = new Array(filesToUpload.length).fill(0);
-
-            const uploadPromises = filesToUpload.map((file, index) => {
+            // Crear un array de promesas, una por cada archivo a subir.
+            const uploadPromises = filesToUpload.map(file => {
                 return new Promise((resolve, reject) => {
                     const fileRef = ref(storage, `pedidos/${orderId}/${file.name}`);
                     const uploadTask = uploadBytesResumable(fileRef, file);
 
-                    uploadTask.on('state_changed',
+                    uploadTask.on('state_changed', 
                         (snapshot) => {
-                            individualProgress[index] = snapshot.bytesTransferred;
-                            totalBytesTransferred = individualProgress.reduce((acc, bytes) => acc + bytes, 0);
-                            const progress = totalBytes > 0 ? Math.round((totalBytesTransferred / totalBytes) * 100) : 0;
-                            
+                            // Actualizar el progreso general
+                            individualProgress[file.name] = snapshot.bytesTransferred;
+                            let totalBytesUploaded = Object.values(individualProgress).reduce((a, b) => a + b, 0);
+                            const progress = totalSize > 0 ? Math.round((totalBytesUploaded / totalSize) * 100) : 0;
                             progressBar.style.width = `${progress}%`;
-                            progressBar.textContent = `${progress}%`;
-                        },
+                            progressText.textContent = `${progress}%`; // NEW: Update text
+                        }, 
                         (error) => {
-                            console.error("Fallo la subida de un archivo:", error);
+                            console.error("Fallo la subida para:", file.name, error);
                             reject(error);
-                        },
+                        }, 
                         () => {
+                            // La subida del archivo se completó
+                            individualProgress[file.name] = file.size;
+                            let totalBytesUploaded = Object.values(individualProgress).reduce((a, b) => a + b, 0);
+                            const progress = totalSize > 0 ? Math.round((totalBytesUploaded / totalSize) * 100) : 0;
+                            progressBar.style.width = `${progress}%`;
+                            progressText.textContent = `${progress}%`; // NEW: Update text on complete
                             resolve();
                         }
                     );
                 });
             });
 
+            // Esperar a que todas las promesas de subida se completen.
             await Promise.all(uploadPromises);
+            console.log("--- SUBIDA COMPLETADA ---");
         }
-        
+
+        /**
+         * Envía los datos del pedido a un script de Google Sheets.
+         */
         async function sendOrderToGoogleSheet() {
             const formData = new FormData();
-            formData.append('Timestamp', new Date().toLocaleString("es-CL"));
-            formData.append('ID de Pedido', orderState.orderId);
-            formData.append('Categoria', orderState.category);
-            formData.append('Nombre Mascota', orderState.petName);
-            formData.append('Edad Mascota', orderState.petAge);
-            formData.append('Nombre Cliente', orderState.clientName || '');
-            formData.append('Dirección', `${orderState.shipping.address}, ${orderState.shipping.comuna}, ${orderState.shipping.region}`);
-            formData.append('Telefono', orderState.clientPhone || '');
-            formData.append('Costo Envio', orderState.shipping.cost);
-            formData.append('Total Pagado', orderState.basePrice + orderState.shipping.cost);
-            formData.append('Texto Corto', orderState.surpriseMe ? '¡Sorpréndeme!' : orderState.shortText);
-            formData.append('Historia', orderState.surpriseMe ? '¡Sorpréndeme!' : orderState.longText);
-            formData.append('Enlace a Archivos', orderState.firebaseFolderUrl);
-
-            try {
-                await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
-            } catch (error) {
-                console.error('Error sending to Google Sheet:', error);
-                showNotification("Hubo un error al registrar el pedido. Por favor, contacta a soporte.");
-                throw new Error("Failed to send to Google Sheet");
-            }
+            formData.append('timestamp', new Date().toLocaleString("es-CL"));
+            formData.append('orderId', orderState.orderId);
+            formData.append('category', orderState.category);
+            formData.append('petName', orderState.petName);
+            formData.append('petAge', orderState.petAge);
+            formData.append('clientName', orderState.clientName || '');
+            formData.append('address', `${orderState.shipping.address}, ${orderState.shipping.comuna}, ${orderState.shipping.region}`);
+            formData.append('phone', orderState.clientPhone || '');
+            formData.append('shippingCost', orderState.shipping.cost);
+            formData.append('totalPaid', orderState.basePrice + orderState.shipping.cost);
+            formData.append('shortText', orderState.surpriseMe ? '¡Sorpréndeme!' : orderState.shortText);
+            formData.append('longText', orderState.surpriseMe ? '¡Sorpréndeme!' : orderState.longText);
+            formData.append('filesLink', orderState.firebaseFolderUrl);
+            
+            // Se usa 'no-cors' porque el script de Google no devuelve las cabeceras CORS necesarias,
+            // pero la solicitud POST se completa igualmente en el servidor.
+            await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData, mode: 'no-cors' });
         }
-        
+
+        // --- INICIALIZACIÓN DE LA APLICACIÓN ---
         document.addEventListener('DOMContentLoaded', async () => {
-            const locations = { "Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"], "Tarapacá": ["Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"], "Antofagasta": ["Antofagasta", "Mejillones", "Sierra Gorda", "Taltal", "Calama", "Ollagüe", "San Pedro de Atacama", "Tocopilla", "María Elena"], "Atacama": ["Copiapó", "Caldera", "Tierra Amarilla", "Chañaral", "Diego de Almagro", "Vallenar", "Alto del Carmen", "Freirina", "Huasco"], "Coquimbo": ["La Serena", "Coquimbo", "Andacollo", "La Higuera", "Paiguano", "Vicuña", "Illapel", "Canela", "Los Vilos", "Salamanca", "Ovalle", "Combarbalá", "Monte Patria", "Punitaqui", "Río Hurtado"], "Valparaíso": ["Valparaíso", "Casablanca", "Concón", "Juan Fernández", "Puchuncaví", "Quintero", "Viña del Mar", "Isla de Pascua", "Los Andes", "Calle Larga", "Rinconada", "San Esteban", "La Ligua", "Cabildo", "Papudo", "Petorca", "Zapallar", "Quillota", "Calera", "Hijuelas", "La Cruz", "Nogales", "San Antonio", "Algarrobo", "Cartagena", "El Quisco", "El Tabo", "Santo Domingo", "San Felipe", "Catemu", "Llaillay", "Panquehue", "Putaendo", "Santa María", "Quilpué", "Limache", "Olmué", "Villa Alemana"], "Metropolitana de Santiago": ["Santiago", "Cerrillos", "Cerro Navia", "Conchalí", "El Bosque", "Estación Central", "Huechuraba", "Independencia", "La Cisterna", "La Florida", "La Granja", "La Pintana", "La Reina", "Las Condes", "Lo Barnechea", "Lo Espejo", "Lo Prado", "Macul", "Maipú", "Ñuñoa", "Pedro Aguirre Cerda", "Peñalolén", "Providencia", "Pudahuel", "Quilicura", "Quinta Normal", "Recoleta", "Renca", "San Joaquín", "San Miguel", "San Ramón", "Vitacura", "Puente Alto", "Pirque", "San José de Maipo", "Colina", "Lampa", "Tiltil", "San Bernardo", "Buin", "Calera de Tango", "Paine", "Melipilla", "Alhué", "Curacaví", "María Pinto", "San Pedro", "Talagante", "El Monte", "Isla de Maipo", "Padre Hurtado", "Peñaflor"], "O'Higgins": ["Rancagua", "Codegua", "Coinco", "Coltauco", "Doñihue", "Graneros", "Las Cabras", "Machalí", "Malloa", "Mostazal", "Olivar", "Peumo", "Pichidegua", "Quinta de Tilcoco", "Rengo", "Requínoa", "San Vicente", "Pichilemu", "La Estrella", "Litueche", "Marchihue", "Navidad", "Paredones", "San Fernando", "Chépica", "Chimbarongo", "Lolol", "Nancagua", "Palmilla", "Peralillo", "Placilla", "Pumanque", "Santa Cruz"], "Maule": ["Talca", "Constitución", "Curepto", "Empedrado", "Maule", "Pelarco", "Pencahue", "Río Claro", "San Clemente", "San Rafael", "Cauquenes", "Chanco", "Pelluhue", "Curicó", "Hualañé", "Licantén", "Molina", "Rauco", "Romeral", "Sagrada Familia", "Teno", "Vichuquén", "Linares", "Colbún", "Longaví", "Parral", "Retiro", "San Javier", "Villa Alegre", "Yerbas Buenas"], "Ñuble": ["Chillán", "Bulnes", "Chillán Viejo", "El Carmen", "Pemuco", "Pinto", "Quillón", "San Ignacio", "Yungay", "Quirihue", "Cobquecura", "Coelemu", "Ninhue", "Portezuelo", "Ránquil", "Treguaco", "San Carlos", "Coihueco", "Ñiquén", "San Fabián", "San Nicolás"], "Biobío": ["Concepción", "Coronel", "Chiguayante", "Florida", "Hualqui", "Lota", "Penco", "San Pedro de la Paz", "Santa Juana", "Talcahuano", "Tomé", "Hualpén", "Lebu", "Arauco", "Cañete", "Contulmo", "Curanilahue", "Los Álamos", "Tirúa", "Los Ángeles", "Antuco", "Cabrero", "Laja", "Mulchén", "Nacimiento", "Negrete", "Quilaco", "Quilleco", "San Rosendo", "Santa Bárbara", "Tucapel", "Yumbel", "Alto Biobío"], "Araucanía": ["Temuco", "Carahue", "Cunco", "Curarrehue", "Freire", "Galvarino", "Gorbea", "Lautaro", "Loncoche", "Melipeuco", "Nueva Imperial", "Padre las Casas", "Perquenco", "Pitrufquén", "Pucón", "Saavedra", "Teodoro Schmidt", "Toltén", "Vilcún", "Villarrica", "Cholchol", "Angol", "Collipulli", "Curacautín", "Ercilla", "Lonquimay", "Los Sauces", "Lumaco", "Purén", "Renaico", "Traiguén", "Victoria"], "Los Ríos": ["Valdivia", "Corral", "Lanco", "Los Lagos", "Máfil", "Mariquina", "Paillaco", "Panguipulli", "La Unión", "Futrono", "Lago Ranco", "Río Bueno"], "Los Lagos": ["Puerto Montt", "Calbuco", "Cochamó", "Fresia", "Frutillar", "Los Muermos", "Llanquihue", "Maullín", "Puerto Varas", "Castro", "Ancud", "Chonchi", "Curaco de Vélez", "Dalcahue", "Puqueldón", "Queilén", "Quellón", "Quemchi", "Quinchao", "Osorno", "Puerto Octay", "Purranque", "Puyehue", "Río Negro", "San Juan de la Costa", "San Pablo", "Chaitén", "Futaleufú", "Hualaihué", "Palena"], "Aysén": ["Coyhaique", "Lago Verde", "Aysén", "Cisnes", "Guaitecas", "Cochrane", "O'Higgins", "Tortel", "Chile Chico", "Río Ibáñez"], "Magallanes": ["Punta Arenas", "Laguna Blanca", "Río Verde", "San Gregorio", "Cabo de Hornos (Ex Navarino)", "Antártica", "Porvenir", "Primavera", "Timaukel", "Natales", "Torres del Paine"]
-            };
+            // --- DETECCIÓN DE REDIRECCIÓN DE MERCADO PAGO ---
+            // Revisa si la URL contiene parámetros de un pago aprobado.
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentStatus = urlParams.get('status');
+
+            if (paymentStatus === 'approved') {
+                const savedStateJSON = sessionStorage.getItem('huellitasOrderState');
+                if (savedStateJSON) {
+                    const savedState = JSON.parse(savedStateJSON);
+                    
+                    // Rellena la página de "Gracias" con los datos guardados.
+                    document.getElementById('final-order-id').textContent = savedState.orderId;
+                    const WHATSAPP_NUMBER = '56912345678'; // Reemplazar con tu número de WhatsApp
+                    const message = `¡Hola! 👋 Acabo de realizar mi pedido a través de la web. Mi código de seguimiento es: *${savedState.orderId}*`;
+                    document.getElementById('whatsapp-contact-btn').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+
+                    showSection('thank-you-section');
+                    
+                    // Limpia los datos para que la página no se muestre de nuevo al recargar.
+                    sessionStorage.removeItem('huellitasOrderState');
+                    window.history.replaceState({}, document.title, window.location.pathname); 
+
+                    return; // Detiene la ejecución para no cargar la página de inicio.
+                }
+            }
+            
+            const locations = { "Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"], "Tarapacá": ["Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"], "Antofagasta": ["Antofagasta", "Mejillones", "Sierra Gorda", "Taltal", "Calama", "Ollagüe", "San Pedro de Atacama", "Tocopilla", "María Elena"], "Atacama": ["Copiapó", "Caldera", "Tierra Amarilla", "Chañaral", "Diego de Almagro", "Vallenar", "Alto del Carmen", "Freirina", "Huasco"], "Coquimbo": ["La Serena", "Coquimbo", "Andacollo", "La Higuera", "Paiguano", "Vicuña", "Illapel", "Canela", "Los Vilos", "Salamanca", "Ovalle", "Combarbalá", "Monte Patria", "Punitaqui", "Río Hurtado"], "Valparaíso": ["Valparaíso", "Casablanca", "Concón", "Juan Fernández", "Puchuncaví", "Quintero", "Viña del Mar", "Isla de Pascua", "Los Andes", "Calle Larga", "Rinconada", "San Esteban", "La Ligua", "Cabildo", "Papudo", "Petorca", "Zapallar", "Quillota", "Calera", "Hijuelas", "La Cruz", "Nogales", "San Antonio", "Algarrobo", "Cartagena", "El Quisco", "El Tabo", "Santo Domingo", "San Felipe", "Catemu", "Llaillay", "Panquehue", "Putaendo", "Santa María", "Quilpué", "Limache", "Olmué", "Villa Alemana"], "Metropolitana de Santiago": ["Santiago", "Cerrillos", "Cerro Navia", "Conchalí", "El Bosque", "Estación Central", "Huechuraba", "Independencia", "La Cisterna", "La Florida", "La Granja", "La Pintana", "La Reina", "Las Condes", "Lo Barnechea", "Lo Espejo", "Lo Prado", "Macul", "Maipú", "Ñuñoa", "Pedro Aguirre Cerda", "Peñalolén", "Providencia", "Pudahuel", "Quilicura", "Quinta Normal", "Recoleta", "Renca", "San Joaquín", "San Miguel", "San Ramón", "Vitacura", "Puente Alto", "Pirque", "San José de Maipo", "Colina", "Lampa", "Tiltil", "San Bernardo", "Buin", "Calera de Tango", "Paine", "Melipilla", "Alhué", "Curacaví", "María Pinto", "San Pedro", "Talagante", "El Monte", "Isla de Maipo", "Padre Hurtado", "Peñaflor"], "O'Higgins": ["Rancagua", "Codegua", "Coinco", "Coltauco", "Doñihue", "Graneros", "Las Cabras", "Machalí", "Malloa", "Mostazal", "Olivar", "Peumo", "Pichidegua", "Quinta de Tilcoco", "Rengo", "Requínoa", "San Vicente", "Pichilemu", "La Estrella", "Litueche", "Marchihue", "Navidad", "Paredones", "San Fernando", "Chépica", "Chimbarongo", "Lolol", "Nancagua", "Palmilla", "Peralillo", "Placilla", "Pumanque", "Santa Cruz"], "Maule": ["Talca", "Constitución", "Curepto", "Empedrado", "Maule", "Pelarco", "Pencahue", "Río Claro", "San Clemente", "San Rafael", "Cauquenes", "Chanco", "Pelluhue", "Curicó", "Hualañé", "Licantén", "Molina", "Rauco", "Romeral", "Sagrada Familia", "Teno", "Vichuquén", "Linares", "Colbún", "Longaví", "Parral", "Retiro", "San Javier", "Villa Alegre", "Yerbas Buenas"], "Ñuble": ["Chillán", "Bulnes", "Chillán Viejo", "El Carmen", "Pemuco", "Pinto", "Quillón", "San Ignacio", "Yungay", "Quirihue", "Cobquecura", "Coelemu", "Ninhue", "Portezuelo", "Ránquil", "Treguaco", "San Carlos", "Coihueco", "Ñiquén", "San Fabián", "San Nicolás"], "Biobío": ["Concepción", "Coronel", "Chiguayante", "Florida", "Hualqui", "Lota", "Penco", "San Pedro de la Paz", "Santa Juana", "Talcahuano", "Tomé", "Hualpén", "Lebu", "Arauco", "Cañete", "Contulmo", "Curanilahue", "Los Álamos", "Tirúa", "Los Ángeles", "Antuco", "Cabrero", "Laja", "Mulchén", "Nacimiento", "Negrete", "Quilaco", "Quilleco", "San Rosendo", "Santa Bárbara", "Tucapel", "Yumbel", "Alto Biobío"], "Araucanía": ["Temuco", "Carahue", "Cunco", "Curarrehue", "Freire", "Galvarino", "Gorbea", "Lautaro", "Loncoche", "Melipeuco", "Nueva Imperial", "Padre las Casas", "Perquenco", "Pitrufquén", "Pucón", "Saavedra", "Teodoro Schmidt", "Toltén", "Vilcún", "Villarrica", "Cholchol", "Angol", "Collipulli", "Curacautín", "Ercilla", "Lonquay", "Los Sauces", "Lumaco", "Purén", "Renaico", "Traiguén", "Victoria"], "Los Ríos": ["Valdivia", "Corral", "Lanco", "Los Lagos", "Máfil", "Mariquina", "Paillaco", "Panguipulli", "La Unión", "Futrono", "Lago Ranco", "Río Bueno"], "Los Lagos": ["Puerto Montt", "Calbuco", "Cochamó", "Fresia", "Frutillar", "Los Muermos", "Llanquihue", "Maullín", "Puerto Varas", "Castro", "Ancud", "Chonchi", "Curaco de Vélez", "Dalcahue", "Puqueldón", "Queilén", "Quellón", "Quemchi", "Quinchao", "Osorno", "Puerto Octay", "Purranque", "Puyehue", "Río Negro", "San Juan de la Costa", "San Pablo", "Chaitén", "Futaleufú", "Hualaihué", "Palena"], "Aysén": ["Coyhaique", "Lago Verde", "Aysén", "Cisnes", "Guaitecas", "Cochrane", "O'Higgins", "Tortel", "Chile Chico", "Río Ibáñez"], "Magallanes": ["Punta Arenas", "Laguna Blanca", "Río Verde", "San Gregorio", "Cabo de Hornos (Ex Navarino)", "Antártica", "Porvenir", "Primavera", "Timaukel", "Natales", "Torres del Paine"] };
             const regionSelect = document.getElementById('region-select');
             const comunaSelect = document.getElementById('comuna-select');
             
@@ -563,43 +849,39 @@
                     <p><strong>Mascota:</strong> ${orderState.petName}, ${orderState.petAge} años</p>
                     <p><strong>ID de Pedido:</strong> ${orderState.orderId}</p>
                     <p><strong>Textos:</strong> ${orderState.surpriseMe ? '¡Sorpréndeme! Equipo elegirá los textos.' : 'Personalizados.'}</p>
-                    <p><strong>Archivos:</strong> <span class="text-green-400">Recibidos correctamente ✔️</span></p>
+                    <p class="text-green-400"><strong>Archivos:</strong> Recibidos correctamente ✔️</p>
                 `;
             }
 
             function showPaymentDetails() {
-                const qrContainer = document.getElementById('qr-code-container');
-                const transferDetailsContainer = document.getElementById('transfer-details-container');
+                const buttons = {
+                    rancagua: document.getElementById('mp-button-rancagua'),
+                    aledanos: document.getElementById('mp-button-aledanos'),
+                    regiones: document.getElementById('mp-button-regiones')
+                };
+                Object.values(buttons).forEach(btn => btn.classList.add('hidden'));
+
                 const comuna = orderState.shipping.comuna;
                 const comunasAledanas = ['Machalí', 'Graneros', 'Olivar', 'Doñihue', 'Requínoa', 'Codegua', 'Mostazal', 'Coinco', 'Coltauco', 'Rengo'];
-                let qrUrlKey = 'qrUrlRegiones';
+                
+                let targetButton = buttons.regiones;
                 orderState.shipping.cost = 8000;
-                if (comuna === 'Rancagua') { qrUrlKey = 'qrUrlRancagua'; orderState.shipping.cost = 0; }
-                else if (comunasAledanas.includes(comuna)) { qrUrlKey = 'qrUrlAfueras'; orderState.shipping.cost = 5000; }
+                if (comuna === 'Rancagua') {
+                    targetButton = buttons.rancagua;
+                    orderState.shipping.cost = 0;
+                } else if (comunasAledanas.includes(comuna)) {
+                    targetButton = buttons.aledanos;
+                    orderState.shipping.cost = 5000;
+                }
                 
                 document.getElementById('total-amount').textContent = `$${(orderState.basePrice + orderState.shipping.cost).toLocaleString('es-CL')}`;
                 
-                qrContainer.innerHTML = '';
-                transferDetailsContainer.innerHTML = '<h3 class="text-xl font-bold mb-3 text-[#00FFFF]">Datos para Transferencia</h3>';
-
-                const qrUrl = paymentConfig[qrUrlKey];
-                if (qrUrl) {
-                    qrContainer.innerHTML = `<a href="${qrUrl}" target="_blank" title="Abrir QR en nueva pestaña"><img src="${qrUrl}" alt="Código QR de Mercado Pago" class="h-full w-full object-contain"></a>`;
-                } else {
-                    qrContainer.innerHTML = `<p class="text-xs text-red-500 p-2">QR no disponible.</p>`;
+                if (targetButton) {
+                    targetButton.classList.remove('hidden');
                 }
-
-                transferDetailsContainer.innerHTML += `
-                    <p class="text-sm"><strong>Banco:</strong> ${paymentConfig.bank || '[No disponible]'}</p>
-                    <p class="text-sm"><strong>Tipo de Cuenta:</strong> ${paymentConfig.accountType || '[No disponible]'}</p>
-                    <p class="text-sm"><strong>Nº de Cuenta:</strong> ${paymentConfig.accountNumber || '[No disponible]'}</p>
-                    <p class="text-sm"><strong>Nombre:</strong> ${paymentConfig.name || '[No disponible]'}</p>
-                    <p class="text-sm"><strong>RUT:</strong> ${paymentConfig.rut || '[No disponible]'}</p>
-                    <p class="text-sm"><strong>Email:</strong> ${paymentConfig.email || '[No disponible]'}</p>
-                `;
             }
 
-            // --- EVENT LISTENERS ---
+            // --- MANEJADORES DE EVENTOS (EVENT LISTENERS) ---
             document.getElementById('start-project-btn').addEventListener('click', () => showSection('category-section'));
             document.getElementById('back-to-category').addEventListener('click', () => showSection('category-section'));
             
@@ -658,12 +940,12 @@
                 }
                 
                 button.disabled = true;
-                spinner.classList.remove('hidden');
+                spinner.classList.add('hidden'); // Ensure spinner is hidden
                 buttonText.textContent = 'Subiendo...';
 
                 try {
-                    orderState.shortText = shortTextArea.value;
-                    orderState.longText = longTextArea.value;
+                    orderState.shortText = shortTextArea.value.trim();
+                    orderState.longText = longTextArea.value.trim();
                     orderState.surpriseMe = surpriseCheckbox.checked;
 
                     await uploadFilesToFirebase(orderState.orderId);
@@ -674,17 +956,15 @@
                     renderSummary();
                     showSection('summary-section');
                 } catch (error) {
-                    console.error("--- ERROR DEFINITIVO EN LA SUBIDA ---:", error);
-                    let errorMessage = "Un error impidió subir los archivos. Por favor, inténtalo de nuevo.";
-                    if (error.code === 'storage/unauthorized') {
-                        errorMessage = "ERROR DE PERMISOS: Firebase está bloqueando la subida. Revisa las Reglas de Storage en tu proyecto.";
-                    }
-                    showNotification(errorMessage);
+                    console.error("Error definitivo en la subida:", error);
+                    showNotification("Un error impidió subir los archivos. Por favor, inténtalo de nuevo.");
                 } finally {
                     button.disabled = false;
-                    buttonText.textContent = 'Subir archivos y continuar';
+                    buttonText.textContent = 'Subir y continuar';
                     spinner.classList.add('hidden');
-                    document.getElementById('upload-progress-container').classList.add('hidden');
+                    document.getElementById('progress-container').classList.add('hidden');
+                    document.getElementById('progress-bar').style.width = '0%';
+                    document.getElementById('progress-text').textContent = ''; // NEW: Reset progress text
                 }
             });
 
@@ -701,17 +981,14 @@
                 const comuna = document.getElementById('comuna-select').value;
                 const address = document.getElementById('address-input').value.trim();
 
-                let missingField = '';
-                if (!clientName) missingField = 'Nombre';
-                else if (!clientPhone) missingField = 'Teléfono';
-                else if (!region) missingField = 'Región';
-                else if (!comuna) missingField = 'Comuna';
-                else if (!address) missingField = 'Dirección';
-
-                if (missingField) {
-                    showNotification(`Por favor, completa el campo: ${missingField}.`);
+                if (!clientName || !clientPhone || !region || !comuna || !address) {
+                    showNotification('Por favor, completa todos los campos de despacho.');
                     return;
                 }
+                
+                button.disabled = true;
+                spinner.classList.remove('hidden');
+                buttonText.textContent = 'Registrando...';
 
                 orderState.clientName = clientName;
                 orderState.clientPhone = clientPhone;
@@ -719,16 +996,16 @@
                 orderState.shipping.comuna = comuna;
                 orderState.shipping.address = address;
 
-                showPaymentDetails();
-                
-                button.disabled = true;
-                spinner.classList.remove('hidden');
-                buttonText.textContent = 'Registrando...';
-
                 try {
+                    // Guarda el estado del pedido en la sesión del navegador ANTES de ir a pagar.
+                    sessionStorage.setItem('huellitasOrderState', JSON.stringify(orderState));
+
+                    renderPaymentSummary(); 
+                    showPaymentDetails();
                     await sendOrderToGoogleSheet();
                     showSection('payment-section');
                 } catch (error) {
+                    console.error("Error al registrar el pedido en Google Sheets:", error);
                     showNotification("No se pudo registrar tu pedido. Inténtalo de nuevo.");
                 } finally {
                     button.disabled = false;
@@ -739,115 +1016,43 @@
 
             document.getElementById('back-to-summary').addEventListener('click', () => showSection('summary-section'));
             
-            document.getElementById('finish-purchase-btn').addEventListener('click', () => {
-                const whatsappNumber = '56946902340';
-                const message = encodeURIComponent(`¡Hola! Te contacto desde "Las Huellitas de mi Vida" para enviar mi comprobante de pago por el pedido de ${orderState.petName}. (ID: ${orderState.orderId}) 🐾`);
-                const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
-                window.open(whatsappUrl, '_blank');
+            // Lógica del Modal para ampliar imágenes
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-img');
+            const previewImg = document.getElementById('product-image-preview');
+            const closeModalBtn = document.getElementById('close-modal');
+
+            previewImg.addEventListener('click', () => {
+                modalImg.src = previewImg.src;
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.querySelector('.modal-content').classList.remove('scale-95');
+                }, 10);
             });
 
-            // --- Modal de Imagen ---
-            const imageModal = document.getElementById('image-modal');
-            const modalImageContent = document.getElementById('modal-image-content');
-            const modalCloseBtn = document.getElementById('modal-close-btn');
-            const productImagePreview = document.getElementById('product-image-preview');
+            const closeModal = () => {
+                modal.querySelector('.modal-content').classList.add('scale-95');
+                modal.classList.add('opacity-0');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            };
 
-            productImagePreview.addEventListener('click', () => {
-                if (productImagePreview.src && !productImagePreview.src.includes('placehold.co')) {
-                    modalImageContent.src = productImagePreview.src;
-                    imageModal.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
-                }
+            closeModalBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
             });
 
-            function closeModal() {
-                imageModal.classList.add('opacity-0', 'pointer-events-none');
-                // Opcional: esperar a que termine la transición para ocultarlo realmente
-                 setTimeout(() => {
-                    imageModal.classList.add('hidden');
-                    modalImageContent.src = ''; // Limpiar para la próxima vez
-                }, 300);
-            }
+            // El código para el enlace de vista previa ha sido eliminado.
 
-            modalCloseBtn.addEventListener('click', closeModal);
-            imageModal.addEventListener('click', (e) => {
-                // Si se hace clic en el fondo oscuro (el modal mismo)
-                if (e.target === imageModal) {
-                    closeModal();
-                }
+            // Botón para reiniciar el flujo desde la página de gracias.
+            document.getElementById('start-new-order-btn').addEventListener('click', () => {
+                window.location.href = window.location.pathname; 
             });
             
             // --- INICIALIZACIÓN ---
-            const docRef = doc(db, "config", "paymentMethods");
-            getDoc(docRef).then(docSnap => {
-                if (docSnap.exists()) {
-                    paymentConfig = docSnap.data();
-                } else {
-                    console.warn("Documento de métodos de pago no encontrado!");
-                }
-            });
-
             populateRegions();
-            
-            // Carga la galería principal desde el nuevo documento único
-            const galleryDocRef = doc(db, "gallery", "paginaPrincipal");
-            getDoc(galleryDocRef).then(docSnap => {
-                if (docSnap.exists() && docSnap.data().imageUrls) {
-                    const galleryGrid = document.getElementById('gallery-grid');
-                    galleryGrid.innerHTML = '';
-                    docSnap.data().imageUrls.forEach(url => {
-                        galleryGrid.innerHTML += `
-                            <div class="gallery-item gallery-image rounded-lg overflow-hidden shadow-lg aspect-square">
-                                <img src="${url}" alt="Diseño de Huellitas" class="w-full h-full object-cover">
-                            </div>
-                        `;
-                    });
-                } else {
-                     document.getElementById('gallery-grid').innerHTML = `<p class="text-yellow-400 text-center col-span-full">No se encontraron imágenes en la galería principal.</p>`;
-                }
-            });
-
-            const categoriesLoaded = await loadCollection("categories", "category-grid", (data, id) => `
-                <div class="category-card rounded-xl cursor-pointer flex flex-col text-center" 
-                    data-category='${JSON.stringify({...data, id})}'>
-                    <div class="p-6 flex flex-col flex-grow items-center">
-                        <div class="text-6xl mb-4">${data.icon || '🐾'}</div>
-                        <h3 class="text-xl font-bold mb-1">${data.name}</h3>
-                        <p class="text-gray-400 text-xs mb-2">${data.size}</p>
-                        <p class="text-gray-300 text-sm flex-grow mb-4">${data.description}</p>
-                        <p class="text-2xl font-bold mt-auto text-green-400">$${(data.price || 0).toLocaleString('es-CL')}</p>
-                    </div>
-                </div>`);
-            if (categoriesLoaded) {
-                document.querySelectorAll('.category-card').forEach(card => {
-                    card.addEventListener('click', (e) => {
-                        const data = JSON.parse(e.currentTarget.dataset.category);
-                        orderState.category = data.name;
-                        orderState.basePrice = data.price;
-                        orderState.imageUrls = data.imageUrls || [];
-                        const preview = document.getElementById('product-image-preview');
-                        const thumbs = document.getElementById('thumbnail-container');
-                        thumbs.innerHTML = '';
-                        if (orderState.imageUrls.length > 0) {
-                            preview.src = orderState.imageUrls[0];
-                            orderState.imageUrls.forEach((url, index) => {
-                                const thumb = document.createElement('img');
-                                thumb.src = url;
-                                thumb.className = 'thumbnail-image' + (index === 0 ? ' active' : '');
-                                thumb.onclick = () => {
-                                    preview.src = url;
-                                    document.querySelectorAll('.thumbnail-image').forEach(t => t.classList.remove('active'));
-                                    thumb.classList.add('active');
-                                };
-                                thumbs.appendChild(thumb);
-                            });
-                        } else {
-                            preview.src = 'https://placehold.co/400x300/333/FFF?text=Sin+Imagen';
-                        }
-                        document.getElementById('pet-info-title').textContent = `Proyecto: ${orderState.category}`;
-                        showSection('pet-info-section');
-                    });
-                });
-            }
+            await loadGallery();
+            await loadCategories();
             showSection('home-section');
         });
 
