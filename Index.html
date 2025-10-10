@@ -164,14 +164,21 @@
                 flex: 0 0 25%; /* En escritorio, muestra 4 imágenes */
             }
         }
+        /* --- ESTILOS PARA LA ANIMACIÓN DE MASCOTAS EN MÓVIL --- */
+        .peeking-animal {
+            transition: transform 0.8s ease-in-out;
+        }
+        .peeking-animal.hide-mobile-animation {
+            transform: translateY(100%);
+        }
     </style>
 </head>
 <body class="antialiased overflow-x-hidden">
 
     <!-- Mascotas asomándose -->
-    <img id="peeking-dog" src="https://i.ibb.co/DfH4TPB8/Dise-o-sin-t-tulo-7.png" alt="Cachorro asomándose" class="hidden fixed bottom-0 left-0 w-40 md:w-56 z-40">
-    <img id="peeking-cat" src="https://i.ibb.co/spPvfb9H/Dise-o-sin-t-tulo-6.png" alt="Gato asomándose" class="hidden fixed bottom-0 right-0 w-40 md:w-56 z-40">
-    <img id="peeking-family" src="https://i.ibb.co/7dRW4ZMY/Dise-o-sin-t-tulo-9.png" alt="Familia de mascotas asomándose" class="hidden fixed bottom-0 left-0 w-40 md:w-56 z-40">
+    <img id="peeking-dog" src="https://i.ibb.co/DfH4TPB8/Dise-o-sin-t-tulo-7.png" alt="Cachorro asomándose" class="peeking-animal hidden fixed bottom-0 left-0 w-40 md:w-56 z-40">
+    <img id="peeking-cat" src="https://i.ibb.co/spPvfb9H/Dise-o-sin-t-tulo-6.png" alt="Gato asomándose" class="peeking-animal hidden fixed bottom-0 right-0 w-40 md:w-56 z-40">
+    <img id="peeking-family" src="https://i.ibb.co/7dRW4ZMY/Dise-o-sin-t-tulo-9.png" alt="Familia de mascotas asomándose" class="peeking-animal hidden fixed bottom-0 left-0 w-40 md:w-56 z-40">
 
     <!-- Huellas Decorativas de Fondo -->
     <div class="paw-bg-container">
@@ -571,18 +578,34 @@
             window.scrollTo(0, 0);
 
             // Lógica para mostrar/ocultar animales y footer
-            peekingDog.classList.add('hidden');
-            peekingCat.classList.add('hidden');
-            peekingFamily.classList.add('hidden');
+            const allAnimals = [peekingDog, peekingCat, peekingFamily];
+            allAnimals.forEach(animal => {
+                animal.classList.add('hidden'); // Ensure all are hidden by default
+                animal.classList.remove('hide-mobile-animation'); // Reset animation state
+            });
+            
             footerSection.classList.toggle('hidden', sectionId !== 'home-section');
 
             if (sectionId === 'pet-info-section') {
+                const isMobile = window.innerWidth < 768;
+                let activeAnimal = null;
+
                 if (orderState.category === 'Homenaje a su Vida') {
-                    peekingDog.classList.remove('hidden');
+                    activeAnimal = peekingDog;
                 } else if (orderState.category === 'Celebrando la Vida de tu querida mascota.') {
-                    peekingCat.classList.remove('hidden');
+                    activeAnimal = peekingCat;
                 } else if (orderState.category === 'Celebrando la Nueva Familia') {
-                    peekingFamily.classList.remove('hidden');
+                    activeAnimal = peekingFamily;
+                }
+
+                if (activeAnimal) {
+                    activeAnimal.classList.remove('hidden'); // Make the correct one visible
+                    
+                    if (isMobile) {
+                        setTimeout(() => {
+                            activeAnimal.classList.add('hide-mobile-animation');
+                        }, 2500); // After 2.5 seconds, start the animation to hide it
+                    }
                 }
             }
         }
@@ -894,16 +917,18 @@
             formData.append('longText', orderState.surpriseMe ? '¡Sorpréndeme!' : orderState.longText);
             formData.append('filesLink', orderState.firebaseFolderUrl);
             
-            // Usamos 'no-cors' porque el script de Google no está configurado para CORS completo
-            // pero esto significa que no podemos leer la respuesta directamente.
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors', 
-                body: formData,
-            });
-            // Con no-cors, no podemos verificar response.ok o leer el body.
-            // Asumimos que si no hay un error de red, la petición fue enviada.
-            console.log("Datos enviados a Google Sheets.");
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    body: formData,
+                });
+                console.log("Datos enviados a Google Sheets.");
+            } catch (error) {
+                console.error("Error al enviar datos a Google Sheets:", error);
+                // No lanzamos un error al usuario, pero lo registramos.
+                // La app puede continuar aunque el registro en Sheets falle.
+            }
         }
 
         // --- INICIALIZACIÓN DE LA APLICACIÓN ---
