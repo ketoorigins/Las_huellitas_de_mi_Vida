@@ -167,10 +167,10 @@
 
     <!-- Header Fijo -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md h-20">
-        <!-- Contenedor de grilla que ocupa el 100% del ancho del viewport -->
-        <div class="w-full h-full px-6 grid grid-cols-3 items-center">
+        <!-- Contenedor responsivo: Flex en móvil, Grid en pantallas medianas y grandes -->
+        <div class="w-full h-full px-6 flex justify-center items-center md:grid md:grid-cols-3">
             
-            <!-- Columna Izquierda: Huellas alineadas al inicio -->
+            <!-- Columna Izquierda (Solo visible en md y superior) -->
             <div class="hidden md:flex items-center gap-x-4 justify-self-start">
                 <img src="https://i.ibb.co/MDZYf540/huellas-6.png" alt="huella" class="h-7 transform rotate-45">
                 <img src="https://i.ibb.co/ttbd6wP/huellas-4.png" alt="huella" class="h-7 transform rotate-25">
@@ -179,13 +179,13 @@
                 <img src="https://i.ibb.co/vx7Wb795/huellas.png" alt="huella" class="h-7 transform -rotate-25">
             </div>
 
-            <!-- Columna Central: Logo y Título -->
+            <!-- Columna Central (Siempre visible y centrada) -->
             <div class="flex items-center justify-self-center">
                 <img id="header-logo" src="https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png" alt="Logo" class="h-10 w-10 mr-4 rounded-full flex-shrink-0">
                 <h1 class="text-2xl md:text-3xl font-bold tracking-wider text-center whitespace-nowrap">Las Huellitas de mi Vida</h1>
             </div>
 
-            <!-- Columna Derecha: Huellas alineadas al final -->
+            <!-- Columna Derecha (Solo visible en md y superior) -->
             <div class="hidden md:flex items-center gap-x-4 justify-self-end">
                  <img src="https://i.ibb.co/vx7Wb795/huellas.png" alt="huella" class="h-7 transform -rotate-15">
                  <img src="https://i.ibb.co/ttbd6wP/huellas-4.png" alt="huella" class="h-7 transform rotate-12">
@@ -312,7 +312,13 @@
                         <label for="surprise-me-checkbox" class="font-bold text-yellow-300">¡Sorpréndeme!&nbsp;🐾</label>
                     </div>
                     <p id="surprise-me-text" class="text-xs text-yellow-400 hidden">Al marcar esta opción, con mucho respeto, empatía y amor, buscaremos el texto adecuado para tu obra.</p>
-                    
+
+                    <!-- Barra de progreso movida a su nueva ubicación -->
+                    <div id="progress-container" class="hidden w-full bg-gray-700 rounded-full h-4 my-4 relative">
+                        <div id="progress-bar" class="bg-gradient-to-r from-green-400 to-cyan-500 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        <span id="progress-text" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white"></span>
+                    </div>
+
                     <div class="flex justify-between items-center pt-4">
                         <button id="back-to-pet-info" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
                         <button id="to-summary-section" class="main-button text-white font-bold py-2 px-6 rounded-full flex items-center justify-center">
@@ -323,13 +329,6 @@
                             </svg>
                         </button>
                     </div>
-
-                    <!-- Barra de progreso movida a su nueva ubicación -->
-                    <div id="progress-container" class="hidden w-full bg-gray-700 rounded-full h-4 mt-4 relative">
-                        <div id="progress-bar" class="bg-gradient-to-r from-green-400 to-cyan-500 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
-                        <span id="progress-text" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white"></span>
-                    </div>
-
                 </div>
             </div>
         </section>
