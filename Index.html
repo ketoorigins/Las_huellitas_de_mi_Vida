@@ -221,7 +221,9 @@
             <!-- SECCIÓN DE GALERÍA -->
             <div id="gallery-section" class="mt-24">
                 <div class="flex justify-center mb-8">
-                    <img src="https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png" alt="Logo Decorativo" class="w-full max-w-5xl aspect-square rounded-full">
+                    <!-- CONTENEDOR DE LA IMAGEN GIGANTE -->
+                    <div class="w-full max-w-md md:max-w-xl aspect-square rounded-full bg-cover bg-center bg-no-repeat" style="background-image: url('https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png')">
+                    </div>
                 </div>
                 <h2 class="text-4xl font-bold mb-8">Nuestros Diseños&nbsp;🐾</h2>
                 <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
@@ -312,13 +314,7 @@
                         <label for="surprise-me-checkbox" class="font-bold text-yellow-300">¡Sorpréndeme!&nbsp;🐾</label>
                     </div>
                     <p id="surprise-me-text" class="text-xs text-yellow-400 hidden">Al marcar esta opción, con mucho respeto, empatía y amor, buscaremos el texto adecuado para tu obra.</p>
-
-                    <!-- Barra de progreso movida a su nueva ubicación -->
-                    <div id="progress-container" class="hidden w-full bg-gray-700 rounded-full h-4 my-4 relative">
-                        <div id="progress-bar" class="bg-gradient-to-r from-green-400 to-cyan-500 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
-                        <span id="progress-text" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white"></span>
-                    </div>
-
+                    
                     <div class="flex justify-between items-center pt-4">
                         <button id="back-to-pet-info" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
                         <button id="to-summary-section" class="main-button text-white font-bold py-2 px-6 rounded-full flex items-center justify-center">
@@ -329,6 +325,13 @@
                             </svg>
                         </button>
                     </div>
+
+                    <!-- Barra de progreso movida a su nueva ubicación -->
+                    <div id="progress-container" class="hidden w-full bg-gray-700 rounded-full h-4 mt-4 relative">
+                        <div id="progress-bar" class="bg-gradient-to-r from-green-400 to-cyan-500 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        <span id="progress-text" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white"></span>
+                    </div>
+
                 </div>
             </div>
         </section>
@@ -686,7 +689,7 @@
 
             } catch (error) {
                 console.error("Error al cargar categorías:", error);
-                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar el contenido.</p>`;
+                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar la contenido.</p>`;
             }
         }
 
@@ -734,10 +737,10 @@
             const individualProgress = {}; // Objeto para rastrear el progreso de cada archivo
             const progressBar = document.getElementById('progress-bar');
             const progressContainer = document.getElementById('progress-container');
-            const progressText = document.getElementById('progress-text'); // NEW: Get the text element
+            const progressText = document.getElementById('progress-text');
             progressContainer.classList.remove('hidden');
             progressBar.style.width = '0%';
-            progressText.textContent = '0%'; // NEW: Initialize text
+            progressText.textContent = '0%';
 
             // Crear un array de promesas, una por cada archivo a subir.
             const uploadPromises = filesToUpload.map(file => {
@@ -752,7 +755,7 @@
                             let totalBytesUploaded = Object.values(individualProgress).reduce((a, b) => a + b, 0);
                             const progress = totalSize > 0 ? Math.round((totalBytesUploaded / totalSize) * 100) : 0;
                             progressBar.style.width = `${progress}%`;
-                            progressText.textContent = `${progress}%`; // NEW: Update text
+                            progressText.textContent = `${progress}%`;
                         }, 
                         (error) => {
                             console.error("Fallo la subida para:", file.name, error);
@@ -764,7 +767,7 @@
                             let totalBytesUploaded = Object.values(individualProgress).reduce((a, b) => a + b, 0);
                             const progress = totalSize > 0 ? Math.round((totalBytesUploaded / totalSize) * 100) : 0;
                             progressBar.style.width = `${progress}%`;
-                            progressText.textContent = `${progress}%`; // NEW: Update text on complete
+                            progressText.textContent = `${progress}%`;
                             resolve();
                         }
                     );
@@ -979,7 +982,7 @@
                     spinner.classList.add('hidden');
                     document.getElementById('progress-container').classList.add('hidden');
                     document.getElementById('progress-bar').style.width = '0%';
-                    document.getElementById('progress-text').textContent = ''; // NEW: Reset progress text
+                    document.getElementById('progress-text').textContent = '';
                 }
             });
 
