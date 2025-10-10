@@ -143,17 +143,35 @@
             box-shadow: 0 6px 25px rgba(0, 129, 255, 0.6) !important;
             transform: scale(1.15); /* Un poco más grande al pasar el mouse */
         }
+        /* Estilos para el carrusel de la galería principal */
+        .gallery-carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch; /* Para un desplazamiento suave en iOS */
+            scrollbar-width: none; /* Ocultar barra de scroll en Firefox */
+        }
+        .gallery-carousel::-webkit-scrollbar {
+            display: none; /* Ocultar barra de scroll en Chrome, Safari, Edge */
+        }
+        .gallery-carousel-item {
+            flex: 0 0 50%; /* En móvil, muestra 2 imágenes */
+            scroll-snap-align: center;
+            padding: 0 0.5rem;
+        }
+        @media (min-width: 768px) {
+            .gallery-carousel-item {
+                flex: 0 0 25%; /* En escritorio, muestra 4 imágenes */
+            }
+        }
     </style>
 </head>
 <body class="antialiased overflow-x-hidden">
 
-    <!-- Cachorro asomándose -->
+    <!-- Mascotas asomándose -->
     <img id="peeking-dog" src="https://i.ibb.co/DfH4TPB8/Dise-o-sin-t-tulo-7.png" alt="Cachorro asomándose" class="hidden fixed bottom-0 left-0 w-40 md:w-56 z-40">
-    <!-- Gato asomándose -->
     <img id="peeking-cat" src="https://i.ibb.co/spPvfb9H/Dise-o-sin-t-tulo-6.png" alt="Gato asomándose" class="hidden fixed bottom-0 right-0 w-40 md:w-56 z-40">
-    <!-- Familia de mascotas asomándose -->
     <img id="peeking-family" src="https://i.ibb.co/7dRW4ZMY/Dise-o-sin-t-tulo-9.png" alt="Familia de mascotas asomándose" class="hidden fixed bottom-0 left-0 w-40 md:w-56 z-40">
-
 
     <!-- Huellas Decorativas de Fondo -->
     <div class="paw-bg-container">
@@ -167,25 +185,18 @@
 
     <!-- Header Fijo -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md h-20">
-        <!-- Contenedor responsivo: Flex en móvil, Grid en pantallas medianas y grandes -->
         <div class="w-full h-full px-6 flex justify-center items-center md:grid md:grid-cols-3">
-            
-            <!-- Columna Izquierda (Solo visible en md y superior) -->
             <div class="hidden md:flex items-center gap-x-4 justify-self-start">
-                <img src="https://i.ibb.co/MDZYf540/huellas-6.png" alt="huella" class="h-7 transform rotate-45">
-                <img src="https://i.ibb.co/ttbd6wP/huellas-4.png" alt="huella" class="h-7 transform rotate-25">
-                <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" alt="huella" class="h-7 transform -rotate-12">
-                <img src="https://i.ibb.co/mFSBSN3X/huellas-2.png" alt="huella" class="h-7 transform rotate-15">
-                <img src="https://i.ibb.co/vx7Wb795/huellas.png" alt="huella" class="h-7 transform -rotate-25">
+                 <img src="https://i.ibb.co/MDZYf540/huellas-6.png" alt="huella" class="h-7 transform rotate-45">
+                 <img src="https://i.ibb.co/ttbd6wP/huellas-4.png" alt="huella" class="h-7 transform rotate-25">
+                 <img src="https://i.ibb.co/Z1J9YXq9/huellas-1.png" alt="huella" class="h-7 transform -rotate-12">
+                 <img src="https://i.ibb.co/mFSBSN3X/huellas-2.png" alt="huella" class="h-7 transform rotate-15">
+                 <img src="https://i.ibb.co/vx7Wb795/huellas.png" alt="huella" class="h-7 transform -rotate-25">
             </div>
-
-            <!-- Columna Central (Siempre visible y centrada) -->
             <div class="flex items-center justify-self-center">
                 <img id="header-logo" src="https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png" alt="Logo" class="h-10 w-10 mr-4 rounded-full flex-shrink-0">
                 <h1 class="text-2xl md:text-3xl font-bold tracking-wider text-center whitespace-nowrap">Las Huellitas de mi Vida</h1>
             </div>
-
-            <!-- Columna Derecha (Solo visible en md y superior) -->
             <div class="hidden md:flex items-center gap-x-4 justify-self-end">
                  <img src="https://i.ibb.co/vx7Wb795/huellas.png" alt="huella" class="h-7 transform -rotate-15">
                  <img src="https://i.ibb.co/ttbd6wP/huellas-4.png" alt="huella" class="h-7 transform rotate-12">
@@ -219,16 +230,21 @@
             </button>
 
             <!-- SECCIÓN DE GALERÍA -->
-            <div id="gallery-section" class="mt-24">
+            <div id="gallery-container" class="mt-24">
+                <!-- IMAGEN CIRCULAR RESTAURADA -->
                 <div class="flex justify-center mb-8">
-                    <!-- CONTENEDOR DE LA IMAGEN GIGANTE -->
                     <div class="w-full max-w-md md:max-w-xl aspect-square rounded-full bg-cover bg-center bg-no-repeat" style="background-image: url('https://i.ibb.co/4R3Rx0Vx/Gemini_Generated_Image-b8hqcvb8hqcvb8hq.png')">
                     </div>
                 </div>
-                <h2 class="text-4xl font-bold mb-8">Nuestros Diseños&nbsp;🐾</h2>
-                <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-                    <!-- Las imágenes de la galería se cargarán aquí -->
-                </div>
+                 <h2 class="text-4xl font-bold mb-8">Nuestros Diseños&nbsp;🐾</h2>
+                 <div class="relative max-w-5xl mx-auto">
+                     <div id="gallery-grid" class="gallery-carousel">
+                         <!-- Las imágenes de la galería se cargarán aquí -->
+                     </div>
+                     <!-- Botones de Navegación del Carrusel -->
+                     <button id="gallery-prev" class="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-8 bg-black/30 text-white rounded-full h-12 w-12 flex items-center justify-center text-2xl hover:bg-black/50 transition duration-300 hidden md:flex">&lt;</button>
+                     <button id="gallery-next" class="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-8 bg-black/30 text-white rounded-full h-12 w-12 flex items-center justify-center text-2xl hover:bg-black/50 transition duration-300 hidden md:flex">&gt;</button>
+                 </div>
             </div>
         </section>
 
@@ -239,30 +255,40 @@
                 <!-- Las categorías se cargarán aquí desde Firebase -->
             </div>
         </section>
-
+        
         <!-- PASO 3: Formulario Datos de la Mascota -->
-        <section id="pet-info-section" class="hidden section-fade-in">
-            <div class="max-w-lg mx-auto bg-black/20 p-8 rounded-xl border border-white/10">
-                <div class="flex justify-center mb-4">
-                    <img id="product-image-preview" src="" alt="Producto seleccionado" class="rounded-lg max-h-40 shadow-lg cursor-pointer transition-transform duration-300 hover:scale-105">
+        <section id="pet-info-section" class="hidden section-fade-in flex justify-center items-center">
+            <!-- Contenedor principal que se ajusta dinámicamente -->
+            <div id="pet-info-layout-container" class="w-full max-w-6xl grid md:grid-cols-2 gap-8 items-center">
+                
+                <!-- Columna del Formulario -->
+                <div id="pet-form-container" class="bg-black/20 p-8 rounded-xl border border-white/10">
+                    <div class="flex justify-center mb-4">
+                        <img id="product-image-preview" src="" alt="Producto seleccionado" class="rounded-lg max-h-40 shadow-lg cursor-pointer transition-transform duration-300 hover:scale-105">
+                    </div>
+                    <div id="thumbnail-container" class="flex justify-center gap-2 mb-6">
+                        <!-- Las miniaturas se generarán aquí con JavaScript -->
+                    </div>
+                    <h2 id="pet-info-title" class="text-3xl font-bold text-center mb-6">Datos de tu Mascota</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="pet-name" class="block text-sm font-medium text-[#00FFFF] mb-1">Nombre de tu mascota</label>
+                            <input type="text" id="pet-name" class="form-input w-full p-3 rounded-lg text-white" placeholder="Ej: Tatán" autocomplete="off">
+                        </div>
+                        <div>
+                            <label for="pet-age" class="block text-sm font-medium text-[#00FFFF] mb-1">Edad (en años humanos)</label>
+                            <input type="number" id="pet-age" class="form-input w-full p-3 rounded-lg text-white" placeholder="Ej: 2" autocomplete="off">
+                        </div>
+                        <div class="flex justify-between items-center pt-4">
+                            <button id="back-to-category" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
+                            <button id="to-upload-section" class="main-button text-white font-bold py-2 px-6 rounded-full">Continuar</button>
+                        </div>
+                    </div>
                 </div>
-                <div id="thumbnail-container" class="flex justify-center gap-2 mb-6">
-                    <!-- Las miniaturas se generarán aquí con JavaScript -->
-                </div>
-                <h2 id="pet-info-title" class="text-3xl font-bold text-center mb-6">Datos de tu Mascota</h2>
-                <div class="space-y-6">
-                    <div>
-                        <label for="pet-name" class="block text-sm font-medium text-[#00FFFF] mb-1">Nombre de tu mascota</label>
-                        <input type="text" id="pet-name" class="form-input w-full p-3 rounded-lg text-white" placeholder="Ej: Tatán" autocomplete="off">
-                    </div>
-                    <div>
-                        <label for="pet-age" class="block text-sm font-medium text-[#00FFFF] mb-1">Edad (en años humanos)</label>
-                        <input type="number" id="pet-age" class="form-input w-full p-3 rounded-lg text-white" placeholder="Ej: 2" autocomplete="off">
-                    </div>
-                    <div class="flex justify-between items-center pt-4">
-                        <button id="back-to-category" class="secondary-button font-bold py-2 px-6 rounded-full">Volver</button>
-                        <button id="to-upload-section" class="main-button text-white font-bold py-2 px-6 rounded-full">Continuar</button>
-                    </div>
+
+                <!-- Columna de Descripción Poética -->
+                <div id="pet-description-container" class="p-4 md:p-8">
+                    <!-- El contenido se inyecta aquí con JavaScript -->
                 </div>
             </div>
         </section>
@@ -457,7 +483,7 @@
 
     </main>
 
-    <footer class="text-center py-16 mt-24 border-t border-white/10">
+    <footer id="footer-section" class="text-center py-16 mt-24 border-t border-white/10">
         <div class="container mx-auto px-6 max-w-5xl">
             <div class="grid md:grid-cols-2 gap-12 text-center md:text-left">
                 <div>
@@ -503,11 +529,10 @@
         const storage = getStorage(app);
         
         // --- ESTADO GLOBAL DE LA APLICACIÓN ---
-        // Este objeto almacena toda la información del pedido a medida que el usuario avanza.
         const orderState = {
             category: '',
-            categoryIcon: '', // Para el resumen final
-            categorySize: '', // Para el resumen final
+            categoryIcon: '',
+            categorySize: '',
             basePrice: 0,
             imageUrls: [],
             petName: '',
@@ -524,7 +549,7 @@
                 address: '',
                 cost: 0,
             },
-            firebaseFolderUrl: '' // URL a la carpeta de archivos en Firebase Storage
+            firebaseFolderUrl: ''
         };
         
         // --- CONSTANTES ---
@@ -532,6 +557,7 @@
         const peekingDog = document.getElementById('peeking-dog');
         const peekingCat = document.getElementById('peeking-cat');
         const peekingFamily = document.getElementById('peeking-family');
+        const footerSection = document.getElementById('footer-section');
         
         // --- FUNCIONES UTILITARIAS ---
         
@@ -542,12 +568,13 @@
         function showSection(sectionId) {
             document.querySelectorAll('main > section').forEach(section => section.classList.add('hidden'));
             document.getElementById(sectionId)?.classList.remove('hidden');
-            window.scrollTo(0, 0); // Vuelve al inicio de la página
+            window.scrollTo(0, 0);
 
-            // Lógica para mostrar/ocultar animales decorativos
+            // Lógica para mostrar/ocultar animales y footer
             peekingDog.classList.add('hidden');
             peekingCat.classList.add('hidden');
             peekingFamily.classList.add('hidden');
+            footerSection.classList.toggle('hidden', sectionId !== 'home-section');
 
             if (sectionId === 'pet-info-section') {
                 if (orderState.category === 'Homenaje a su Vida') {
@@ -562,8 +589,6 @@
 
         /**
          * Muestra una notificación emergente (toast).
-         * @param {string} message - El mensaje a mostrar.
-         * @param {boolean} isError - Si es true, la notificación será roja (error), si no, verde (éxito).
          */
         function showNotification(message, isError = true) {
             const toast = document.getElementById('toast-notification');
@@ -571,6 +596,7 @@
             toastMessage.textContent = message;
             toast.className = `fixed bottom-5 right-5 text-white py-3 px-6 rounded-full shadow-lg text-center z-[100] transition-opacity duration-300 ${isError ? 'bg-red-500' : 'bg-green-500'}`;
             
+            toast.classList.remove('hidden');
             setTimeout(() => { toast.classList.remove('opacity-0'); }, 10);
             setTimeout(() => {
                 toast.classList.add('opacity-0');
@@ -580,7 +606,6 @@
 
         /**
          * Genera un ID de pedido único.
-         * @returns {string} El ID generado, ej: "HUELLITAS-A1B2C3".
          */
         function generateOrderId() {
             const prefix = "HUELLITAS";
@@ -590,6 +615,21 @@
                 result += chars.charAt(Math.floor(Math.random() * chars.length));
             }
             return `${prefix}-${result}`;
+        }
+
+        /**
+         * Abre el modal para ver una imagen en grande.
+         * @param {string} imageUrl - La URL de la imagen a mostrar.
+         */
+        function openImageModal(imageUrl) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-img');
+            modalImg.src = imageUrl;
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('.modal-content').classList.remove('scale-95');
+            }, 10);
         }
 
         // --- FUNCIONES DE CARGA DE DATOS (FIREBASE) ---
@@ -607,10 +647,14 @@
                 if (docSnap.exists() && docSnap.data().imageUrls) {
                     grid.innerHTML = '';
                     docSnap.data().imageUrls.forEach(url => {
-                        grid.innerHTML += `
+                        const div = document.createElement('div');
+                        div.className = 'gallery-carousel-item';
+                        div.innerHTML = `
                             <div class="rounded-lg overflow-hidden shadow-lg aspect-square">
-                                <img src="${url}" alt="Obra de arte" class="w-full h-full object-cover gallery-image-hover">
+                                <img src="${url}" alt="Obra de arte" class="w-full h-full object-cover gallery-image-hover cursor-pointer">
                             </div>`;
+                        div.querySelector('img').addEventListener('click', () => openImageModal(url));
+                        grid.appendChild(div);
                     });
                 } else {
                     grid.innerHTML = `<p class="text-yellow-400 text-center col-span-full">No se encontraron imágenes en la galería.</p>`;
@@ -637,7 +681,6 @@
                 const categories = [];
                 querySnapshot.forEach(doc => categories.push(doc.data()));
                 
-                // Ordenar categorías por el campo 'order'
                 categories.sort((a, b) => (a.order || 99) - (b.order || 99));
 
                 categories.forEach(data => {
@@ -658,7 +701,7 @@
                         orderState.category = data.name;
                         orderState.categoryIcon = data.icon || '🐾';
                         orderState.categorySize = data.size || 'No especificado';
-                        orderState.basePrice = Number(data.price || 119990); // Precio base por defecto
+                        orderState.basePrice = Number(data.price || 119990);
                         orderState.imageUrls = data.imageUrls || [];
                         
                         const preview = document.getElementById('product-image-preview');
@@ -683,13 +726,71 @@
                         }
                         
                         document.getElementById('pet-info-title').textContent = `Proyecto: ${orderState.category}`;
+                        
+                        // --- LÓGICA DE DISEÑO Y TEXTO CONDICIONAL ---
+                        const layoutContainer = document.getElementById('pet-info-layout-container');
+                        const formContainer = document.getElementById('pet-form-container');
+                        const descriptionContainer = document.getElementById('pet-description-container');
+                        
+                        // Resetea clases de layout, orden y márgenes
+                        layoutContainer.classList.remove('md:ml-64', 'md:mr-64');
+                        formContainer.classList.remove('md:order-1', 'md:order-2');
+                        descriptionContainer.classList.remove('md:order-1', 'md:order-2');
+                        
+                        let descriptionHTML = '';
+
+                        if (orderState.category === 'Celebrando la Vida de tu querida mascota.') {
+                            // Mascota a la DERECHA -> Contenido a la IZQUIERDA
+                            formContainer.classList.add('md:order-2');
+                            descriptionContainer.classList.add('md:order-1');
+                            layoutContainer.classList.add('md:mr-64'); // Margen derecho para no chocar con la mascota
+                            
+                            descriptionHTML = `
+                                <h3 class="text-3xl md:text-4xl font-bold text-[#00FFFF] mb-4">Celebrando su Mágica Presencia</h3>
+                                <p class="text-gray-300">
+                                    Tu compañero, sea cual sea su especie, es una fuente de alegría infinita. Esta obra es un tributo vibrante a su singular presencia y a esos instantes de calma y travesuras que llenan tu hogar de vida.
+                                </p>
+                                <p class="text-gray-300 mt-4">
+                                    A partir de tus fotografías, nuestros artistas crearán un retrato conmovedor que captura la esencia única de tu amigo. Cada trazo es una celebración de su espíritu, realizado con una delicada mezcla de <strong>lápices pastel seco, acuarelas y acrílicos</strong>. La obra final, protegida con barnices y un bello <strong>vidrio opaco</strong>, se presenta en un elegante <strong>marco en tonos crema</strong> para convertirse en una pieza de arte atemporal que inmortaliza el espíritu libre de tu querido compañero.
+                                </p>
+                            `;
+                        } else {
+                            // Mascota a la IZQUIERDA -> Contenido a la DERECHA (por defecto para las otras dos)
+                            formContainer.classList.add('md:order-1');
+                            descriptionContainer.classList.add('md:order-2');
+                            layoutContainer.classList.add('md:ml-64'); // Margen izquierdo para no chocar
+                            
+                            if (orderState.category === 'Homenaje a su Vida') {
+                                descriptionHTML = `
+                                    <h3 class="text-3xl md:text-4xl font-bold text-[#00FFFF] mb-4">Un Homenaje a su Huella Inolvidable</h3>
+                                    <p class="text-gray-300">
+                                        Cada momento que tu amigo dejó en tu vida es un tesoro. Con profundo respeto y amor, transformamos esos recuerdos en un homenaje eterno. A partir de tus fotografías más queridas, nuestros artistas crearán un dibujo conmovedor que captura la esencia única de tu mascota.
+                                    </p>
+                                    <p class="text-gray-300 mt-4">
+                                        Cada trazo es una celebración de su espíritu, realizado con una delicada mezcla de <strong>lápices pastel seco, acuarelas y acrílicos</strong>. La obra final, protegida con barnices y un bello <strong>vidrio opaco</strong>, se presenta en un elegante <strong>marco en tonos crema</strong> para convertirse en una pieza de arte atemporal que honra su paso por tu familia.
+                                    </p>
+                                `;
+                            } else { // Celebrando la Nueva Familia
+                                descriptionHTML = `
+                                    <h3 class="text-3xl md:text-4xl font-bold text-[#00FFFF] mb-4">El Retrato de la Manada Feliz</h3>
+                                    <p class="text-gray-300">
+                                        ¿Uno no era suficiente? ¡Celebremos el caos y el amor de tu familia multiespecie! Esta obra es un tributo a la dinámica única de tu manada, capturando las personalidades y la conexión especial que comparten.
+                                    </p>
+                                    <p class="text-gray-300 mt-4">
+                                        Con tus fotos como inspiración, crearemos una composición artística que refleje la armonía de tu hogar. Usando una técnica mixta de <strong>lápices pastel, acuarelas y acrílicos</strong>, cada detalle es cuidadosamente trabajado. La pieza final, protegida con barnices y un bello <strong>vidrio opaco</strong>, se presenta en un elegante <strong>marco en tonos crema</strong> que la convierte en un tesoro familiar para celebrar la alegría de estar juntos.
+                                    </p>
+                                `;
+                            }
+                        }
+                        descriptionContainer.innerHTML = descriptionHTML;
+                        
                         showSection('pet-info-section');
                     });
                 });
 
             } catch (error) {
                 console.error("Error al cargar categorías:", error);
-                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar la contenido.</p>`;
+                grid.innerHTML = `<p class="text-red-500 text-center col-span-full">No se pudo cargar el contenido.</p>`;
             }
         }
 
@@ -700,32 +801,28 @@
          */
         function renderPaymentSummary() {
             const summaryContainer = document.getElementById('payment-summary');
-            const materials = "Terminaciones en vidrio opaco, fotografías impresas en papel fotográfico premium mate, lápices pastel seco, acrílicos, acuarelas, rotuladores de tinta, fijadores y barnices.";
+            const summaryText = "Terminaciones en vidrio opaco, fotografías impresas en papel fotográfico premium mate, lápices pastel seco, acrílicos, acuarelas, rotuladores de tinta, fijadores y barnices.";
             
             summaryContainer.innerHTML = `
                 <h4 class="text-xl font-bold text-center mb-4 text-[#00FFFF]">Detalles de tu Obra</h4>
                 <p><strong>Proyecto:</strong> ${orderState.categoryIcon} ${orderState.category}</p>
                 <p><strong>Tamaño:</strong> ${orderState.categorySize}</p>
-                <p><strong>Materiales:</strong> ${materials}</p>
+                <p><strong>Resumen:</strong> ${summaryText}</p>
             `;
         }
 
         /**
          * Sube los archivos seleccionados por el usuario a Firebase Storage.
-         * @param {string} orderId - El ID del pedido para crear la carpeta en Storage.
-         * @returns {Promise<void>} Una promesa que se resuelve cuando todos los archivos han sido subidos.
          */
         async function uploadFilesToFirebase(orderId) {
             const photoInput = orderState.hasVideo ? document.getElementById('photo-input-multi') : document.getElementById('photo-input-only');
             const videoInput = orderState.hasVideo ? document.getElementById('video-input-multi') : null;
 
-            // Juntar todos los archivos (fotos y videos) en un solo array.
             let filesToUpload = [...photoInput.files];
             if (videoInput && videoInput.files.length > 0) {
                 filesToUpload.push(...videoInput.files);
             }
             
-            // Si el usuario no eligió "Sorpréndeme" y escribió textos, crea un archivo .txt con esa información.
             const textContent = `ID Pedido: ${orderState.orderId}\nNombre Mascota: ${orderState.petName}\n\nTexto Corto:\n${orderState.shortText}\n\nHistoria:\n${orderState.longText}`;
             if (!orderState.surpriseMe && (orderState.shortText || orderState.longText)) {
                 const textBlob = new Blob([textContent], { type: 'text/plain' });
@@ -734,7 +831,7 @@
             }
             
             const totalSize = filesToUpload.reduce((acc, file) => acc + file.size, 0);
-            const individualProgress = {}; // Objeto para rastrear el progreso de cada archivo
+            const individualProgress = {};
             const progressBar = document.getElementById('progress-bar');
             const progressContainer = document.getElementById('progress-container');
             const progressText = document.getElementById('progress-text');
@@ -742,7 +839,6 @@
             progressBar.style.width = '0%';
             progressText.textContent = '0%';
 
-            // Crear un array de promesas, una por cada archivo a subir.
             const uploadPromises = filesToUpload.map(file => {
                 return new Promise((resolve, reject) => {
                     const fileRef = ref(storage, `pedidos/${orderId}/${file.name}`);
@@ -750,7 +846,6 @@
 
                     uploadTask.on('state_changed', 
                         (snapshot) => {
-                            // Actualizar el progreso general
                             individualProgress[file.name] = snapshot.bytesTransferred;
                             let totalBytesUploaded = Object.values(individualProgress).reduce((a, b) => a + b, 0);
                             const progress = totalSize > 0 ? Math.round((totalBytesUploaded / totalSize) * 100) : 0;
@@ -762,7 +857,6 @@
                             reject(error);
                         }, 
                         () => {
-                            // La subida del archivo se completó
                             individualProgress[file.name] = file.size;
                             let totalBytesUploaded = Object.values(individualProgress).reduce((a, b) => a + b, 0);
                             const progress = totalSize > 0 ? Math.round((totalBytesUploaded / totalSize) * 100) : 0;
@@ -774,7 +868,6 @@
                 });
             });
 
-            // Esperar a que todas las promesas de subida se completen.
             await Promise.all(uploadPromises);
             console.log("--- SUBIDA COMPLETADA ---");
         }
@@ -783,9 +876,9 @@
          * Envía los datos del pedido a un script de Google Sheets.
          */
         async function sendOrderToGoogleSheet() {
-            if (GOOGLE_SCRIPT_URL === 'PEGA_AQUI_TU_NUEVA_URL_DEL_SCRIPT' || !GOOGLE_SCRIPT_URL) {
+             if (GOOGLE_SCRIPT_URL === 'PEGA_AQUI_TU_NUEVA_URL_DEL_SCRIPT' || !GOOGLE_SCRIPT_URL) {
                 throw new Error("La URL del script de Google no ha sido configurada.");
-            }
+             }
             const formData = new FormData();
             formData.append('timestamp', new Date().toLocaleString("es-CL"));
             formData.append('orderId', orderState.orderId);
@@ -801,28 +894,21 @@
             formData.append('longText', orderState.surpriseMe ? '¡Sorpréndeme!' : orderState.longText);
             formData.append('filesLink', orderState.firebaseFolderUrl);
             
-            // AHORA USAMOS UN FETCH NORMAL, SIN 'no-cors', PARA PODER RECIBIR LA RESPUESTA
+            // Usamos 'no-cors' porque el script de Google no está configurado para CORS completo
+            // pero esto significa que no podemos leer la respuesta directamente.
             const response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
+                mode: 'no-cors', 
                 body: formData,
             });
-
-            if (!response.ok) {
-                throw new Error(`Error de red al contactar Google Sheets: ${response.statusText}`);
-            }
-
-            const result = await response.json();
-
-            if (result.status !== 'success') {
-                throw new Error(`Error reportado por Google Sheets: ${result.message}`);
-            }
-            console.log("Respuesta de Google Sheets:", result.message);
+            // Con no-cors, no podemos verificar response.ok o leer el body.
+            // Asumimos que si no hay un error de red, la petición fue enviada.
+            console.log("Datos enviados a Google Sheets.");
         }
 
         // --- INICIALIZACIÓN DE LA APLICACIÓN ---
         document.addEventListener('DOMContentLoaded', async () => {
             // --- DETECCIÓN DE REDIRECCIÓN DE MERCADO PAGO ---
-            // Revisa si la URL contiene parámetros de un pago aprobado.
             const urlParams = new URLSearchParams(window.location.search);
             const paymentStatus = urlParams.get('status');
 
@@ -831,19 +917,17 @@
                 if (savedStateJSON) {
                     const savedState = JSON.parse(savedStateJSON);
                     
-                    // Rellena la página de "Gracias" con los datos guardados.
                     document.getElementById('final-order-id').textContent = savedState.orderId;
-                    const WHATSAPP_NUMBER = '56912345678'; // Reemplazar con tu número de WhatsApp
+                    const WHATSAPP_NUMBER = '56912345678'; // Reemplazar con tu número
                     const message = `¡Hola! 👋 Acabo de realizar mi pedido a través de la web. Mi código de seguimiento es: *${savedState.orderId}*`;
                     document.getElementById('whatsapp-contact-btn').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
                     showSection('thank-you-section');
                     
-                    // Limpia los datos para que la página no se muestre de nuevo al recargar.
                     sessionStorage.removeItem('huellitasOrderState');
                     window.history.replaceState({}, document.title, window.location.pathname); 
 
-                    return; // Detiene la ejecución para no cargar la página de inicio.
+                    return;
                 }
             }
             
@@ -958,7 +1042,7 @@
                 }
                 
                 button.disabled = true;
-                spinner.classList.add('hidden'); // Ensure spinner is hidden
+                spinner.classList.remove('hidden');
                 buttonText.textContent = 'Subiendo...';
 
                 try {
@@ -1015,7 +1099,6 @@
                 orderState.shipping.address = address;
 
                 try {
-                    // Guarda el estado del pedido en la sesión del navegador ANTES de ir a pagar.
                     sessionStorage.setItem('huellitasOrderState', JSON.stringify(orderState));
                     
                     await sendOrderToGoogleSheet();
@@ -1025,7 +1108,7 @@
                     showSection('payment-section');
                 } catch (error) {
                     console.error("Error al registrar el pedido en Google Sheets:", error);
-                    showNotification(`No se pudo registrar tu pedido. Error: ${error.message}`);
+                    showNotification(`No se pudo registrar tu pedido. Revisa tu conexión.`);
                 } finally {
                     button.disabled = false;
                     spinner.classList.add('hidden');
@@ -1037,17 +1120,10 @@
             
             // Lógica del Modal para ampliar imágenes
             const modal = document.getElementById('image-modal');
-            const modalImg = document.getElementById('modal-img');
-            const previewImg = document.getElementById('product-image-preview');
             const closeModalBtn = document.getElementById('close-modal');
 
-            previewImg.addEventListener('click', () => {
-                modalImg.src = previewImg.src;
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    modal.querySelector('.modal-content').classList.remove('scale-95');
-                }, 10);
+            document.getElementById('product-image-preview').addEventListener('click', (e) => {
+                openImageModal(e.target.src);
             });
 
             const closeModal = () => {
@@ -1061,7 +1137,17 @@
                 if (e.target === modal) closeModal();
             });
 
-            // El código para el enlace de vista previa ha sido eliminado.
+            // Lógica del carrusel de la galería principal
+            const galleryGrid = document.getElementById('gallery-grid');
+            const prevBtn = document.getElementById('gallery-prev');
+            const nextBtn = document.getElementById('gallery-next');
+
+            const scrollGallery = (direction) => {
+                const scrollAmount = galleryGrid.clientWidth * 0.75; // Desplaza el 75% del ancho visible
+                galleryGrid.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+            };
+            prevBtn.addEventListener('click', () => scrollGallery(-1));
+            nextBtn.addEventListener('click', () => scrollGallery(1));
 
             // Botón para reiniciar el flujo desde la página de gracias.
             document.getElementById('start-new-order-btn').addEventListener('click', () => {
